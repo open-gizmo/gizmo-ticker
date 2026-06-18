@@ -65,7 +65,7 @@ jobs:
           fi
 
       # Generate version code (es. v2023.09.15.1)
-      - name: Generate version
+      - name: 🏷️ Generate version
         id: version
         run: |
           echo "DATE=$(date +'%Y.%m.%d')" >> $GITHUB_OUTPUT
@@ -78,9 +78,9 @@ jobs:
           tag_name: ${{ steps.version.outputs.VERSION }}
           name: Release ${{ steps.version.outputs.VERSION }}
           body: |
-            Automated build — ${{ steps.version.outputs.DATE }}
+            Automated build and release - ${{ steps.version.outputs.DATE }}
             
-            Commit: ${{ github.sha }}
+            Built from commit SHA: ${{ github.sha }}
           files: |
             microcontroller/.pio/build/*/firmware.bin
             microcontroller/.pio/build/*/firmware.elf
