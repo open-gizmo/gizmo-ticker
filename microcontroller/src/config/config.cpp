@@ -35,7 +35,7 @@ char currentMessage[BUF_SIZE]; // Current message
 // WiFi and client configuration
 AsyncWebServer server(80);
 WiFiClient client;
-const char accessPointSSID[] = "Bitcoin-Ticker";
+const char accessPointSSID[] = "Gizmo-Ticker";
 const char mdnsHostname[] = "ticker";
 bool accessPointEnabled = false;
 bool disableAccessPoint = false;

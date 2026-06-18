@@ -96,7 +96,7 @@ namespace {
 	// Choose the matrix message for the current Wi-Fi state
 	const char* getWiFiStatusMessage() {
 		const char connectingMessage[] = "Connecting to Wi-Fi...";
-		const char disconnectedMessage[] = "Not connected to Wi-Fi. Use the 'Bitcoin-Ticker' access point to enter the Wi-Fi credentials.";
+		const char disconnectedMessage[] = "Not connected to Wi-Fi. Use the 'Gizmo-Ticker' access point to enter the Wi-Fi credentials.";
 		return wiFiConnectionStatus == WIFI_TRY ? connectingMessage : disconnectedMessage;
 	}
 
