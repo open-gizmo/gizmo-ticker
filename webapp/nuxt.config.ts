@@ -6,8 +6,15 @@ export default defineNuxtConfig({
     ssr: false,
 
     app: {
+        // Global head configuration
         head: {
-            title: 'Bitcoin Ticker'
+            title: 'Gizmo Ticker'
+        },
+
+        // Global page transition
+        pageTransition: {
+            name: 'page',
+            mode: 'out-in'
         }
     },
 
@@ -17,28 +24,20 @@ export default defineNuxtConfig({
         }
     },
 
-    css: [
-        '~/assets/main.css'
-    ],
+    css: ['~/assets/main.css'],
 
     modules: [
+        '@brumaombra/ui-vintage',
         '@nuxtjs/i18n'
     ],
 
     i18n: {
         defaultLocale: 'en',
-        strategy: 'no_prefix',
         langDir: 'locales',
-        detectBrowserLanguage: {
-            useCookie: true,
-            cookieKey: 'bitcoin_ticker_locale',
-            alwaysRedirect: false,
-            redirectOn: 'root',
-            fallbackLocale: 'en'
-        },
+        detectBrowserLanguage: false,
         locales: [
-            { code: 'en', name: 'English', language: 'en-US', file: 'en.json' },
-            { code: 'it', name: 'Italiano', language: 'it-IT', file: 'it.json' }
+            { code: 'en', name: 'English', language: 'en-US', iso: 'en-US', file: 'en.json' },
+            { code: 'it', name: 'Italiano', language: 'it-IT', iso: 'it-IT', file: 'it.json' }
         ]
     },
 
@@ -48,19 +47,9 @@ export default defineNuxtConfig({
         ],
         optimizeDeps: {
             include: [
+                '@brumaombra/ui-vintage',
                 '@hugeicons/vue',
-                '@hugeicons/core-free-icons',
-                '@brumaombra/ui-vintage/busy-indicator',
-                '@brumaombra/ui-vintage/background-grid',
-                '@brumaombra/ui-vintage/button',
-                '@brumaombra/ui-vintage/card',
-                '@brumaombra/ui-vintage/message-dialog',
-                '@brumaombra/ui-vintage/command',
-                '@brumaombra/ui-vintage/popover',
-                '@brumaombra/ui-vintage/dashboard-shell',
-                '@brumaombra/ui-vintage/sidebar',
-                '@brumaombra/ui-vintage/alert',
-                '@brumaombra/ui-vintage/input'
+                '@hugeicons/core-free-icons'
             ]
         }
     },
@@ -81,5 +70,5 @@ export default defineNuxtConfig({
         }
     },
 
-    compatibilityDate: '2026-03-16'
+    compatibilityDate: '2026-06-18'
 });

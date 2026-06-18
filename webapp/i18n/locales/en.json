@@ -1,6 +1,6 @@
 {
     "app": {
-        "title": "Bitcoin Ticker",
+        "title": "Gizmo Ticker",
         "loadError": "An error occurred while loading the data"
     },
     "common": {

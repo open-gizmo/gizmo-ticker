@@ -1,7 +1,8 @@
-@import "@brumaombra/ui-vintage/style.css";
 @import "tailwindcss";
+@import "@brumaombra/ui-vintage/style.css";
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Bitcoin theme */
 :root[data-crypto-coin='bitcoin'] {
 	--button-primary-light: #f7931a;
 	--button-primary-hover-light: #df8112;
@@ -17,6 +18,7 @@
 	--sidebar-ring: var(--button-primary-light);
 }
 
+/* Kaspa theme */
 :root[data-crypto-coin='kaspa'] {
 	--button-primary-light: #6fc7ba;
 	--button-primary-hover-light: #5bb7ab;

@@ -1,6 +1,6 @@
 {
     "app": {
-        "title": "Bitcoin Ticker",
+        "title": "Gizmo Ticker",
         "loadError": "Si e verificato un errore durante il caricamento dei dati"
     },
     "common": {
