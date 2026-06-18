@@ -1,0 +1,42 @@
+name: Build Embedded Assets 📦
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_embedded_assets:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout repository
+      - name: 🚚 Checkout repository
+        uses: actions/checkout@v6
+
+      # Set up Node.js
+      - name: 🧰 Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22.14.0'
+          cache: npm
+          cache-dependency-path: webapp/package-lock.json
+
+      # Install dependencies for webapp
+      - name: 📦 Install webapp dependencies
+        working-directory: webapp
+        run: npm install
+
+      # Build the embedded assets for the webapp
+      - name: 🏗️ Build embedded assets
+        working-directory: webapp
+        run: npm run build:embedded
+
+      # Upload the generated embedded assets
+      - name: 📎 Upload embedded assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: embedded-webui-assets
+          path: |
+            microcontroller/src/webui/generated_assets.h
+            microcontroller/src/webui/generated_assets.cpp
