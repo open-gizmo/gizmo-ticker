@@ -2,11 +2,11 @@ name: Build Embedded Assets 📦
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   build_embedded_assets:
+    name: Build Embedded Assets 📦
     runs-on: ubuntu-latest
 
     steps:
