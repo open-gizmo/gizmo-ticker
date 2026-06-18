@@ -1,13 +1,15 @@
-name: Build Embedded Assets 📦
+name: Build & Release 📦
 
 on:
   push:
     branches: [main]
 
 jobs:
-  build_embedded_assets:
-    name: Build Embedded Assets 📦
+  build-and-release:
+    name: Build & Release 📦
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       # Checkout repository
@@ -28,15 +30,59 @@ jobs:
         run: npm install
 
       # Build the embedded assets for the webapp
-      - name: 🏗️ Build embedded assets
+      - name: 🏗️ Build embedded web assets
         working-directory: webapp
         run: npm run build:embedded
 
-      # Upload the generated embedded assets
-      - name: 📎 Upload embedded assets
-        uses: actions/upload-artifact@v4
+      # Set up Python
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
         with:
-          name: embedded-webui-assets
-          path: |
-            microcontroller/src/webui/generated_assets.h
-            microcontroller/src/webui/generated_assets.cpp
+          python-version: '3.11'
+
+      # Install PlatformIO
+      - name: ⚙️ Install PlatformIO
+        run: |
+          python -m pip install --upgrade pip
+          pip install --upgrade platformio
+      
+      # Build the ESP32 firmware
+      - name: 🛠️ Build ESP32 Firmware
+        working-directory: microcontroller
+        run: pio run
+
+      # Check if the firmware build was successful
+      - name: ✅ Check build output
+        id: check
+        run: |
+          if [ -f microcontroller/.pio/build/*/firmware.bin ]; then
+            echo "FIRMWARE_EXISTS=true" >> $GITHUB_OUTPUT
+            echo "✅ Firmware build successful!"
+          else
+            echo "FIRMWARE_EXISTS=false" >> $GITHUB_OUTPUT
+            echo "❌ Firmware file not found! Build may have failed."
+            exit 1
+          fi
+
+      # Generate version code (es. v2023.09.15.1)
+      - name: Generate version
+        id: version
+        run: |
+          echo "DATE=$(date +'%Y.%m.%d')" >> $GITHUB_OUTPUT
+          echo "VERSION=v$(date +'%Y.%m.%d').${{ github.run_number }}" >> $GITHUB_OUTPUT
+
+      # Create a GitHub release with the built firmware files
+      - name: 📦 Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.VERSION }}
+          name: Release ${{ steps.version.outputs.VERSION }}
+          body: |
+            Automated build — ${{ steps.version.outputs.DATE }}
+            
+            Commit: ${{ github.sha }}
+          files: |
+            microcontroller/.pio/build/*/firmware.bin
+            microcontroller/.pio/build/*/firmware.elf
+          draft: false
+          prerelease: false
