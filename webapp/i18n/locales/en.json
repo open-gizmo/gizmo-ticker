@@ -1,0 +1,202 @@
+{
+    "app": {
+        "title": "Bitcoin Ticker",
+        "loadError": "An error occurred while loading the data"
+    },
+    "common": {
+        "close": "Close",
+        "cancel": "Cancel",
+        "note": "Note",
+        "save": "Save",
+        "refresh": "Refresh",
+        "refreshing": "Refreshing...",
+        "keepEditing": "Keep editing",
+        "controlPanel": "Control Panel",
+        "redirectingWifiSetup": "Redirecting to WiFi setup...",
+        "genericError": "An error occurred",
+        "deviceUi": "Device UI",
+        "syncingDevice": "Syncing device..."
+    },
+    "theme": {
+        "title": "Theme",
+        "toggleMenu": "Toggle theme menu",
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+    },
+    "language": {
+        "title": "Language",
+        "toggleMenu": "Toggle language menu",
+        "en": "English",
+        "it": "Italiano"
+    },
+    "nav": {
+        "openNavigation": "Open navigation",
+        "wifi": {
+            "label": "WiFi",
+            "description": "Scan networks and connect the device"
+        },
+        "settings": {
+            "label": "Settings",
+            "description": "Adjust ticker visibility and behavior"
+        },
+        "apiKey": {
+            "label": "API Key",
+            "description": "Provide the market data credential"
+        }
+    },
+    "dialogs": {
+        "messageTitle": "Message",
+        "confirmTitle": "Confirm action",
+        "confirmMessage": "Are you sure?",
+        "confirm": "Confirm",
+        "errorTitle": "Error",
+        "successTitle": "Success",
+        "infoTitle": "Info"
+    },
+    "errors": {
+        "pageNotFound": "Page not found",
+        "pageNotFoundMessage": "The page you requested does not exist or is no longer available on this device.",
+        "genericTitle": "Something went wrong",
+        "genericMessage": "An unexpected error interrupted the web interface.",
+        "backToSetup": "Back to setup",
+        "label": "Error"
+    },
+    "api": {
+        "loadNetworks": "An error occurred while loading the Wi-Fi networks",
+        "loadSettings": "An error occurred while loading the settings",
+        "saveSettings": "An error occurred while saving the settings",
+        "resetSettings": "An error occurred while resetting the settings",
+        "saveApiKey": "An error occurred while saving the API key",
+        "wifiWrongCredentials": "The Wi-Fi credentials are wrong or the network is unavailable.",
+        "wifiUnknownStatus": "The device returned an unknown Wi-Fi connection status.",
+        "wifiTimeout": "The device did not finish connecting to Wi-Fi in time.",
+        "wifiFailed": "Failed to connect to WiFi",
+        "wifiConnectError": "An error occurred while connecting to the Wi-Fi network",
+        "backendErrors": {
+            "missing_required_fields": "Some information is missing. Please check the form and try again.",
+            "request_body_read_failed": "The device could not process the request. Please try again.",
+            "invalid_json": "The device received data in an unexpected format. Please try again.",
+            "clear_settings_failed": "The device could not reset the saved settings. Please try again.",
+            "missing_api_key": "Please enter an API key before saving."
+        }
+    },
+    "pages": {
+        "apiKey": {
+            "eyebrow": "Credentials",
+            "title": "API Key",
+            "description": "Store the market data API key used by the ticker firmware. The value is sent directly to the device configuration endpoint.",
+            "label": "API key",
+            "placeholder": "Paste your API key",
+            "note": "Use a key with enough quota for frequent polling. The current firmware expects the API key as a plain string.",
+            "saveAction": "Save API key",
+            "saveSuccess": "The API key has been saved successfully!",
+            "saveError": "An error occurred while saving the API key",
+            "confirmTitle": "Save API key",
+            "confirmMessage": "Store this API key on the device and replace the current value?"
+        },
+        "wifi": {
+            "eyebrow": "Setup",
+            "title": "Connect to WiFi",
+            "description": "Join the device to your local network so it can fetch market data and keep the LED matrix updated.",
+            "currentNetworkLabel": "Current network",
+            "networkCountLabel": "Networks found",
+            "networkCountValue": "{count} detected by the device",
+            "notConnected": "Not connected",
+            "availableNetworks": "Available networks",
+            "networkPlaceholder": "Select a network",
+            "password": "Password",
+            "passwordPlaceholder": "Enter the WiFi password",
+            "note": "The device will try the credentials immediately and disable its temporary hotspot after a successful connection.",
+            "connectAction": "Connect device",
+            "connectedTitle": "Device connected",
+            "connectedMessage": "The microcontroller connected to {ssid} and is available at {hostname} and {ip}.",
+            "connectError": "An error occurred while connecting to the Wi-Fi network",
+            "refreshError": "An error occurred while refreshing the SSID list",
+            "connectConfirmTitle": "Connect device to WiFi",
+            "connectConfirmMessage": "Send the selected credentials for {ssid} to the device and switch it to that network?",
+            "secured": "Secured",
+            "open": "Open"
+        },
+        "apSetup": {
+            "eyebrow": "Access point mode",
+            "title": "Connect to WiFi",
+            "connectConfirmTitle": "Connect and leave AP mode",
+            "connectConfirmMessage": "Send the selected credentials for {ssid} to the device, connect to that network, and disable the temporary hotspot?"
+        },
+        "settings": {
+            "eyebrow": "Display",
+            "title": "Ticker Settings",
+            "description": "Fine-tune what the LED matrix shows and how aggressively it scrolls through the market data.",
+            "visibilityTitle": "Visibility",
+            "visibilityDescription": "Choose which market metrics rotate on the matrix.",
+            "formattingTitle": "Formatting & Motion",
+            "formattingDescription": "Tweak the number formatting and playback intensity for the matrix.",
+            "cryptoCoin": {
+                "label": "Ticker coin",
+                "placeholder": "Choose a crypto coin",
+                "note": "Selects which coin the device fetches and applies the matching accent style in the web interface.",
+                "bitcoinLabel": "Bitcoin",
+                "bitcoinMeta": "Bitcoin market data with orange accents",
+                "kaspaLabel": "Kaspa",
+                "kaspaMeta": "Kaspa market data with turquoise accents"
+            },
+            "saveAction": "Save settings",
+            "resetAction": "Reset saved settings",
+            "saveSuccess": "The settings have been saved successfully!",
+            "saveError": "An error occurred while saving the settings",
+            "resetInfoTitle": "Device restarting",
+            "resetInfoMessage": "The device settings were cleared and the firmware is restarting.",
+            "resetError": "An error occurred while resetting the settings",
+            "saveConfirmTitle": "Save settings",
+            "saveConfirmMessage": "Save the current ticker settings to the device?",
+            "resetConfirmTitle": "Reset saved settings",
+            "resetConfirmMessage": "Clear the saved settings and restart the firmware?",
+            "visibility": {
+                "currentPrice": {
+                    "label": "Current price",
+                    "description": "The live price currently fetched for the selected coin."
+                },
+                "priceChange": {
+                    "label": "Price change",
+                    "description": "How much the price moved compared to the previous period."
+                },
+                "marketCap": {
+                    "label": "Market cap",
+                    "description": "The total market value of the selected coin."
+                },
+                "dailyHighLow": {
+                    "label": "Daily high / low",
+                    "description": "The highest and lowest price reached today."
+                },
+                "yearHighLow": {
+                    "label": "Year high / low",
+                    "description": "The highest and lowest price reached over the last 52 weeks."
+                },
+                "openPrice": {
+                    "label": "Open price",
+                    "description": "The price when the current period opened."
+                },
+                "volume": {
+                    "label": "Volume",
+                    "description": "The trading volume for the current period."
+                }
+            },
+            "formatType": {
+                "label": "Thousands separator",
+                "placeholder": "Choose a number format",
+                "note": "The formatting updates on the next API refresh.",
+                "usMeta": "Comma thousands, dot decimals",
+                "euMeta": "Dot thousands, comma decimals"
+            },
+            "matrixIntensity": {
+                "label": "Matrix intensity",
+                "note": "Controls the brightness of the matrix modules."
+            },
+            "scrollSpeed": {
+                "label": "Scroll speed",
+                "note": "Controls how fast each text block moves across the display."
+            }
+        }
+    }
+}
