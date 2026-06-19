@@ -11,8 +11,8 @@ const availableThemes = [
 
 // Available crypto coins for the ticker and matching webapp accent styles
 const availableCryptoCoins = [
-    { id: 'bitcoin', shortLabel: 'BTC', accentLight: '#f7931a', accentDark: '#f7a23c' },
-    { id: 'kaspa', shortLabel: 'KAS', accentLight: '#6fc7ba', accentDark: '#7dd3c7' }
+    { id: 'bitcoin', name: 'Bitcoin', shortLabel: 'BTC', image: '/crypto/bitcoin.svg', accentLight: '#f7931a', accentDark: '#f7a23c' },
+    { id: 'kaspa', name: 'Kaspa', shortLabel: 'KAS', image: '/crypto/kaspa.svg', accentLight: '#6fc7ba', accentDark: '#7dd3c7' }
 ];
 
 // Translate a key through the active i18n instance when available
@@ -49,6 +49,11 @@ export const getThemes = () => {
 // Return the list of supported crypto coins
 export const getCryptoCoins = () => {
     return availableCryptoCoins;
+};
+
+// Return a supported crypto coin by id, with bitcoin as fallback
+export const getCryptoCoinById = cryptoCoinId => {
+    return availableCryptoCoins.find(coin => coin.id === cryptoCoinId) || availableCryptoCoins[0];
 };
 
 // Persist and apply a selected theme

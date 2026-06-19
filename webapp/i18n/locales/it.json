@@ -135,11 +135,7 @@
             "cryptoCoin": {
                 "label": "Moneta del ticker",
                 "placeholder": "Scegli una cripto",
-                "note": "Seleziona quale moneta il dispositivo deve recuperare e applica il relativo stile di accento nell'interfaccia web.",
-                "bitcoinLabel": "Bitcoin",
-                "bitcoinMeta": "Dati di mercato Bitcoin con accenti arancioni",
-                "kaspaLabel": "Kaspa",
-                "kaspaMeta": "Dati di mercato Kaspa con accenti turchesi"
+                "note": "Seleziona quale moneta il dispositivo deve recuperare e applica il relativo stile di accento nell'interfaccia web."
             },
             "saveAction": "Salva impostazioni",
             "resetAction": "Reimposta impostazioni salvate",

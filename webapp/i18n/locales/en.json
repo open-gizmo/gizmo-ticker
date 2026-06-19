@@ -135,11 +135,7 @@
             "cryptoCoin": {
                 "label": "Ticker coin",
                 "placeholder": "Choose a crypto coin",
-                "note": "Selects which coin the device fetches and applies the matching accent style in the web interface.",
-                "bitcoinLabel": "Bitcoin",
-                "bitcoinMeta": "Bitcoin market data with orange accents",
-                "kaspaLabel": "Kaspa",
-                "kaspaMeta": "Kaspa market data with turquoise accents"
+                "note": "Selects which coin the device fetches and applies the matching accent style in the web interface."
             },
             "saveAction": "Save settings",
             "resetAction": "Reset saved settings",

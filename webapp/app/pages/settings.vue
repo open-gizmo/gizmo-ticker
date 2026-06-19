@@ -39,18 +39,12 @@ const separatorOptions = computed(() => ([
     { value: 'EU', label: '21.000,00', meta: t('pages.settings.formatType.euMeta') }
 ]));
 
-// Resolve the logo asset for each crypto coin option
-const cryptoCoinLogos = {
-    bitcoin: '/crypto/bitcoin.svg',
-    kaspa: '/crypto/kaspa.svg'
-};
-
 // Available crypto coin choices
 const cryptoCoinOptions = computed(() => {
     return cryptoCoins.map(coin => ({
         value: coin.id,
-        label: t(`pages.settings.cryptoCoin.${coin.id}Label`),
-        icon: cryptoCoinLogos[coin.id] || cryptoCoinLogos['bitcoin']
+        label: coin.name,
+        icon: coin.image
     }));
 });
 
@@ -231,7 +225,7 @@ definePageMeta({
                                 <Select v-model="config.cryptoCoin" @update:modelValue="setCryptoCoin">
                                     <SelectTrigger id="cryptoCoin" class="w-full">
                                         <div v-if="selectedCryptoCoinOption" class="flex min-w-0 flex-1 items-center gap-2 text-left">
-                                            <img :src="selectedCryptoCoinOption.icon" alt="" aria-hidden="true" class="size-5 shrink-0" />
+                                            <img :src="selectedCryptoCoinOption.icon" alt="" aria-hidden="true" decoding="async" class="size-5 shrink-0" />
                                             <span class="truncate">{{ selectedCryptoCoinOption.label }}</span>
                                         </div>
                                         <span v-else class="truncate text-muted-foreground">{{ t('pages.settings.cryptoCoin.placeholder') }}</span>
@@ -239,7 +233,7 @@ definePageMeta({
                                     <SelectContent>
                                         <SelectItem v-for="option in cryptoCoinOptions" :key="option.value" :value="option.value" :text-value="option.label">
                                             <div class="flex items-center gap-2">
-                                                <img :src="option.icon" alt="" aria-hidden="true" class="size-5 shrink-0" />
+                                                <img :src="option.icon" alt="" aria-hidden="true" loading="lazy" decoding="async" class="size-5 shrink-0" />
                                                 <span>{{ option.label }}</span>
                                             </div>
                                         </SelectItem>
