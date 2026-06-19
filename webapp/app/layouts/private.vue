@@ -3,21 +3,20 @@ import { computed, resolveComponent } from 'vue';
 import { useRoute } from 'vue-router';
 import { Key01Icon, Settings01Icon, WifiFullSignalIcon } from '@hugeicons/core-free-icons';
 import { DashboardShell } from '@brumaombra/ui-vintage/dashboard-shell';
+import LanguageSelector from '@brumaombra/ui-vintage/language-selector';
+import ThemeSelector from '@brumaombra/ui-vintage/theme-selector';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@brumaombra/ui-vintage/sidebar';
 import CryptoLogo from '~/components/crypto/CryptoLogo.vue';
-import LanguageSelector from '~/components/LanguageSelector.vue';
-import ThemeSelector from '~/components/ThemeSelector.vue';
-import { createIconComponent } from '~/composables/useUtils.js';
 
-const { t } = useI18n();
+const { locale, locales, setLocale, t } = useI18n();
 const route = useRoute();
 const localePath = useLocalePath();
 const nuxtLinkComponent = resolveComponent('NuxtLink');
 
-// Icon components
-const wifiSidebarIcon = createIconComponent(WifiFullSignalIcon);
-const settingsSidebarIcon = createIconComponent(Settings01Icon);
-const apiKeySidebarIcon = createIconComponent(Key01Icon);
+// Supported locale codes for the shared language selector
+const availableLanguages = computed(() => {
+    return locales.value.map(language => language.code);
+});
 
 // Sidebar sections and items configuration
 const sidebarSections = computed(() => ([{
@@ -27,21 +26,21 @@ const sidebarSections = computed(() => ([{
         id: 'wifi',
         label: t('nav.wifi.label'),
         description: t('nav.wifi.description'),
-        icon: wifiSidebarIcon,
+        icon: WifiFullSignalIcon,
         to: localePath('/wifi'),
         active: route.path === localePath('/wifi')
     }, {
         id: 'settings',
         label: t('nav.settings.label'),
         description: t('nav.settings.description'),
-        icon: settingsSidebarIcon,
+        icon: Settings01Icon,
         to: localePath('/settings'),
         active: route.path === localePath('/settings')
     }, {
         id: 'api-key',
         label: t('nav.apiKey.label'),
         description: t('nav.apiKey.description'),
-        icon: apiKeySidebarIcon,
+        icon: Key01Icon,
         to: localePath('/api-key'),
         active: route.path === localePath('/api-key')
     }]
@@ -51,6 +50,11 @@ const sidebarSections = computed(() => ([{
 const activeItem = computed(() => {
     return sidebarSections.value.flatMap(section => section.items).find(item => item.active) || null;
 });
+
+// Apply the selected locale from the shared language selector
+const handleSelectLanguage = async language => {
+    await setLocale(language);
+};
 </script>
 
 <template>
@@ -81,7 +85,7 @@ const activeItem = computed(() => {
         <template #sidebar-footer>
             <div class="flex items-center gap-2 px-2">
                 <!-- Language selector -->
-                <LanguageSelector />
+                <LanguageSelector :model-value="locale" :languages="availableLanguages" @update:model-value="handleSelectLanguage" />
 
                 <!-- Theme selector -->
                 <ThemeSelector />

@@ -5,17 +5,22 @@ import { ArrowLeft01Icon } from '@hugeicons/core-free-icons';
 import BackgroundGrid from '@brumaombra/ui-vintage/background-grid';
 import { Button } from '@brumaombra/ui-vintage/button';
 import { Card, CardContent, CardFooter } from '@brumaombra/ui-vintage/card';
+import LanguageSelector from '@brumaombra/ui-vintage/language-selector';
+import ThemeSelector from '@brumaombra/ui-vintage/theme-selector';
 import BrandLogo from '~/components/BrandLogo.vue';
-import LanguageSelector from '~/components/LanguageSelector.vue';
-import ThemeSelector from '~/components/ThemeSelector.vue';
 
 // Props
 const props = defineProps({
     error: { type: Object, default: () => ({}) }
 });
 
-const { t } = useI18n();
+const { locale, locales, setLocale, t } = useI18n();
 const localePath = useLocalePath();
+
+// Supported locale codes for the shared language selector
+const availableLanguages = computed(() => {
+    return locales.value.map(language => language.code);
+});
 
 // Resolve the displayed status code
 const statusCode = computed(() => {
@@ -44,6 +49,11 @@ const message = computed(() => {
 const handleBackHome = async () => {
     await clearError({ redirect: localePath('/wifi') });
 };
+
+// Apply the selected locale from the shared language selector
+const handleSelectLanguage = async language => {
+    await setLocale(language);
+};
 </script>
 
 <template>
@@ -56,13 +66,13 @@ const handleBackHome = async () => {
             <div class="w-full max-w-xl">
                 <!-- Toolbar -->
                 <div class="mb-4 flex justify-end gap-3">
-                    <LanguageSelector />
+                    <LanguageSelector :model-value="locale" :languages="availableLanguages" @update:model-value="handleSelectLanguage" />
                     <ThemeSelector />
                 </div>
 
                 <!-- Error card -->
                 <Card>
-                    <CardContent class="space-y-8">
+                    <CardContent>
                         <!-- Brand -->
                         <BrandLogo :brand-name="t('app.title')" />
 
@@ -88,8 +98,8 @@ const handleBackHome = async () => {
                     <!-- Actions -->
                     <CardFooter class="items-start flex-col gap-3 sm:flex-row sm:items-center">
                         <!-- Back home button -->
-                        <Button variant="default" @click="handleBackHome">
-                            <HugeiconsIcon :icon="ArrowLeft01Icon" class="size-4" :stroke-width="1.8" />
+                        <Button variant="primary" @click="handleBackHome">
+                            <HugeiconsIcon :icon="ArrowLeft01Icon" class="size-4" />
                             {{ t('errors.backToSetup') }}
                         </Button>
                     </CardFooter>

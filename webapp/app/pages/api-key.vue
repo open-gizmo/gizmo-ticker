@@ -8,22 +8,16 @@ import { Button } from '@brumaombra/ui-vintage/button';
 import { Card, CardContent, CardFooter } from '@brumaombra/ui-vintage/card';
 import { showConfirmDialog } from '@brumaombra/ui-vintage/confirm-dialog';
 import { showMessageDialog } from '@brumaombra/ui-vintage/message-dialog';
-import { Field, FieldGroup, FieldLabel } from '@brumaombra/ui-vintage/field';
+import { Field, FieldContent, FieldGroup, FieldLabel } from '@brumaombra/ui-vintage/field';
 import { Input } from '@brumaombra/ui-vintage/input';
 import { saveApiKey } from '~/composables/useDeviceApi.js';
-import { createIconComponent, handleBackendErrors } from '~/composables/useUtils.js';
+import { handleBackendErrors } from '~/composables/useUtils.js';
 import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
 import PageIntroCard from '~/components/PageIntroCard.vue';
 
 const { t } = useI18n();
 const globalStore = useGlobalStore();
 const apiKey = ref('');
-
-// Icon components
-const successDialogIcon = createIconComponent(CheckmarkCircle02Icon);
-const keyDialogIcon = createIconComponent(Key01Icon);
-const saveDialogIcon = createIconComponent(SaveIcon);
-const closeDialogIcon = createIconComponent(Cancel01Icon);
 
 // Require a non-empty API key before submitting
 const isFormValid = computed(() => {
@@ -38,11 +32,11 @@ const saveCurrentApiKey = async () => {
         globalStore.value.config.apiKey = apiKey.value;
         showMessageDialog({
             type: 'Success',
-            icon: successDialogIcon,
+            icon: CheckmarkCircle02Icon,
             title: t('dialogs.successTitle'),
             message: t('pages.apiKey.saveSuccess'),
             closeText: t('common.close'),
-            closeButtonIcon: closeDialogIcon
+            closeButtonIcon: Cancel01Icon
         });
     } catch (error) {
         handleBackendErrors({ error, defaultMessage: t('pages.apiKey.saveError'), showDialog: true });
@@ -55,15 +49,15 @@ const saveCurrentApiKey = async () => {
 // Ask for confirmation before overwriting the stored API key
 const handleSavePress = () => {
     showConfirmDialog({
-        icon: keyDialogIcon,
+        icon: Key01Icon,
         title: t('pages.apiKey.confirmTitle'),
         message: t('pages.apiKey.confirmMessage'),
         confirmText: t('pages.apiKey.saveAction'),
         cancelText: t('common.keepEditing'),
-        confirmButtonType: 'default',
-        cancelButtonType: 'outline',
-        confirmButtonIcon: saveDialogIcon,
-        cancelButtonIcon: closeDialogIcon,
+        confirmButtonType: 'primary',
+        cancelButtonType: 'secondary',
+        confirmButtonIcon: SaveIcon,
+        cancelButtonIcon: Cancel01Icon,
         onConfirm: saveCurrentApiKey
     });
 };
@@ -75,7 +69,7 @@ definePageMeta({
 </script>
 
 <template>
-    <div class="mx-auto flex w-full flex-col gap-6 lg:flex-row">
+    <div class="mx-auto flex w-full flex-col gap-4 md:gap-6 lg:flex-row">
         <!-- Page intro -->
         <div class="w-full lg:max-w-sm">
             <PageIntroCard :eyebrow="t('pages.apiKey.eyebrow')"
@@ -95,12 +89,14 @@ definePageMeta({
                             <!-- API key input -->
                             <Field>
                                 <FieldLabel for="apiKey">{{ t('pages.apiKey.label') }}</FieldLabel>
-                                <Input id="apiKey" v-model="apiKey" type="text" :placeholder="t('pages.apiKey.placeholder')" />
+                                <FieldContent>
+                                    <Input id="apiKey" v-model="apiKey" type="text" :placeholder="t('pages.apiKey.placeholder')" />
+                                </FieldContent>
                             </Field>
 
                             <!-- API key guidance -->
                             <Alert>
-                                <HugeiconsIcon :icon="InformationCircleIcon" :stroke-width="1.8" />
+                                <HugeiconsIcon :icon="InformationCircleIcon" />
                                 <AlertTitle>{{ t('common.note') }}</AlertTitle>
                                 <AlertDescription>
                                     {{ t('pages.apiKey.note') }}
@@ -113,8 +109,8 @@ definePageMeta({
                 <!-- Card footer -->
                 <CardFooter>
                     <!-- Save button -->
-                    <Button variant="default" type="button" class="w-full" :disabled="!isFormValid" @click="handleSavePress">
-                        <HugeiconsIcon :icon="SaveIcon" :stroke-width="1.8" class="size-4" />
+                    <Button variant="primary" type="button" class="w-full" :disabled="!isFormValid" @click="handleSavePress">
+                        <HugeiconsIcon :icon="SaveIcon" class="size-4" />
                         {{ t('pages.apiKey.saveAction') }}
                     </Button>
                 </CardFooter>
