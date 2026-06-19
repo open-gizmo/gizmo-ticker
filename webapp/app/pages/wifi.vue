@@ -136,7 +136,7 @@ definePageMeta({
                                         <div class="min-w-0 flex-1">
                                             <Select v-model="ssid">
                                                 <SelectTrigger id="ssid" class="w-full">
-                                                    <SelectValueContent :placeholder="t('pages.wifi.networkPlaceholder')" :label="selectedNetworkOption?.label" :description="selectedNetworkOption?.meta" />
+                                                    <SelectValueContent :placeholder="t('pages.wifi.networkPlaceholder')" :label="selectedNetworkOption?.label" />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem v-for="option in networkOptions" :key="option.value" :value="option.value" :text-value="option.label">

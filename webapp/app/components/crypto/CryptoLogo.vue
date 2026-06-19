@@ -1,12 +1,13 @@
 <script setup>
+import { computed } from 'vue';
 import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
-import BitcoinLogo from '~/components/crypto/BitcoinLogo.vue';
-import KaspaLogo from '~/components/crypto/KaspaLogo.vue';
 
 const globalStore = useGlobalStore();
+const cryptoLogo = computed(() => {
+    return globalStore.value.config.cryptoCoin === 'kaspa' ? '/crypto/kaspa.svg' : '/crypto/bitcoin.svg';
+});
 </script>
 
 <template>
-    <KaspaLogo v-if="globalStore.config.cryptoCoin === 'kaspa'" v-bind="$attrs" />
-    <BitcoinLogo v-else v-bind="$attrs" />
+    <img :src="cryptoLogo" alt="" aria-hidden="true" v-bind="$attrs">
 </template>

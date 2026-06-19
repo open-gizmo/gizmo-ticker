@@ -7,34 +7,32 @@ const connectionStatus = Object.freeze({
     WIFI_KO: 0
 });
 
-// Build a device endpoint URL with an optional query string
-const buildDeviceUrl = (path, query = null) => {
+// Fetch either the real ESP endpoint or the local Nitro mock endpoint
+export const fetchEsp = (path, options = {}) => {
     const runtimeConfig = useRuntimeConfig();
-    const baseUrl = runtimeConfig.public.espBaseUrl;
-    const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
-    const searchParams = query ? `?${new URLSearchParams(query).toString()}` : '';
-    return `${normalizedBaseUrl}${path}${searchParams}`;
+    const baseUrl = runtimeConfig.public.espBaseUrl.trim();
+    const normalizedBaseUrl = baseUrl ? baseUrl.replace(/\/$/, '') : '';
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+    const resolvedUrl = normalizedBaseUrl ? `${normalizedBaseUrl}${normalizedPath}` : normalizedPath;
+    return $fetch(resolvedUrl, options);
 };
 
 // Fetch the list of visible WiFi networks
 export const getNetworks = async () => {
-    const url = buildDeviceUrl('/api/networks');
-    const response = await $fetch(url);
+    const response = await fetchEsp('/api/networks');
     return response.data || {};
 };
 
 // Fetch the full saved device config
 export const getConfig = async () => {
-    const url = buildDeviceUrl('/api/config');
-    const response = await $fetch(url);
+    const response = await fetchEsp('/api/config');
     return response.data || {};
 };
 
 // Persist the current device settings
 export const saveSettings = async settings => {
     // Call the device API to save the settings
-    const url = buildDeviceUrl('/api/settings');
-    await $fetch(url, {
+    await fetchEsp('/api/settings', {
         method: 'POST',
         body: settings
     });
@@ -45,16 +43,14 @@ export const saveSettings = async settings => {
 
 // Reset the saved device settings and restart the firmware
 export const resetSettings = async () => {
-    const url = buildDeviceUrl('/api/reset-settings');
-    const response = await $fetch(url);
+    const response = await fetchEsp('/api/reset-settings');
     return response.data || {};
 };
 
 // Save the market data API key on the device
 export const saveApiKey = async apiKey => {
     // Call the device API to save the API key
-    const url = buildDeviceUrl('/api/api-key');
-    await $fetch(url, {
+    await fetchEsp('/api/api-key', {
         method: 'POST',
         body: {
             apiKey
@@ -72,8 +68,7 @@ const checkWiFiConnectionPolling = async () => {
     // Poll the device every second to check the WiFi connection status
     for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
         try {
-            const url = buildDeviceUrl('/api/check-connection');
-            const response = await $fetch(url, { retry: 0 });
+            const response = await fetchEsp('/api/check-connection', { retry: 0 });
             const status = Number(response.data?.connectionStatus);
 
             // If the device is still trying to connect, continue polling
@@ -116,8 +111,7 @@ const checkWiFiConnectionPolling = async () => {
 export const connectToWiFi = async (ssid, password) => {
     try {
         // Call the device API to start the WiFi connection process
-        const url = buildDeviceUrl('/api/connect');
-        const response = await $fetch(url, {
+        const response = await fetchEsp('/api/connect', {
             method: 'POST',
             body: {
                 ssid,
