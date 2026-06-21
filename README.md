@@ -19,17 +19,28 @@ Gizmo Ticker is a two-part project for building a WiFi-connected cryptocurrency 
 </p>
 
 <p>
-  <a href="#features"><strong>Features</strong></a> •
-  <a href="#architecture"><strong>Architecture</strong></a> •
-  <a href="#quick-start"><strong>Quick Start</strong></a> •
-  <a href="#firmware-overview"><strong>Firmware Overview</strong></a> •
-  <a href="#web-app-overview"><strong>Web App Overview</strong></a> •
-  <a href="#build-and-deploy"><strong>Build and Deploy</strong></a>
+	<a href="#overview"><strong>Overview</strong></a> •
+	<a href="#features"><strong>Features</strong></a> •
+	<a href="#architecture"><strong>Architecture</strong></a> •
+	<a href="#quick-start"><strong>Quick Start</strong></a> •
+	<a href="#hardware"><strong>Hardware</strong></a> •
+	<a href="#firmware-overview"><strong>Firmware Overview</strong></a> •
+	<a href="#configuration"><strong>Configuration</strong></a> •
+	<a href="#build-and-deploy"><strong>Build and Deploy</strong></a> •
+	<a href="#troubleshooting"><strong>Troubleshooting</strong></a> •
+	<a href="#license"><strong>License</strong></a>
 </p>
 
 </div>
 
-Gizmo Ticker is designed for a simple hardware-to-web workflow: the ESP32 fetches cryptocurrency market data, drives the LED matrix, and exposes a local configuration interface that stays aligned with the firmware settings model.
+<a id="overview"></a>
+## 📘 Overview
+
+Gizmo Ticker is built for a very specific kind of maker project: a small always-on crypto display that feels more like a compact appliance than a demo. The ESP32 keeps pulling live market data, the MAX7219 matrix turns it into something visible and immediate, and the Nuxt app gives you a clean place to configure the device without needing to reflash firmware for every adjustment.
+
+The result is a practical two-part system that is easy to set up, easy to tweak, and easy to leave running on a desk, shelf, or workbench. You can use it as a daily crypto glance board, a weekend hardware project, or a template for building other connected displays with the same firmware-plus-web-app workflow.
+
+Behind the scenes, the firmware and web app stay aligned through the same settings model, so changes made in the browser match what the ESP32 expects at runtime. That keeps the experience predictable: the web UI configures the device, the firmware fetches and renders the values, and the matrix shows the current data in a simple, readable format.
 
 <a id="features"></a>
 ## ✨ Features
@@ -87,8 +98,27 @@ Gizmo Ticker is built around three cooperating parts:
 5. Adjust display settings such as visible metrics and scroll speed.
 6. Reboot or let the device refresh settings as needed.
 
+<a id="hardware"></a>
+## 🔌 Hardware
+
+### Pinout
+
+Current firmware pin assignments:
+
+- MAX7219 CLK: `GPIO18`
+- MAX7219 DATA: `GPIO23`
+- MAX7219 CS: `GPIO5`
+
+### Display
+
+- Type: `MAX7219 LED matrix`
+- Hardware layout: `FC16_HW`
+- Maximum modules: `16`
+
 <a id="firmware-overview"></a>
-## 🔌 Firmware Overview
+## 🔍 Firmware Overview
+
+### ⚙️ General
 
 The firmware is responsible for the runtime behavior of the physical ticker.
 
@@ -100,17 +130,18 @@ The firmware is responsible for the runtime behavior of the physical ticker.
 - Serves the embedded web UI assets.
 - Keeps AP setup available during onboarding and exposes `ticker.local` on supported networks after joining WiFi.
 
-Key firmware areas live under `microcontroller/src/`:
+### 🧩 Firmware Layers
 
-- `api/` for data fetching and parsing.
-- `config/` for settings and validation.
-- `matrix/` for LED output.
-- `server/` for HTTP routes.
-- `eeprom/` for EEPROM persistence.
-- `wifi/` for network connection logic.
+The firmware is split into focused modules under `microcontroller/src/`:
 
-<a id="web-app-overview"></a>
-## 🌐 Web App Overview
+- 📡 `api/` handles market data fetching and parsing.
+- ⚙️ `config/` centralizes settings, defaults, and validation.
+- 📺 `matrix/` manages LED output and scrolling text.
+- 🌐 `server/` exposes the embedded HTTP routes.
+- 💾 `eeprom/` stores settings in persistent memory.
+- 🔌 `wifi/` handles network connection logic.
+
+### 🌐 Web App Overview
 
 The Nuxt app provides the browser-based device configuration interface.
 
@@ -123,7 +154,7 @@ The Nuxt app provides the browser-based device configuration interface.
 - Keeps device API helpers, theme state, and crypto-accent logic in `webapp/app/composables/`.
 - Uses static generation for the embedded web UI bundle that is packaged into firmware assets.
 
-### 🎨 UI System
+#### 🎨 UI System
 
 The web app now splits UI responsibilities between the shared package and the app itself.
 
@@ -133,17 +164,48 @@ The web app now splits UI responsibilities between the shared package and the ap
 - `webapp/app/assets/main.css` imports the shared library stylesheet and then layers the app-specific crypto accent tokens on top.
 - `webapp/app/composables/useUtils.js` and `webapp/app/composables/stores/useGlobalStore.js` keep theme mode, crypto coin selection, and device-backed UI state local to the app.
 
-Important web app areas:
+<a id="configuration"></a>
+## ⚙️ Configuration
 
-- `webapp/app/pages/` for the main setup screens.
-- `@brumaombra/ui-vintage` for shared layout, form, dialog, and overlay primitives.
-- `webapp/app/components/` for app-specific presentation components and selectors.
-- `webapp/app/assets/main.css` for shared-style import and app-level design tokens.
-- `webapp/app/layouts/private.vue` for the dashboard shell adapter.
-- `webapp/app/composables/useDeviceApi.js` for device communication.
-- `webapp/app/composables/useUtils.js` for theme, crypto accent, dialog, and app helpers.
-- `webapp/app/composables/stores/useGlobalStore.js` for shared device/UI state.
-- `webapp/i18n/locales/` for translations.
+### Device Settings
+
+The ticker keeps its runtime settings in a shared `DeviceConfig` model defined in `microcontroller/src/config/config.h` and initialized in `microcontroller/src/config/config.cpp`.
+
+The main adjustable values are:
+
+- which market sections are visible on the matrix
+- the selected crypto coin
+- the number formatting style (`US` or `EU`)
+- matrix intensity
+- scroll speed
+- WiFi credentials
+- API key for market data requests
+
+### Firmware Defaults
+
+The firmware starts with a practical default configuration:
+
+- all market sections enabled
+- `bitcoin` as the default coin
+- US-style number formatting
+- a moderate matrix intensity
+- a readable scroll speed for the LED matrix
+
+### Runtime Flow
+
+The device is configured through its embedded web UI and local network flow.
+
+1. The ESP32 starts in access point mode on first boot.
+2. The web app lets you edit the ticker settings in the browser.
+3. The firmware stores the settings locally and reuses them after reboot.
+4. The device can then be reached on the local network using `ticker.local` on supported setups.
+
+### Key Files
+
+- `microcontroller/src/config/config.h` for the device config structure and hardware constants.
+- `microcontroller/src/config/config.cpp` for defaults and runtime state.
+- `webapp/app/composables/stores/useGlobalStore.js` for shared UI and device-backed state.
+- `webapp/app/composables/useDeviceApi.js` for browser-to-device communication.
 
 <a id="build-and-deploy"></a>
 ## 🛠️ Build and Deploy
@@ -171,6 +233,16 @@ The repository includes an embedded UI export path so the web app can be package
 - Embedded docs: `docs/embedded-webui.md`.
 - Export script: `webapp/scripts/export-embedded-static.js`.
 
+<a id="troubleshooting"></a>
+## 🧰 Troubleshooting
+
+- The LED matrix powers on but shows no text: verify the MAX7219 wiring, confirm the correct `GPIO18` / `GPIO23` / `GPIO5` connections, and check that the matrix is using the `FC16_HW` layout.
+- The web UI does not open after joining WiFi: make sure the ESP32 is connected to the same network and try the `ticker.local` hostname if your router supports mDNS.
+- The ticker does not update with new prices: confirm the WiFi credentials and the market data API key are saved correctly in the setup flow.
+- The display scrolls too fast or too slow: adjust the scroll speed in the web configuration and rebuild the embedded assets if needed.
+- The AP setup flow never appears: power-cycle the device and check the firmware logs for WiFi connection errors or saved configuration issues.
+
+<a id="license"></a>
 ## 📄 License
 
-MIT
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
