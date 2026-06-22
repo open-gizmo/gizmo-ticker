@@ -246,3 +246,13 @@ The repository includes an embedded UI export path so the web app can be package
 ## 📄 License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+
+---
+
+<p align="center">
+	<img src="https://raw.githubusercontent.com/open-gizmo/.github/main/profile/images/open-gizmo-logo-with-text.min.png" alt="OpenGizmo" width="200">
+	<br/>
+	<strong>Real projects. Real hardware. Real fun.</strong>
+	<br/>
+	<sub>A small corner of the internet for ESP32 builds that are useful, remixable, and actually fun to use.</sub>
+</p>
