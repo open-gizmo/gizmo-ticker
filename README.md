@@ -20,13 +20,13 @@ Gizmo Ticker is a two-part project for building a WiFi-connected cryptocurrency 
 
 <p>
 	<a href="#overview"><strong>Overview</strong></a> •
+	<a href="#images"><strong>Images</strong></a> •
 	<a href="#features"><strong>Features</strong></a> •
 	<a href="#architecture"><strong>Architecture</strong></a> •
 	<a href="#quick-start"><strong>Quick Start</strong></a> •
 	<a href="#hardware"><strong>Hardware</strong></a> •
 	<a href="#firmware-overview"><strong>Firmware Overview</strong></a> •
 	<a href="#configuration"><strong>Configuration</strong></a> •
-	<a href="#build-and-deploy"><strong>Build and Deploy</strong></a> •
 	<a href="#troubleshooting"><strong>Troubleshooting</strong></a> •
 	<a href="#license"><strong>License</strong></a>
 </p>
@@ -41,6 +41,16 @@ Gizmo Ticker is built for a very specific kind of maker project: a small always-
 The result is a practical two-part system that is easy to set up, easy to tweak, and easy to leave running on a desk, shelf, or workbench. You can use it as a daily crypto glance board, a weekend hardware project, or a template for building other connected displays with the same firmware-plus-web-app workflow.
 
 Behind the scenes, the firmware and web app stay aligned through the same settings model, so changes made in the browser match what the ESP32 expects at runtime. That keeps the experience predictable: the web UI configures the device, the firmware fetches and renders the values, and the matrix shows the current data in a simple, readable format.
+
+<a id="images"></a>
+## 🖼️ Images
+
+### Prototype
+
+<figure align="center">
+	<img src="https://raw.githubusercontent.com/open-gizmo/gizmo-reolink-switch/main/docs/prototype.jpeg" alt="Gizmo Reolink Switch prototype" width="720">
+	<figcaption><sub>Prototype build of Gizmo Reolink Switch</sub></figcaption>
+</figure>
 
 <a id="features"></a>
 ## ✨ Features
@@ -97,6 +107,29 @@ Gizmo Ticker is built around three cooperating parts:
 4. Save the API key used for market data requests.
 5. Adjust display settings such as visible metrics and scroll speed.
 6. Reboot or let the device refresh settings as needed.
+
+### 🔌 Firmware
+
+- Run `npm run build:embedded` from `webapp/` when the embedded UI changes.
+- Open `microcontroller/` in PlatformIO.
+- Build and upload the firmware.
+
+### 🌐 Web App
+
+- Open `webapp/` as the Nuxt app workspace.
+- Install dependencies with `npm install`.
+- Run `npm run dev` for local work.
+- Run `npm run build` for a production static build.
+- Run `npm run build:embedded` to export the embedded web UI bundle used by the firmware.
+- The web app consumes the `@brumaombra/ui-vintage` package.
+
+### 📦 Embedded Web UI
+
+The repository includes an embedded UI export path so the web app can be packaged into firmware assets when needed.
+
+- Source: `webapp/`.
+- Embedded docs: `docs/embedded-webui.md`.
+- Export script: `webapp/scripts/export-embedded-static.js`.
 
 <a id="hardware"></a>
 ## 🔌 Hardware
@@ -206,32 +239,6 @@ The device is configured through its embedded web UI and local network flow.
 - `microcontroller/src/config/config.cpp` for defaults and runtime state.
 - `webapp/app/composables/stores/useGlobalStore.js` for shared UI and device-backed state.
 - `webapp/app/composables/useDeviceApi.js` for browser-to-device communication.
-
-<a id="build-and-deploy"></a>
-## 🛠️ Build and Deploy
-
-### 🔌 Firmware
-
-- Run `npm run build:embedded` from `webapp/` when the embedded UI changes.
-- Open `microcontroller/` in PlatformIO.
-- Build and upload the firmware.
-
-### 🌐 Web App
-
-- Open `webapp/` as the Nuxt app workspace.
-- Install dependencies with `npm install`.
-- Run `npm run dev` for local work.
-- Run `npm run build` for a production static build.
-- Run `npm run build:embedded` to export the embedded web UI bundle used by the firmware.
-- The web app consumes the `@brumaombra/ui-vintage` package.
-
-### 📦 Embedded Web UI
-
-The repository includes an embedded UI export path so the web app can be packaged into firmware assets when needed.
-
-- Source: `webapp/`.
-- Embedded docs: `docs/embedded-webui.md`.
-- Export script: `webapp/scripts/export-embedded-static.js`.
 
 <a id="troubleshooting"></a>
 ## 🧰 Troubleshooting
