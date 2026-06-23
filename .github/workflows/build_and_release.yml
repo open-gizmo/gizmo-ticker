@@ -54,9 +54,15 @@ jobs:
       - name: ✅ Check build output
         id: check
         run: |
-          if [ -f microcontroller/.pio/build/*/firmware.bin ]; then
+          firmware_path=$(find microcontroller/.pio/build -path '*/firmware.bin' -print -quit)
+          firmware_elf_path=$(find microcontroller/.pio/build -path '*/firmware.elf' -print -quit)
+
+          if [ -n "$firmware_path" ]; then
             echo "FIRMWARE_EXISTS=true" >> $GITHUB_OUTPUT
+            echo "FIRMWARE_PATH=$firmware_path" >> $GITHUB_OUTPUT
+            echo "FIRMWARE_ELF_PATH=$firmware_elf_path" >> $GITHUB_OUTPUT
             echo "✅ Firmware build successful!"
+            echo "Firmware: $firmware_path"
           else
             echo "FIRMWARE_EXISTS=false" >> $GITHUB_OUTPUT
             echo "❌ Firmware file not found! Build may have failed."
@@ -70,6 +76,16 @@ jobs:
           echo "DATE=$(date +'%Y.%m.%d')" >> $GITHUB_OUTPUT
           echo "VERSION=v$(date +'%Y.%m.%d').${{ github.run_number }}" >> $GITHUB_OUTPUT
 
+      # Upload firmware to the deployed OpenGizmo website
+      - name: 🚀 Upload firmware to OpenGizmo VPS
+        if: steps.check.outputs.FIRMWARE_EXISTS == 'true'
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > id_rsa
+          chmod 600 id_rsa
+          ssh -i id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER }} "mkdir -p /var/www/open-gizmo/firmware/gizmo-ticker"
+          rsync -az -e "ssh -i id_rsa -o StrictHostKeyChecking=no" "${{ steps.check.outputs.FIRMWARE_PATH }}" ${{ secrets.SSH_USER }}@${{ secrets.SERVER }}:/var/www/open-gizmo/firmware/gizmo-ticker/firmware.bin
+          rm -f id_rsa
+
       # Create a GitHub release with the built firmware files
       - name: 📦 Create Release
         uses: softprops/action-gh-release@v2
@@ -81,7 +97,7 @@ jobs:
             
             Built from commit SHA: ${{ github.sha }}
           files: |
-            microcontroller/.pio/build/*/firmware.bin
-            microcontroller/.pio/build/*/firmware.elf
+            ${{ steps.check.outputs.FIRMWARE_PATH }}
+            ${{ steps.check.outputs.FIRMWARE_ELF_PATH }}
           draft: false
           prerelease: false
