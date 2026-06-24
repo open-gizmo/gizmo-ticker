@@ -45,12 +45,26 @@ Behind the scenes, the firmware and web app stay aligned through the same settin
 <a id="images"></a>
 ## 🖼️ Images
 
-### Prototype
+### Screenshots
 
-<figure align="center">
-	<img src="https://raw.githubusercontent.com/open-gizmo/gizmo-reolink-switch/main/docs/prototype.jpeg" alt="Gizmo Reolink Switch prototype" width="720">
-	<figcaption><sub>Prototype build of Gizmo Reolink Switch</sub></figcaption>
-</figure>
+<div align="center">
+	<table>
+		<tr>
+			<td align="center" valign="top">
+				<img src="docs/screenshot-wifi.png" alt="WiFi setup screen" width="180">
+			</td>
+			<td align="center" valign="top">
+				<img src="docs/screenshot-settings.png" alt="Settings screen" width="180">
+			</td>
+			<td align="center" valign="top">
+				<img src="docs/screenshot-api.png" alt="API key screen" width="180">
+			</td>
+		</tr>
+	</table>
+	<p>
+		<sub>WiFi setup, settings, API key, and full app preview screens</sub>
+	</p>
+</div>
 
 <a id="features"></a>
 ## ✨ Features
