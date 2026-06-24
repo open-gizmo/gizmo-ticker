@@ -51,13 +51,13 @@ Behind the scenes, the firmware and web app stay aligned through the same settin
 	<table>
 		<tr>
 			<td align="center" valign="top">
-				<img src="docs/screenshot-wifi.png" alt="WiFi setup screen" width="180">
+				<img src="https://raw.githubusercontent.com/open-gizmo/gizmo-ticker/main/docs/screenshot-wifi.png" alt="WiFi setup screen" width="180">
 			</td>
 			<td align="center" valign="top">
-				<img src="docs/screenshot-settings.png" alt="Settings screen" width="180">
+				<img src="https://raw.githubusercontent.com/open-gizmo/gizmo-ticker/main/docs/screenshot-settings.png" alt="Settings screen" width="180">
 			</td>
 			<td align="center" valign="top">
-				<img src="docs/screenshot-api.png" alt="API key screen" width="180">
+				<img src="https://raw.githubusercontent.com/open-gizmo/gizmo-ticker/main/docs/screenshot-api.png" alt="API key screen" width="180">
 			</td>
 		</tr>
 	</table>
@@ -96,54 +96,66 @@ Gizmo Ticker is built around three cooperating parts:
 <a id="quick-start"></a>
 ## 🚀 Quick Start
 
-### 📋 Requirements
+### 🚀 Easy, no-code option
 
-- ESP32 board, such as an ESP32 Dev Module or NodeMCU-32S.
-- MAX7219 LED matrix module.
-- Jumper wires and a stable power supply.
-- VS Code with PlatformIO installed.
-- A WiFi network and a cryptocurrency market data API key.
+Use this path if you just want to flash the prebuilt firmware from the website. You do not need VS Code, PlatformIO, or a local build step.
 
-### 🔧 Initial Setup
+1. **Connect your ESP32 to an available USB port on your PC.**
 
-1. Open the repository in VS Code.
-2. Install the PlatformIO extension if it is not already installed.
-3. Connect the ESP32 and MAX7219 matrix according to the pinout used in the firmware.
-4. Build and upload the firmware from the `microcontroller/` project.
-5. Connect to its setup access point when it starts for the first time.
-6. Enter WiFi credentials and the API key through the web interface.
+2. **Open the [Gizmo Ticker](https://opengizmo.dev/projects/gizmo-ticker) project page.**
 
-### 🔄 Configuration Flow
+3. **Scroll down until you reach the firmware flashing card.**
 
-1. The device creates a temporary access point on first boot.
-2. Connect to the AP and open the device IP address in a browser.
-3. Save WiFi credentials so the ESP32 can join your local network.
-4. Save the API key used for market data requests.
-5. Adjust display settings such as visible metrics and scroll speed.
-6. Reboot or let the device refresh settings as needed.
+4. **Press the "Flash firmware" button in the card to start the upload.**
 
-### 🔌 Firmware
+5. **Wait until the flashing process completes.**
 
-- Run `npm run build:embedded` from `webapp/` when the embedded UI changes.
-- Open `microcontroller/` in PlatformIO.
-- Build and upload the firmware.
+6. **Enjoy your Gizmo Ticker!**
 
-### 🌐 Web App
+### 🛠️ More technical option
 
-- Open `webapp/` as the Nuxt app workspace.
-- Install dependencies with `npm install`.
-- Run `npm run dev` for local work.
-- Run `npm run build` for a production static build.
-- Run `npm run build:embedded` to export the embedded web UI bundle used by the firmware.
-- The web app consumes the `@brumaombra/ui-vintage` package.
+If you want to build and flash everything yourself, follow this path:
 
-### 📦 Embedded Web UI
+1. **Install Visual Studio Code and PlatformIO.**
 
-The repository includes an embedded UI export path so the web app can be packaged into firmware assets when needed.
+	Open the repository in VS Code, then install the PlatformIO extension so you can build and upload the firmware from the editor. The firmware project lives in `microcontroller/`, and PlatformIO uses the settings defined in `microcontroller/platformio.ini`.
 
-- Source: `webapp/`.
-- Embedded docs: `docs/embedded-webui.md`.
-- Export script: `webapp/scripts/export-embedded-static.js`.
+2. **Build the app UI first.**
+
+	The web app lives in `webapp/`. From that folder, install the dependencies and build the embedded UI bundle:
+
+	```bash
+	npm install
+	npm run build:embedded
+	```
+
+	This runs the Nuxt static build and then exports the generated assets for the firmware. Re-run it any time you change the web UI, translated labels, or embedded pages.
+
+3. **Build the microcontroller code.**
+
+	Open `microcontroller/` in PlatformIO and run the firmware build. From the CLI, the equivalent command is:
+
+	```bash
+	pio run
+	```
+
+	This compiles the ESP32 firmware together with the current web UI assets and the libraries declared in `platformio.ini`.
+
+4. **Upload the firmware to the ESP32.**
+
+	After a successful build, upload the firmware to the board from the PlatformIO toolbar or with:
+
+	```bash
+	pio run --target upload
+	```
+
+	Make sure the ESP32 is connected over USB before uploading. If the board does not start correctly after flashing, open the serial monitor to check boot logs:
+
+	```bash
+	pio device monitor
+	```
+
+	The project uses a 9600 baud serial monitor by default, matching the value configured in `platformio.ini`.
 
 <a id="hardware"></a>
 ## 🔌 Hardware
