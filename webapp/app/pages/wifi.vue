@@ -102,7 +102,7 @@ const refreshSSIDList = async () => {
 
 // Page metadata
 definePageMeta({
-    layout: 'private'
+    layout: 'dashboard'
 });
 </script>
 
@@ -131,7 +131,7 @@ definePageMeta({
 
                                 <!-- Control -->
                                 <FieldContent>
-                                    <div class="flex items-start gap-3">
+                                    <div class="flex items-start gap-2">
                                         <!-- Network select -->
                                         <div class="min-w-0 flex-1">
                                             <Select v-model="ssid">
@@ -147,7 +147,7 @@ definePageMeta({
                                         </div>
 
                                         <!-- Refresh button -->
-                                        <Button type="button" variant="secondary" size="icon" :disabled="isLoading" :aria-label="t('common.refresh')" class="shrink-0" @click="refreshSSIDList">
+                                        <Button type="button" variant="secondary" size="icon-lg" :disabled="isLoading" :aria-label="t('common.refresh')" class="shrink-0" @click="refreshSSIDList">
                                             <HugeiconsIcon :icon="RefreshIcon" class="size-4" :class="isLoading ? 'animate-spin' : ''" />
                                         </Button>
                                     </div>

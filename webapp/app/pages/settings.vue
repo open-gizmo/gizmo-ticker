@@ -137,7 +137,7 @@ const handleResetPress = () => {
 
 // Page metadata
 definePageMeta({
-    layout: 'private'
+    layout: 'dashboard'
 });
 </script>
 

@@ -11,7 +11,7 @@ onMounted(() => {
 
 // Page metadata
 definePageMeta({
-    layout: 'private'
+    layout: 'dashboard'
 });
 </script>
 

@@ -64,11 +64,9 @@ const handleSelectLanguage = async language => {
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton as-child size="lg" class="rounded">
-                        <NuxtLink :to="localePath('/')">
+                        <NuxtLink :to="localePath('/')" class="flex items-center gap-3">
                             <!-- Crypto logo -->
-                            <div class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded">
-                                <CryptoLogo class="size-5 rounded" />
-                            </div>
+                            <CryptoLogo class="size-5" />
 
                             <!-- Brand name and tagline -->
                             <div class="grid min-w-0 flex-1 text-left text-sm leading-tight">
@@ -85,7 +83,9 @@ const handleSelectLanguage = async language => {
         <template #sidebar-footer>
             <div class="flex items-center gap-2 px-2">
                 <!-- Language selector -->
-                <LanguageSelector :model-value="locale" :languages="availableLanguages" @update:model-value="handleSelectLanguage" />
+                <LanguageSelector :model-value="locale"
+                    :languages="availableLanguages"
+                    @update:model-value="handleSelectLanguage" />
 
                 <!-- Theme selector -->
                 <ThemeSelector />
