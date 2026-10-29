@@ -2,6 +2,8 @@
 #include <ArduinoJson.h>
 #include <WiFi.h>
 #include <vector>
+#include <freertos/FreeRTOS.h>
+#include <freertos/semphr.h>
 #include "../../config/config.h"
 
 namespace {
@@ -16,8 +18,9 @@ namespace {
 		uint8_t quality;
 	};
 
-	// Cache for scanned networks and state tracking
+	// Cache for scanned networks and state tracking (cache and scan flag are guarded by networksMutex)
 	std::vector<ScannedNetwork> cachedNetworks;
+	SemaphoreHandle_t networksMutex = nullptr;
 	bool scanCallbackRegistered = false;
 	bool wifiScanInProgress = false;
 
@@ -56,11 +59,17 @@ namespace {
 		return scannedNetworks;
 	}
 
-	// Register the ESP32 Wi-Fi scan done callback once
-	void ensureScanCallbackRegistered() {
+	// Register the ESP32 Wi-Fi scan done callback and create the cache mutex once
+	bool ensureScanCallbackRegistered() {
 		// If the callback is already registered, do nothing
 		if (scanCallbackRegistered) {
-			return;
+			return true;
+		}
+
+		// Create the mutex that guards the cache (written by the Wi-Fi event task, read by the web server task)
+		networksMutex = xSemaphoreCreateMutex();
+		if (networksMutex == nullptr) {
+			return false;
 		}
 
 		// Register a callback for when the Wi-Fi scan is complete
@@ -70,42 +79,58 @@ namespace {
 				return;
 			}
 
-			// Get the number of networks found and mark the scan as complete
+			// Read the scan results outside the lock (an empty list if the scan failed)
 			const int numNetworks = WiFi.scanComplete();
-			wifiScanInProgress = false;
-
-			// If the scan failed, clear the cache and return
+			std::vector<ScannedNetwork> scannedNetworks;
 			if (numNetworks < 0) {
-				cachedNetworks.clear();
 				WiFi.scanDelete();
-				return;
+			} else {
+				scannedNetworks = collectScannedNetworks(numNetworks);
 			}
 
-			// Otherwise, read the scan results and cache them for future requests
-			cachedNetworks = collectScannedNetworks(numNetworks);
+			// Swap the results into the cache and mark the scan as complete
+			xSemaphoreTake(networksMutex, portMAX_DELAY);
+			cachedNetworks.swap(scannedNetworks);
+			wifiScanInProgress = false;
+			xSemaphoreGive(networksMutex);
 		}, ARDUINO_EVENT_WIFI_SCAN_DONE);
 
 		// Mark the callback as registered to avoid registering it multiple times
 		scanCallbackRegistered = true;
+		return true;
 	}
 
 	// Start an asynchronous Wi-Fi scan to avoid blocking the async_tcp task
 	bool startAsyncScan() {
 		// Ensure the scan done callback is registered before starting a new scan
-		ensureScanCallbackRegistered();
-		if (wifiScanInProgress) {
+		if (!ensureScanCallbackRegistered()) {
+			return false;
+		}
+
+		// Mark the scan as in progress before starting it (so a fast scan done event can't be overwritten)
+		xSemaphoreTake(networksMutex, portMAX_DELAY);
+		const bool isScanAlreadyRunning = wifiScanInProgress;
+		wifiScanInProgress = true;
+		xSemaphoreGive(networksMutex);
+
+		// If a scan is already running, keep serving the cached results
+		if (isScanAlreadyRunning) {
 			return true;
 		}
 
 		// Start a new asynchronous Wi-Fi scan (non-blocking)
 		WiFi.scanDelete();
 		const int scanStatus = WiFi.scanNetworks(true, true);
+
+		// If the scan failed to start, clear the in-progress flag
 		if (scanStatus == WIFI_SCAN_FAILED_STATUS) {
+			xSemaphoreTake(networksMutex, portMAX_DELAY);
+			wifiScanInProgress = false;
+			xSemaphoreGive(networksMutex);
 			return false;
 		}
 
-		// Mark the scan as in progress and return success
-		wifiScanInProgress = true;
+		// Scan started
 		return true;
 	}
 
@@ -128,6 +153,14 @@ namespace {
 		// Return the JSON document
 		return doc;
 	}
+
+	// Build the JSON payload from the cached networks while holding the cache lock
+	JsonDocument buildCachedNetworksData() {
+		xSemaphoreTake(networksMutex, portMAX_DELAY);
+		JsonDocument doc = buildNetworksData(cachedNetworks);
+		xSemaphoreGive(networksMutex);
+		return doc;
+	}
 }
 
 // Get the list of available Wi-Fi networks
@@ -145,7 +178,7 @@ void setupNetworksGetRoute() {
 		}
 
 		// Build the JSON response with the current scan results
-		JsonDocument doc = buildNetworksData(cachedNetworks);
+		JsonDocument doc = buildCachedNetworksData();
 		sendSuccessResponse(request, 200, &doc);
 	});
 }

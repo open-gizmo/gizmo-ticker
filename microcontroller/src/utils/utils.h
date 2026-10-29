@@ -8,7 +8,9 @@ class AsyncWebServerRequest;
 enum class RequestBodyState {
 	InProgress,
 	Ready,
-	Error
+	Error,
+	TooLarge,
+	Ignored // A later chunk of a body that was already rejected (its error response was already sent)
 };
 
 struct RequestBodyResult {

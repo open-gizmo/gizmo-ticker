@@ -17,16 +17,24 @@ namespace {
 		"",
 		""
 	};
+
+	// Guard the config (shared by the main loop, the web server task, and the market data task)
+	portMUX_TYPE configMux = portMUX_INITIALIZER_UNLOCKED;
 }
 
-// Get the current device config
-const DeviceConfig& getDeviceConfig() {
-	return currentConfig;
+// Get a copy of the current device config
+DeviceConfig getDeviceConfig() {
+	portENTER_CRITICAL(&configMux);
+	const DeviceConfig config = currentConfig;
+	portEXIT_CRITICAL(&configMux);
+	return config;
 }
 
 // Update the device config
 void setDeviceConfig(const DeviceConfig& config) {
+	portENTER_CRITICAL(&configMux);
 	currentConfig = config;
+	portEXIT_CRITICAL(&configMux);
 }
 
 // Global message buffers shared by serial and scrolling functions

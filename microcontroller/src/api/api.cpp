@@ -31,7 +31,8 @@ namespace {
 		bool hasCachedData = false;
 		bool fetchInProgress = false;
 		bool hasPendingError = false;
-		unsigned long nextFetchAt = 0;
+		unsigned long nextFetchScheduledAt = 0; // When the wait for the next fetch started
+		unsigned long nextFetchDelay = 0; // How long to wait before the next fetch (0 = fetch now)
 		char pendingErrorMessage[BUF_SIZE] = "";
 		portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
 	};
@@ -40,9 +41,10 @@ namespace {
 	MarketDataRuntimeState marketState;
 
 	// Check whether the cache is stale enough that a refresh should be scheduled
-	bool shouldScheduleMarketDataRefresh(unsigned long currentMillis) {
+	bool shouldScheduleMarketDataRefresh() {
 		portENTER_CRITICAL(&marketState.mux);
-		const bool refreshDue = !marketState.fetchInProgress && (timestampStockData == 0 || currentMillis >= marketState.nextFetchAt);
+		const unsigned long currentMillis = millis(); // Read inside the lock so it is never older than a time stored by the worker
+		const bool refreshDue = !marketState.fetchInProgress && (timestampStockData == 0 || currentMillis - marketState.nextFetchScheduledAt >= marketState.nextFetchDelay); // Elapsed-time check stays correct across millis() rollover
 		portEXIT_CRITICAL(&marketState.mux);
 		return refreshDue;
 	}
@@ -86,17 +88,19 @@ namespace {
 		marketState.hasCachedData = true;
 		marketState.fetchInProgress = false;
 		marketState.hasPendingError = false;
-		marketState.nextFetchAt = refreshedAt + API_REFRESH_INTERVAL;
+		marketState.nextFetchScheduledAt = refreshedAt;
+		marketState.nextFetchDelay = API_REFRESH_INTERVAL;
 		timestampStockData = refreshedAt;
 		portEXIT_CRITICAL(&marketState.mux);
 	}
 
 	// Store a refresh failure so the main loop can retry later without blocking
-	void completeMarketDataRefreshFailure(const char* message, unsigned long nextRetryAt) {
+	void completeMarketDataRefreshFailure(const char* message, unsigned long failedAt) {
 		portENTER_CRITICAL(&marketState.mux);
 		marketState.fetchInProgress = false;
 		marketState.hasPendingError = true;
-		marketState.nextFetchAt = nextRetryAt;
+		marketState.nextFetchScheduledAt = failedAt;
+		marketState.nextFetchDelay = API_RETRY_INTERVAL;
 		stringCopy(marketState.pendingErrorMessage, message, sizeof(marketState.pendingErrorMessage));
 		portEXIT_CRITICAL(&marketState.mux);
 	}
@@ -165,7 +169,7 @@ static bool fetchMarketData(JsonDocument &doc) {
 
 // Setup the web client
 void setupWebClient() {
-	marketState.nextFetchAt = 0;
+	marketState.nextFetchDelay = 0;
 }
 
 // Parse the fetched market data into the runtime model
@@ -219,7 +223,7 @@ static void marketDataRefreshWorker(void* parameter) {
 		completeMarketDataRefreshSuccess(refreshedMarketData, currentMillis);
 	} else {
 		const char errorMessageServer[] = "Error while calling the API. Retrying...";
-		completeMarketDataRefreshFailure(errorMessageServer, currentMillis + API_RETRY_INTERVAL);
+		completeMarketDataRefreshFailure(errorMessageServer, currentMillis);
 	}
 
 	// Delete the worker task when done
@@ -243,7 +247,7 @@ static bool scheduleMarketDataRefresh() {
 	// Start the background worker task
 	if (xTaskCreate(marketDataRefreshWorker, "marketDataFetch", API_TASK_STACK_SIZE, nullptr, 1, nullptr) != pdPASS) {
 		const char errorMessageSchedule[] = "Unable to refresh market data. Retrying...";
-		completeMarketDataRefreshFailure(errorMessageSchedule, millis() + API_RETRY_INTERVAL);
+		completeMarketDataRefreshFailure(errorMessageSchedule, millis());
 		return false;
 	}
 
@@ -253,7 +257,6 @@ static bool scheduleMarketDataRefresh() {
 
 // Call the API to get the data
 bool callAPI(MarketTickerData& marketData) {
-	const unsigned long currentMillis = millis();
 	char errorMessage[BUF_SIZE];
 
 	// Check if the API key is present
@@ -265,7 +268,7 @@ bool callAPI(MarketTickerData& marketData) {
 	}
 
 	// Start a background refresh whenever the cache is empty or stale
-	if (shouldScheduleMarketDataRefresh(currentMillis)) {
+	if (shouldScheduleMarketDataRefresh()) {
 		printLogfln("Scheduling market data refresh...");
 		scheduleMarketDataRefresh();
 	}

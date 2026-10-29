@@ -25,7 +25,8 @@ namespace {
 		bool connectInProgress = false;
 		bool persistCredentialsOnSuccess = false;
 		unsigned long connectStartedAt = 0;
-		unsigned long nextReconnectAttemptAt = 0;
+		unsigned long reconnectDelayStartedAt = 0; // When the wait before the next attempt started
+		unsigned long reconnectDelay = 0; // How long to wait before the next attempt (0 = try now)
 	};
 
 	// Create the shared Wi-Fi state instance
@@ -63,7 +64,7 @@ namespace {
 	void completeWiFiConnectionSuccess() {
 		const bool wasAttemptInProgress = wifiState.connectInProgress;
 		resetConnectionAttempt();
-		wifiState.nextReconnectAttemptAt = 0;
+		wifiState.reconnectDelay = 0;
 		wiFiConnectionStatus = WIFI_OK;
 
 		// If we weren't already connected, print the success message and persist the credentials if needed
@@ -84,13 +85,14 @@ namespace {
 		WiFi.disconnect();
 		resetConnectionAttempt();
 		wiFiConnectionStatus = WIFI_KO;
-		wifiState.nextReconnectAttemptAt = millis() + WIFI_RETRY_INTERVAL;
+		wifiState.reconnectDelayStartedAt = millis();
+		wifiState.reconnectDelay = WIFI_RETRY_INTERVAL;
 		printLogfln("Failed to connect to WiFi, retrying in %lu ms", WIFI_RETRY_INTERVAL);
 	}
 
 	// Check whether a fresh connection attempt should start on this loop iteration
 	bool shouldStartWiFiConnectionAttempt(unsigned long currentMillis) {
-		return wiFiConnectionStatus == WIFI_TRY || currentMillis >= wifiState.nextReconnectAttemptAt;
+		return wiFiConnectionStatus == WIFI_TRY || currentMillis - wifiState.reconnectDelayStartedAt >= wifiState.reconnectDelay; // Elapsed-time check stays correct across millis() rollover
 	}
 
 	// Choose the matrix message for the current Wi-Fi state
@@ -164,7 +166,7 @@ bool setupAccessPoint() {
 // Queue a new Wi-Fi connection attempt for the next main-loop cycle
 void queueWiFiConnectionAttempt() {
 	resetConnectionAttempt();
-	wifiState.nextReconnectAttemptAt = 0;
+	wifiState.reconnectDelay = 0;
 	wiFiConnectionStatus = WIFI_TRY;
 	wifiState.persistCredentialsOnSuccess = true;
 	WiFi.disconnect();

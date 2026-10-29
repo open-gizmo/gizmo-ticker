@@ -40,7 +40,7 @@ struct DeviceConfig {
 };
 
 // Device config getter and setter
-const DeviceConfig& getDeviceConfig();
+DeviceConfig getDeviceConfig();
 void setDeviceConfig(const DeviceConfig& config);
 
 // Global message buffers shared by serial and scrolling functions

@@ -18,6 +18,9 @@ void setup() {
 
 // Loop
 void loop() {
+	// Restart the device if the web server asked for it
+	manageScheduledRestart();
+
 	// Manage the WiFi connection
 	manageWiFiConnection();
 

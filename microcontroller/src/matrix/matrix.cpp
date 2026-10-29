@@ -85,6 +85,7 @@ void setupLedMatrix() {
 	P.begin(); // Start the LED matrix
 	const DeviceConfig& config = getDeviceConfig();
 	setMatrixIntensity(config.matrixIntensity); // Set the intensity of the matrix
+	setMatrixSpeed(config.scrollSpeed); // Set the saved scroll speed before the first message
 	printOnLedMatrix("Initializing...", BUF_SIZE); // Print the message on the matrix
 }
 

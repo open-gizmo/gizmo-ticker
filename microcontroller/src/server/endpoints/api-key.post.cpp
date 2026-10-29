@@ -41,14 +41,20 @@ namespace {
 void setupApiKeyPostRoute() {
 	// POST to update the API key
 	server.on("/api/api-key", HTTP_POST, [](AsyncWebServerRequest *request) {}, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
-		// Validate CORS
-		if (!ensureCorsAllowed(request)) {
+		// Validate CORS on the first chunk only (so a rejected request gets a single response)
+		if (index == 0 && !ensureCorsAllowed(request)) {
 			return;
 		}
 
-		// Accumulate the request body
+		// Accumulate the request body (later chunks of a rejected body are ignored)
 		const RequestBodyResult body = accumulateRequestBody(request, data, len, index, total);
-		if (body.state == RequestBodyState::InProgress) {
+		if (body.state == RequestBodyState::InProgress || body.state == RequestBodyState::Ignored) {
+			return;
+		}
+
+		// If the body is too large, send error response
+		if (body.state == RequestBodyState::TooLarge) {
+			sendErrorResponse(request, 413, "request_body_too_large", "Request body too large");
 			return;
 		}
 

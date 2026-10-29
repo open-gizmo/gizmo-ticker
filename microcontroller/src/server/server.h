@@ -17,11 +17,15 @@ void setupNetworksGetRoute();
 void setupApiKeyPostRoute();
 void setupConfigGetRoute();
 void setupSettingsPostRoute();
-void setupResetSettingsGetRoute();
+void setupResetSettingsPostRoute();
 void setupCaptivePortalRoute();
 
 // Server setup
 void setupRoutes();
 void setupServer();
+
+// Deferred restart (requested by the web server task, performed by the main loop)
+void scheduleRestart();
+void manageScheduledRestart();
 
 #endif

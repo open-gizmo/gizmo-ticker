@@ -43,7 +43,10 @@ export const saveSettings = async settings => {
 
 // Reset the saved device settings and restart the firmware
 export const resetSettings = async () => {
-    const response = await fetchEsp('/api/reset-settings');
+    // Call the device API to reset the settings (POST, so other pages can't trigger it with a simple link)
+    const response = await fetchEsp('/api/reset-settings', { method: 'POST' });
+
+    // Return the response data
     return response.data || {};
 };
 
