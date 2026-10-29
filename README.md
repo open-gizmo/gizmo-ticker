@@ -155,7 +155,7 @@ If you want to build and flash everything yourself, follow this path:
 	pio device monitor
 	```
 
-	The project uses a 9600 baud serial monitor by default, matching the value configured in `platformio.ini`.
+	The project uses a 115200 baud serial monitor by default, matching the value configured in `platformio.ini`.
 
 <a id="hardware"></a>
 ## 🔌 Hardware
