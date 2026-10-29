@@ -198,12 +198,11 @@ The firmware is split into focused modules under `microcontroller/src/`:
 - 📺 `matrix/` manages LED output and scrolling text.
 - 🌐 `server/` exposes the embedded HTTP routes.
 - 💾 `eeprom/` stores settings in persistent memory (`config_json.*` maps them to and from the stored JSON).
-- 🔢 `format/` formats prices and amounts for the matrix.
 - 🔌 `wifi/` handles network connection logic.
 
 ### 🧪 Tests
 
-The hardware-free logic (number formatting and the saved-settings format) is tested on your computer, no board needed:
+The hardware-free logic (the saved-settings format) is tested on your computer, no board needed:
 
 ```bash
 cd microcontroller
@@ -211,6 +210,8 @@ pio test -e native
 ```
 
 The tests live in [microcontroller/test/](microcontroller/test/). They also run in the release workflow before the firmware is built.
+
+Logging and number formatting come from the shared [gizmo-common](https://github.com/open-gizmo/gizmo-common) library, which has its own tests.
 
 ### 🌐 Web App Overview
 

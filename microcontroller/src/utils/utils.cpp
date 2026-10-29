@@ -2,8 +2,8 @@
 #include <Arduino.h>
 #include <ESPAsyncWebServer.h>
 #include <math.h>
+#include <gizmo/format.h>
 #include "../config/config.h"
-#include "../format/format.h"
 
 namespace {
 	constexpr size_t MAX_REQUEST_BODY_SIZE = 2048; // Largest API payload is well under 1 KB, even with escaped Wi-Fi credentials
@@ -54,14 +54,19 @@ String maskInternalChars(const char* text, size_t visibleEdgeChars) {
 }
 
 
+// Get the separator style of the configured number format
+static gizmo::NumberFormat getConfiguredNumberFormat() {
+	return getDeviceConfig().formatType == FORMAT_US ? gizmo::NumberFormat::US : gizmo::NumberFormat::EU;
+}
+
 // Format currency with the configured separators (always 2 decimals, for large amounts and percentages)
 void formatCurrency(double value, char* output, const byte length) {
-	formatNumber(value, 2, getDeviceConfig().formatType, output, length);
+	gizmo::formatNumber(value, 2, getConfiguredNumberFormat(), output, length);
 }
 
 // Format a price with the configured separators (2 decimals from $1 up, more below so coins worth cents stay readable)
 void formatPrice(double value, char* output, const byte length) {
-	formatNumber(value, getPriceDecimals(value), getDeviceConfig().formatType, output, length);
+	gizmo::formatNumber(value, gizmo::getSignificantDecimals(value), getConfiguredNumberFormat(), output, length);
 }
 
 // Accumulate the request body for POST requests
