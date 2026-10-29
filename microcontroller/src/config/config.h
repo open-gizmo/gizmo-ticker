@@ -5,6 +5,7 @@
 #include <MD_Parola.h>
 #include <ESPAsyncWebServer.h>
 #include <WiFi.h>
+#include "device_config.h"
 
 // Hardware configuration
 constexpr MD_MAX72XX::moduleType_t HARDWARE_TYPE = MD_MAX72XX::FC16_HW;
@@ -13,31 +14,6 @@ constexpr uint8_t MAX_DEVICES = 16; // Number of modules
 constexpr uint8_t CLK_PIN = 18; // SCK
 constexpr uint8_t DATA_PIN = 23; // MOSI
 constexpr uint8_t CS_PIN = 5; // SS
-
-// Numeric formatting type
-enum formatNum { FORMAT_US = 1, FORMAT_EU = 2 };
-
-constexpr size_t WIFI_SSID_SIZE = 35;
-constexpr size_t WIFI_PASSWORD_SIZE = 70;
-constexpr size_t API_KEY_SIZE = 35;
-constexpr size_t CRYPTO_COIN_SIZE = 16;
-
-struct DeviceConfig {
-	bool currentPriceVisible;
-	bool priceChangeVisible;
-	bool marketCapVisible;
-	bool dailyHighLowVisible;
-	bool yearHighLowVisible;
-	bool openPriceVisible;
-	bool volumeVisible;
-	char cryptoCoin[CRYPTO_COIN_SIZE];
-	formatNum formatType;
-	uint8_t matrixIntensity;
-	uint8_t scrollSpeed;
-	char ssid[WIFI_SSID_SIZE];
-	char password[WIFI_PASSWORD_SIZE];
-	char apiKey[API_KEY_SIZE];
-};
 
 // Device config getter and setter
 DeviceConfig getDeviceConfig();

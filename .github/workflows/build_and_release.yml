@@ -45,6 +45,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install platformio==6.2.0
       
+      # Run the native tests before building
+      - name: 🧪 Run native tests
+        working-directory: microcontroller
+        run: pio test -e native
+
       # Build the ESP32 firmware
       - name: 🛠️ Build ESP32 Firmware
         working-directory: microcontroller
