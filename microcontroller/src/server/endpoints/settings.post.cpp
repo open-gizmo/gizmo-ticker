@@ -203,7 +203,7 @@ void setupSettingsPostRoute() {
 		// Apply changes
 		setDeviceConfig(config);
 		timestampStockData = 0;
-		setMatrixIntensity(config.matrixIntensity);
+		queueMatrixIntensityChange(); // Applied by the main loop, which owns the matrix
 		setMatrixSpeed(config.scrollSpeed);
 
 		// Send success response

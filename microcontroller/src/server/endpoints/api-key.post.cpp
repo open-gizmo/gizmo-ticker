@@ -86,11 +86,16 @@ void setupApiKeyPostRoute() {
 			return;
 		}
 
-		// Save the new API key and write to EEPROM
+		// Save the new API key to EEPROM before applying it
 		DeviceConfig config = getDeviceConfig();
 		stringCopy(config.apiKey, doc["apiKey"].as<const char*>(), sizeof(config.apiKey));
+		if (!saveDeviceConfigToEEPROM(config)) {
+			sendErrorResponse(request, 500, "api_key_save_failed", "Failed to save the API key");
+			return;
+		}
+
+		// Apply the new API key
 		setDeviceConfig(config);
-		writeEEPROM();
 
 		// Send success response
 		sendSuccessResponse(request);

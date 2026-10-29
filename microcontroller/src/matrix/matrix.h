@@ -7,6 +7,7 @@ struct MarketTickerData;
 
 void printOnLedMatrix(const char* message, const byte stringLength, uint16_t messageStill = scrollPause);
 void setMatrixIntensity(uint8_t intensity);
+void queueMatrixIntensityChange();
 void setMatrixSpeed(uint8_t speed);
 void setupLedMatrix();
 bool isLedMatrixReadyForNextMessage();

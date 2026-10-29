@@ -94,6 +94,15 @@ namespace {
 		portEXIT_CRITICAL(&marketState.mux);
 	}
 
+	// Drop an outdated refresh result and schedule a new fetch right away
+	void discardMarketDataRefresh(unsigned long discardedAt) {
+		portENTER_CRITICAL(&marketState.mux);
+		marketState.fetchInProgress = false;
+		marketState.nextFetchScheduledAt = discardedAt;
+		marketState.nextFetchDelay = 0;
+		portEXIT_CRITICAL(&marketState.mux);
+	}
+
 	// Store a refresh failure so the main loop can retry later without blocking
 	void completeMarketDataRefreshFailure(const char* message, unsigned long failedAt) {
 		portENTER_CRITICAL(&marketState.mux);
@@ -106,20 +115,18 @@ namespace {
 	}
 }
 
-// Get the selected crypto coin API ID
-static const char* getSelectedCryptoApiId() {
-	const DeviceConfig& config = getDeviceConfig();
-	return strcmp(config.cryptoCoin, "kaspa") == 0 ? "kaspa" : "bitcoin";
+// Get the CoinGecko API ID of a crypto coin
+static const char* getCryptoApiId(const char* cryptoCoin) {
+	return strcmp(cryptoCoin, "kaspa") == 0 ? "kaspa" : "bitcoin";
 }
 
-// Get the selected crypto coin ticker label
-static const char* getSelectedCryptoTickerLabel() {
-	const DeviceConfig& config = getDeviceConfig();
-	return strcmp(config.cryptoCoin, "kaspa") == 0 ? "KAS" : "BTC";
+// Get the ticker label of a crypto coin
+static const char* getCryptoTickerLabel(const char* cryptoCoin) {
+	return strcmp(cryptoCoin, "kaspa") == 0 ? "KAS" : "BTC";
 }
 
 // Get the main market data used by the ticker
-static bool fetchMarketData(JsonDocument &doc) {
+static bool fetchMarketData(JsonDocument &doc, const char* cryptoCoin) {
 	char url[220];
 	WiFiClientSecure clientSecure;
 	HTTPClient http;
@@ -137,7 +144,7 @@ static bool fetchMarketData(JsonDocument &doc) {
 	filter[0]["atl"] = true;
 
 	// Prepare the HTTP request
-	snprintf(url, sizeof(url), marketApiUrlTemplate, getSelectedCryptoApiId());
+	snprintf(url, sizeof(url), marketApiUrlTemplate, getCryptoApiId(cryptoCoin));
 	printLogfln("Requesting URL: %s", url);
 	clientSecure.setInsecure();
 	http.begin(clientSecure, url);
@@ -173,7 +180,7 @@ void setupWebClient() {
 }
 
 // Parse the fetched market data into the runtime model
-static bool parseMarketData(JsonDocument& marketDoc, MarketTickerData& marketData) {
+static bool parseMarketData(JsonDocument& marketDoc, MarketTickerData& marketData, const char* cryptoCoin) {
 	JsonVariant marketDataJson = marketDoc[0];
 
 	// Check if the market data is present
@@ -183,7 +190,7 @@ static bool parseMarketData(JsonDocument& marketDoc, MarketTickerData& marketDat
 	}
 
 	// Parse the market data into the output model
-	marketData.tickerLabel = getSelectedCryptoTickerLabel();
+	marketData.tickerLabel = getCryptoTickerLabel(cryptoCoin);
 	marketData.currentPrice = marketDataJson["current_price"].as<double>();
 	marketData.priceChangePercentage24h = marketDataJson["price_change_percentage_24h_in_currency"].as<double>();
 	marketData.priceChange24h = marketDataJson["price_change_24h"].as<double>();
@@ -200,23 +207,35 @@ static bool parseMarketData(JsonDocument& marketDoc, MarketTickerData& marketDat
 }
 
 // Fetch and parse the market data
-static bool getStockDataAPI(MarketTickerData& marketData) {
+static bool getStockDataAPI(MarketTickerData& marketData, const char* cryptoCoin) {
 	JsonDocument marketDoc;
 
 	// Fetch the market data
-	if (!fetchMarketData(marketDoc)) {
+	if (!fetchMarketData(marketDoc, cryptoCoin)) {
 		return false;
 	}
 
 	// Parse the result into the output model
-	return parseMarketData(marketDoc, marketData);
+	return parseMarketData(marketDoc, marketData, cryptoCoin);
 }
 
 // Worker task that performs the blocking HTTP request away from the main loop
 static void marketDataRefreshWorker(void* parameter) {
 	MarketTickerData refreshedMarketData;
-	const bool fetchSucceeded = getStockDataAPI(refreshedMarketData);
+
+	// Read the selected coin once, so the URL and the label always match
+	char cryptoCoin[CRYPTO_COIN_SIZE];
+	stringCopy(cryptoCoin, getDeviceConfig().cryptoCoin, sizeof(cryptoCoin));
+	const bool fetchSucceeded = getStockDataAPI(refreshedMarketData, cryptoCoin);
 	const unsigned long currentMillis = millis();
+
+	// Discard the result if the coin changed during the fetch, and fetch the new coin right away
+	if (strcmp(cryptoCoin, getDeviceConfig().cryptoCoin) != 0) {
+		printLogfln("Coin changed during the fetch, discarding %s data", cryptoCoin);
+		discardMarketDataRefresh(currentMillis);
+		vTaskDelete(nullptr);
+		return;
+	}
 
 	// Store the result and schedule the next update
 	if (fetchSucceeded) {

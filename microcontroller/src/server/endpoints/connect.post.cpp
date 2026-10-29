@@ -98,12 +98,8 @@ void setupConnectPostRoute() {
 			return;
 		}
 
-		// Save the credentials to the config and trigger Wi-Fi connection attempt
-		DeviceConfig config = getDeviceConfig();
-		stringCopy(config.ssid, doc["ssid"].as<const char*>(), sizeof(config.ssid));
-		stringCopy(config.password, doc["password"].as<const char*>(), sizeof(config.password));
-		setDeviceConfig(config);
-		queueWiFiConnectionAttempt();
+		// Try the new credentials (they are saved only once the connection works)
+		queueWiFiConnectionAttempt(doc["ssid"].as<const char*>(), doc["password"].as<const char*>());
 
 		// Send the response with the updated connection status
 		JsonDocument responseDoc;

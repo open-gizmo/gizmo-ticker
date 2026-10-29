@@ -5,6 +5,6 @@ void setAccessPointMode();
 bool setupAccessPoint();
 bool manageWiFiConnection();
 bool checkWifiConnection();
-void queueWiFiConnectionAttempt();
+void queueWiFiConnectionAttempt(const char* ssid, const char* password);
 
 #endif

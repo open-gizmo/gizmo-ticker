@@ -6,6 +6,29 @@
 
 namespace {
 	constexpr size_t MAX_REQUEST_BODY_SIZE = 2048; // Largest API payload is well under 1 KB, even with escaped Wi-Fi credentials
+	constexpr int PRICE_SIGNIFICANT_DIGITS = 4; // Digits kept for prices below $1 (0.08123 instead of 0.08)
+	constexpr int MAX_PRICE_DECIMALS = 8;
+
+	// Choose the decimals for a price: 2 from $1 up, more below so small prices keep their significant digits
+	int getPriceDecimals(double value) {
+		const double magnitude = fabs(value);
+		if (magnitude >= 1.0 || magnitude == 0.0) return 2;
+
+		// Count the zeros right after the decimal point (0.08 has one), then add the significant digits
+		const int leadingZeroCount = -static_cast<int>(floor(log10(magnitude))) - 1;
+		const int decimals = leadingZeroCount + PRICE_SIGNIFICANT_DIGITS;
+		return decimals > MAX_PRICE_DECIMALS ? MAX_PRICE_DECIMALS : decimals;
+	}
+
+	// Format a number with the separators of the configured format
+	void formatNumber(double value, int decimals, char* output, const byte length) {
+		const DeviceConfig config = getDeviceConfig();
+		if (config.formatType == FORMAT_US) {
+			stringCopy(output, addThousandsSeparators(value, decimals, '.', ','), length);
+		} else {
+			stringCopy(output, addThousandsSeparators(value, decimals, ',', '.'), length);
+		}
+	}
 }
 
 // Custom string copy function
@@ -170,14 +193,14 @@ char* addThousandsSeparators(double value, int decimals, char decimalSeparator, 
 }
 */
 
-// Format currency
+// Format currency (always 2 decimals, for large amounts and percentages)
 void formatCurrency(double value, char* output, const byte length) {
-	const DeviceConfig& config = getDeviceConfig();
-	if (config.formatType == FORMAT_US) {
-		stringCopy(output, addThousandsSeparators(value, 2, '.', ','), length);
-	} else {
-		stringCopy(output, addThousandsSeparators(value, 2, ',', '.'), length);
-	}
+	formatNumber(value, 2, output, length);
+}
+
+// Format a price (2 decimals from $1 up, more below so coins worth cents stay readable)
+void formatPrice(double value, char* output, const byte length) {
+	formatNumber(value, getPriceDecimals(value), output, length);
 }
 
 // Accumulate the request body for POST requests

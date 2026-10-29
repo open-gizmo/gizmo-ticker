@@ -166,8 +166,8 @@
                     "description": "Il prezzo piu alto e piu basso raggiunto oggi."
                 },
                 "yearHighLow": {
-                    "label": "Massimo / minimo annuale",
-                    "description": "Il prezzo piu alto e piu basso raggiunto nelle ultime 52 settimane."
+                    "label": "Massimo / minimo storico",
+                    "description": "Il prezzo piu alto e piu basso mai raggiunto."
                 },
                 "openPrice": {
                     "label": "Prezzo di apertura",

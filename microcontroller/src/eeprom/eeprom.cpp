@@ -23,8 +23,8 @@ namespace {
         doc["matrixIntensity"] = config.matrixIntensity;
         doc["scrollSpeed"] = config.scrollSpeed;
 
-        // Add WiFi credentials if present
-        if (strlen(config.ssid) != 0 && strlen(config.password) != 0) {
+        // Add WiFi credentials if present (the password can be empty for open networks)
+        if (strlen(config.ssid) != 0) {
             doc["ssid"] = config.ssid;
             doc["password"] = config.password;
         }

@@ -166,8 +166,8 @@
                     "description": "The highest and lowest price reached today."
                 },
                 "yearHighLow": {
-                    "label": "Year high / low",
-                    "description": "The highest and lowest price reached over the last 52 weeks."
+                    "label": "All-time high / low",
+                    "description": "The highest and lowest price ever reached."
                 },
                 "openPrice": {
                     "label": "Open price",

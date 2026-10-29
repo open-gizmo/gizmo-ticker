@@ -8,11 +8,14 @@ namespace {
 	constexpr uint16_t PRICE_MESSAGE_PAUSE = 30000;
 	constexpr byte MAX_NUMBER_SIZE = 30;
 
+	// Brightness change requested by the web server task, applied by the main loop (MD_MAX72XX is not thread-safe)
+	volatile bool isIntensityChangePending = false;
+
 	// Format the current price message
 	void formatPriceMessage(char* message, size_t messageLength, const MarketTickerData& marketData) {
 		char tempString[MAX_NUMBER_SIZE];
 		char tempString2[MAX_NUMBER_SIZE];
-		formatCurrency(marketData.currentPrice, tempString, MAX_NUMBER_SIZE);
+		formatPrice(marketData.currentPrice, tempString, MAX_NUMBER_SIZE);
 		formatCurrency(marketData.priceChangePercentage24h, tempString2, MAX_NUMBER_SIZE);
 		snprintf(message, messageLength, " %s $ %s  (%s%%)", marketData.tickerLabel, tempString, tempString2);
 	}
@@ -20,7 +23,7 @@ namespace {
 	// Format the price change message
 	void formatChangeMessage(char* message, size_t messageLength, const MarketTickerData& marketData) {
 		char tempString[MAX_NUMBER_SIZE];
-		formatCurrency(marketData.priceChange24h, tempString, MAX_NUMBER_SIZE);
+		formatPrice(marketData.priceChange24h, tempString, MAX_NUMBER_SIZE);
 		snprintf(message, messageLength, "Daily Change: $ %s", tempString);
 	}
 
@@ -35,25 +38,30 @@ namespace {
 	void formatDailyHighLowMessage(char* message, size_t messageLength, const MarketTickerData& marketData) {
 		char tempString[MAX_NUMBER_SIZE];
 		char tempString2[MAX_NUMBER_SIZE];
-		formatCurrency(marketData.dailyHigh, tempString, MAX_NUMBER_SIZE);
-		formatCurrency(marketData.dailyLow, tempString2, MAX_NUMBER_SIZE);
+		formatPrice(marketData.dailyHigh, tempString, MAX_NUMBER_SIZE);
+		formatPrice(marketData.dailyLow, tempString2, MAX_NUMBER_SIZE);
 		snprintf(message, messageLength, "Daily High: $ %s  -  Daily Low: $ %s", tempString, tempString2);
 	}
 
-	// Format the year high/low message
+	// Format the all-time high/low message (CoinGecko ath/atl, the markets API has no 52-week data)
 	void formatYearHighLowMessage(char* message, size_t messageLength, const MarketTickerData& marketData) {
 		char tempString[MAX_NUMBER_SIZE];
 		char tempString2[MAX_NUMBER_SIZE];
-		formatCurrency(marketData.yearHigh, tempString, MAX_NUMBER_SIZE);
-		formatCurrency(marketData.yearLow, tempString2, MAX_NUMBER_SIZE);
-		snprintf(message, messageLength, "Year High: $ %s  -  Year Low: $ %s", tempString, tempString2);
+		formatPrice(marketData.yearHigh, tempString, MAX_NUMBER_SIZE);
+		formatPrice(marketData.yearLow, tempString2, MAX_NUMBER_SIZE);
+		snprintf(message, messageLength, "All-Time High: $ %s  -  All-Time Low: $ %s", tempString, tempString2);
 	}
 
 	// Format the open price message
 	void formatOpenMessage(char* message, size_t messageLength, const MarketTickerData& marketData) {
 		char tempString[MAX_NUMBER_SIZE];
-		formatCurrency(marketData.openPrice, tempString, MAX_NUMBER_SIZE);
+		formatPrice(marketData.openPrice, tempString, MAX_NUMBER_SIZE);
 		snprintf(message, messageLength, "Open: $ %s", tempString);
+	}
+
+	// Check whether at least one section is enabled
+	bool hasVisibleSection(const DeviceConfig& config) {
+		return config.currentPriceVisible || config.priceChangeVisible || config.marketCapVisible || config.dailyHighLowVisible || config.yearHighLowVisible || config.openPriceVisible || config.volumeVisible;
 	}
 
 	// Format the volume message
@@ -89,8 +97,20 @@ void setupLedMatrix() {
 	printOnLedMatrix("Initializing...", BUF_SIZE); // Print the message on the matrix
 }
 
+// Ask the main loop to apply the saved brightness (safe to call from other tasks, after the config is updated)
+void queueMatrixIntensityChange() {
+	isIntensityChangePending = true;
+}
+
 // Check whether the matrix finished the current animation cycle
 bool isLedMatrixReadyForNextMessage() {
+	// Apply a requested brightness change between frames (clear the flag first, so a change made meanwhile is applied next time)
+	if (isIntensityChangePending) {
+		isIntensityChangePending = false;
+		setMatrixIntensity(getDeviceConfig().matrixIntensity);
+	}
+
+	// Animate the current message
 	return P.displayAnimate();
 }
 
@@ -101,6 +121,13 @@ void renderNextLedMatrixMessage(const MarketTickerData& marketData) {
 	
 	// Single buffer for all the messages
 	char message[BUF_SIZE];
+
+	// Show a hint instead of freezing on the last message when every section is hidden
+	if (!hasVisibleSection(config)) {
+		const char noSectionMessage[] = "Nothing to show. Enable at least one section in the settings.";
+		printOnLedMatrix(noSectionMessage, sizeof(noSectionMessage));
+		return;
+	}
 
 	// Print messages
 	switch (switchText) {
@@ -155,7 +182,7 @@ void renderNextLedMatrixMessage(const MarketTickerData& marketData) {
 		case PRINT_YEAR_HIGH_LOW:
 			// Show the data only if enabled
 			if (config.yearHighLowVisible) {
-				printLogfln("Showing year high/low section...");
+				printLogfln("Showing all-time high/low section...");
 				formatYearHighLowMessage(message, sizeof(message), marketData);
 				printOnLedMatrix(message, sizeof(message)); // Print the message on the matrix
 			}

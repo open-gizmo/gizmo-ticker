@@ -45,9 +45,10 @@ namespace {
 		return true;
 	}
 
-	// Determine if the request should be redirected to the setup page in AP mode
-	bool shouldRedirectToSetupPage(const String& requestPath) {
+	// Determine if the request should be redirected to the setup page (only for clients connected through the access point)
+	bool shouldRedirectToSetupPage(AsyncWebServerRequest *request, const String& requestPath) {
 		if (!accessPointEnabled) return false;
+		if (request->client()->localIP() != WiFi.softAPIP()) return false; // LAN clients keep the normal dashboard
 		if (requestPath == "/ap-setup" || requestPath.startsWith("/_nuxt/") || requestPath.startsWith("/api/")) return false;
 		return true;
 	}
@@ -77,7 +78,7 @@ namespace {
 void setupCaptivePortalRoute() {
 	server.onNotFound([](AsyncWebServerRequest *request) {
 		// Redirect to Wi-Fi setup page if in AP mode
-		if ((request->method() == HTTP_GET || request->method() == HTTP_HEAD) && shouldRedirectToSetupPage(request->url())) {
+		if ((request->method() == HTTP_GET || request->method() == HTTP_HEAD) && shouldRedirectToSetupPage(request, request->url())) {
 			request->redirect("/ap-setup");
 			return;
 		}
