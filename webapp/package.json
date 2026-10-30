@@ -22,7 +22,8 @@
 		"build": "nuxt generate",
 		"build:embedded": "nuxt generate && node ./scripts/export-embedded-static.js",
 		"preview": "nuxt preview",
-		"postinstall": "nuxt prepare"
+		"postinstall": "nuxt prepare",
+		"test": "vitest run"
 	},
 	"dependencies": {
 		"@brumaombra/ui-vintage": "0.9.24",
@@ -32,8 +33,12 @@
 		"nuxt": "4.5.2"
 	},
 	"devDependencies": {
+		"@nuxt/test-utils": "4.3.2",
 		"@tailwindcss/vite": "4.2.4",
-		"tailwindcss": "4.2.4"
+		"@vue/test-utils": "2.5.1",
+		"happy-dom": "20.14.5",
+		"tailwindcss": "4.2.4",
+		"vitest": "5.0.1"
 	},
 	"overrides": {
 		"archiver-utils": {

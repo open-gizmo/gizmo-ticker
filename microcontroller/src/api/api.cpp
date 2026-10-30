@@ -29,8 +29,9 @@ namespace {
 		MarketTickerData cachedData = { "BTC", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 		bool hasCachedData = false;
 		bool hasPendingError = false;
-		MarketRefreshSchedule refreshSchedule = { false, true, 0, 0 }; // A fetch right away
+		MarketRefreshSchedule refreshSchedule = { false, true, 0, 0, false, 0 }; // A fetch right away
 		char pendingErrorMessage[BUF_SIZE] = "";
+		char lastErrorMessage[BUF_SIZE] = ""; // Error of the last failed fetch, kept for the stale data warning (cleared by a success)
 		portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
 	};
 
@@ -84,15 +85,15 @@ namespace {
 		marketState.cachedData = marketData;
 		marketState.hasCachedData = true;
 		marketState.hasPendingError = false;
+		marketState.lastErrorMessage[0] = '\0';
 		completeMarketRefresh(marketState.refreshSchedule, true, refreshedAt);
 		portEXIT_CRITICAL(&marketState.mux);
 	}
 
-	// Drop an outdated refresh result and schedule a new fetch right away
-	void discardMarketDataRefresh(unsigned long discardedAt) {
+	// Drop an outdated refresh result and schedule a new fetch right away (the data on screen keeps its age)
+	void discardMarketDataRefresh() {
 		portENTER_CRITICAL(&marketState.mux);
-		completeMarketRefresh(marketState.refreshSchedule, true, discardedAt);
-		requestMarketRefresh(marketState.refreshSchedule);
+		cancelMarketRefresh(marketState.refreshSchedule);
 		portEXIT_CRITICAL(&marketState.mux);
 	}
 
@@ -102,6 +103,7 @@ namespace {
 		marketState.hasPendingError = true;
 		completeMarketRefresh(marketState.refreshSchedule, false, failedAt);
 		stringCopy(marketState.pendingErrorMessage, message, sizeof(marketState.pendingErrorMessage));
+		stringCopy(marketState.lastErrorMessage, message, sizeof(marketState.lastErrorMessage));
 		portEXIT_CRITICAL(&marketState.mux);
 	}
 }
@@ -162,11 +164,31 @@ void setupWebClient() {
 	portEXIT_CRITICAL(&marketState.mux);
 }
 
-// Fetch the market data again as soon as possible (for example after a coin change)
+// Fetch the market data again as soon as possible (for example after a coin or API key change)
 void requestMarketDataRefresh() {
 	portENTER_CRITICAL(&marketState.mux);
 	requestMarketRefresh(marketState.refreshSchedule);
 	portEXIT_CRITICAL(&marketState.mux);
+}
+
+// Build the warning shown before old data (the refreshes keep failing), and return whether there is one
+bool getStaleDataWarning(char* message, size_t messageLength) {
+	char lastErrorMessage[BUF_SIZE];
+
+	// Read the age of the data and the last error while holding the lock
+	portENTER_CRITICAL(&marketState.mux);
+	const unsigned long currentMillis = millis();
+	const bool isStale = isMarketDataStale(marketState.refreshSchedule, currentMillis);
+	const uint32_t ageMinutes = getMarketDataAgeMinutes(marketState.refreshSchedule, currentMillis);
+	stringCopy(lastErrorMessage, marketState.lastErrorMessage, sizeof(lastErrorMessage));
+	portEXIT_CRITICAL(&marketState.mux);
+
+	// Nothing to warn about while the data is fresh
+	if (!isStale) return false;
+
+	// Say how old the prices are, and why
+	snprintf(message, messageLength, "Prices from %lu min ago. %s", static_cast<unsigned long>(ageMinutes), lastErrorMessage[0] != '\0' ? lastErrorMessage : "Retrying...");
+	return true;
 }
 
 // Fetch and parse the market data
@@ -199,7 +221,7 @@ static void marketDataRefreshWorker(void* parameter) {
 	// Discard the result if the coin changed during the fetch, and fetch the new coin right away
 	if (strcmp(cryptoCoin, getDeviceConfig().cryptoCoin) != 0) {
 		printLogfln("Coin changed during the fetch, discarding %s data", cryptoCoin);
-		discardMarketDataRefresh(currentMillis);
+		discardMarketDataRefresh();
 		vTaskDelete(nullptr);
 		return;
 	}

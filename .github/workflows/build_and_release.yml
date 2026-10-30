@@ -45,6 +45,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install platformio==6.2.0
       
+      # Download the firmware libraries (the webapp tests read the error IDs of gizmo-common)
+      - name: 📥 Install firmware libraries
+        working-directory: microcontroller
+        run: pio pkg install -e esp32dev
+
+      # Run the webapp tests
+      - name: 🧪 Run webapp tests
+        working-directory: webapp
+        run: npm test
+
       # Run the native tests before building
       - name: 🧪 Run native tests
         working-directory: microcontroller

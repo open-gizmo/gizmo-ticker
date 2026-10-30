@@ -5,6 +5,9 @@
 #include "../serial/serial.h"
 
 namespace {
+	// Whether the stale data warning was shown in the current cycle (it opens each cycle while the data is old)
+	bool isStaleWarningShown = false;
+
 	constexpr uint16_t PRICE_MESSAGE_PAUSE = 30000;
 	constexpr byte MAX_NUMBER_SIZE = 30;
 
@@ -115,7 +118,7 @@ bool isLedMatrixReadyForNextMessage() {
 }
 
 // Manage the LED matrix using already-available market data
-void renderNextLedMatrixMessage(const MarketTickerData& marketData) {
+void renderNextLedMatrixMessage(const MarketTickerData& marketData, const char* staleDataWarning) {
 	// Get the current config
 	const DeviceConfig& config = getDeviceConfig();
 	
@@ -128,6 +131,15 @@ void renderNextLedMatrixMessage(const MarketTickerData& marketData) {
 		printOnLedMatrix(noSectionMessage, sizeof(noSectionMessage));
 		return;
 	}
+
+	// Open the cycle with the warning while the data is old (the refreshes keep failing), then show the data as usual
+	if (switchText == PRINT_PRICE && staleDataWarning != nullptr && !isStaleWarningShown) {
+		printLogfln("Showing stale data warning...");
+		printOnLedMatrix(staleDataWarning, BUF_SIZE);
+		isStaleWarningShown = true;
+		return;
+	}
+	if (switchText == PRINT_PRICE) isStaleWarningShown = false;
 
 	// Print messages
 	switch (switchText) {

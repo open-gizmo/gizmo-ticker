@@ -1,6 +1,7 @@
 #include "../server.h"
 #include <ArduinoJson.h>
 #include <cstring>
+#include "../../api/api.h"
 #include "../../config/config.h"
 #include "../../utils/utils.h"
 #include "../../storage/storage.h"
@@ -60,8 +61,9 @@ void setupApiKeyPostRoute() {
 			return;
 		}
 
-		// Apply the new API key
+		// Apply the new API key, and try it right away
 		setDeviceConfig(config);
+		requestMarketDataRefresh();
 
 		// Send success response
 		sendSuccessResponse(request);

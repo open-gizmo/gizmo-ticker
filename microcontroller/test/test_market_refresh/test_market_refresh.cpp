@@ -119,6 +119,66 @@ void test_waits_work_across_clock_rollover() {
 	TEST_ASSERT_TRUE(isMarketRefreshDue(schedule, failedAt + MARKET_RETRY_INTERVAL_MS));
 }
 
+/******************************** Cancelled fetch ********************************/
+
+// A fetch dropped after a coin change is followed by another one right away
+void test_cancelled_fetch_fetches_again_right_away() {
+	runFetch(true, 1000);
+	startMarketRefresh(schedule);
+	cancelMarketRefresh(schedule);
+	TEST_ASSERT_TRUE(isMarketRefreshDue(schedule, 2000));
+}
+
+// A dropped fetch doesn't make the data on screen look newer (it used to go through the success path)
+void test_cancelled_fetch_keeps_the_age_of_the_data() {
+	runFetch(true, 1000);
+	startMarketRefresh(schedule);
+	cancelMarketRefresh(schedule);
+	TEST_ASSERT_TRUE(isMarketDataStale(schedule, 1000 + MARKET_STALE_AFTER_MS));
+}
+
+/******************************** Stale data ********************************/
+
+// Before any success there is no data to warn about (the matrix shows the error itself)
+void test_no_stale_warning_before_any_success() {
+	runFetch(false, 1000);
+	TEST_ASSERT_FALSE(isMarketDataStale(schedule, 1000 + 10 * MARKET_STALE_AFTER_MS));
+}
+
+// The data turns stale after two refresh intervals without a success
+void test_data_turns_stale_without_a_success() {
+	// Succeed once, then fail every retry
+	runFetch(true, 1000);
+	runFetch(false, 1000 + MARKET_REFRESH_INTERVAL_MS);
+
+	// Expect fresh data until the limit, then stale data
+	TEST_ASSERT_FALSE(isMarketDataStale(schedule, 1000 + MARKET_STALE_AFTER_MS - 1));
+	TEST_ASSERT_TRUE(isMarketDataStale(schedule, 1000 + MARKET_STALE_AFTER_MS));
+}
+
+// A success makes the data fresh again
+void test_success_clears_the_stale_warning() {
+	runFetch(true, 1000);
+	TEST_ASSERT_TRUE(isMarketDataStale(schedule, 1000 + MARKET_STALE_AFTER_MS));
+	runFetch(true, 1000 + MARKET_STALE_AFTER_MS);
+	TEST_ASSERT_FALSE(isMarketDataStale(schedule, 1000 + MARKET_STALE_AFTER_MS + 1));
+}
+
+// The age of the data is in whole minutes
+void test_data_age_is_in_whole_minutes() {
+	runFetch(true, 1000);
+	TEST_ASSERT_EQUAL_UINT32(0, getMarketDataAgeMinutes(schedule, 1000 + 59999));
+	TEST_ASSERT_EQUAL_UINT32(12, getMarketDataAgeMinutes(schedule, 1000 + 12 * 60000UL + 30000));
+}
+
+// The age works across the millis() rollover
+void test_data_age_works_across_clock_rollover() {
+	const uint32_t fetchedAt = UINT32_MAX - 60000;
+	runFetch(true, fetchedAt);
+	TEST_ASSERT_EQUAL_UINT32(13, getMarketDataAgeMinutes(schedule, fetchedAt + 13 * 60000UL));
+	TEST_ASSERT_TRUE(isMarketDataStale(schedule, fetchedAt + MARKET_STALE_AFTER_MS));
+}
+
 // Run all the market refresh tests
 int main() {
 	UNITY_BEGIN();
@@ -133,5 +193,12 @@ int main() {
 	RUN_TEST(test_refresh_requested_during_a_fetch_runs_after_it);
 	RUN_TEST(test_starting_a_fetch_clears_the_request);
 	RUN_TEST(test_waits_work_across_clock_rollover);
+	RUN_TEST(test_cancelled_fetch_fetches_again_right_away);
+	RUN_TEST(test_cancelled_fetch_keeps_the_age_of_the_data);
+	RUN_TEST(test_no_stale_warning_before_any_success);
+	RUN_TEST(test_data_turns_stale_without_a_success);
+	RUN_TEST(test_success_clears_the_stale_warning);
+	RUN_TEST(test_data_age_is_in_whole_minutes);
+	RUN_TEST(test_data_age_works_across_clock_rollover);
 	return UNITY_END();
 }

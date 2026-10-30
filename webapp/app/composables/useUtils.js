@@ -79,12 +79,6 @@ export const handleBackendErrors = ({ error, defaultMessage = '', showDialog = f
         });
     }
 
-    // If the error contains a status code, rethrow it for upstream handling
-    if (error?.statusCode || error?.response?.status) {
-        throw error;
-    }
-
-    // For other types of errors, throw a generic error with the message
+    // Log the error (this is the last stop: the callers only show it, so throwing it again left an unhandled error after the dialog)
     console.error(resolvedLogMessage, error);
-    throw new Error(resolvedMessage);
 };

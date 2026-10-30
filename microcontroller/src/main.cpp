@@ -40,6 +40,8 @@ void loop() {
 		return;
 	}
 
-	// Render the next ticker message on the LED matrix
-	renderNextLedMatrixMessage(marketData);
+	// Render the next ticker message on the LED matrix, with a warning first while the data is old
+	char staleDataWarning[BUF_SIZE];
+	const bool isDataStale = getStaleDataWarning(staleDataWarning, sizeof(staleDataWarning));
+	renderNextLedMatrixMessage(marketData, isDataStale ? staleDataWarning : nullptr);
 }

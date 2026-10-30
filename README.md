@@ -211,6 +211,15 @@ pio test -e native
 
 The tests live in [microcontroller/test/](microcontroller/test/). They also run in the release workflow before the firmware is built.
 
+The web app has its own tests (its pages, the mock device API and the translations), with Vitest:
+
+```bash
+cd webapp
+npm test
+```
+
+They live in [webapp/tests/](webapp/tests/), and [webapp/tests/README.md](webapp/tests/README.md) explains how they are built.
+
 Logging, number formatting, the web API helpers and the whole Wi-Fi setup (connection, setup hotspot, captive portal, and the `/api/networks`, `/api/connect` and `/api/check-connection` endpoints) come from the shared [gizmo-common](https://github.com/open-gizmo/gizmo-common) library, which has its own tests.
 
 ### 🌐 Web App Overview
@@ -285,6 +294,7 @@ The device is configured through its embedded web UI and local network flow.
 - The LED matrix powers on but shows no text: verify the MAX7219 wiring, confirm the correct `GPIO18` / `GPIO23` / `GPIO5` connections, and check that the matrix is using the `FC16_HW` layout.
 - The web UI does not open after joining WiFi: make sure the ESP32 is connected to the same network and try the `ticker.local` hostname if your router supports mDNS.
 - The ticker does not update with new prices: confirm the WiFi credentials and the market data API key are saved correctly in the setup flow.
+- The matrix shows `Prices from N min ago` before the prices: the last fetches failed for more than 12 minutes, so the prices on screen are old. The rest of the message says why (for example a wrong API key or no internet). Saving a new API key fetches again right away.
 - The display scrolls too fast or too slow: adjust the scroll speed in the web configuration and rebuild the embedded assets if needed.
 - The AP setup flow never appears: power-cycle the device and check the firmware logs for WiFi connection errors or saved configuration issues.
 

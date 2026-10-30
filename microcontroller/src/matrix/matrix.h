@@ -11,6 +11,6 @@ void queueMatrixIntensityChange();
 void setMatrixSpeed(uint8_t speed);
 void setupLedMatrix();
 bool isLedMatrixReadyForNextMessage();
-void renderNextLedMatrixMessage(const MarketTickerData& marketData);
+void renderNextLedMatrixMessage(const MarketTickerData& marketData, const char* staleDataWarning = nullptr);
 
 #endif
