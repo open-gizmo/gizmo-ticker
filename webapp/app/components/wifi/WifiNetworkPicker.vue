@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import Cancel01Icon from '@hugeicons/core-free-icons/Cancel01Icon';
 import CheckmarkCircle02Icon from '@hugeicons/core-free-icons/CheckmarkCircle02Icon';
 import LockIcon from '@hugeicons/core-free-icons/LockIcon';
@@ -25,6 +25,7 @@ const props = defineProps({
     confirmMessageKey: { type: String, required: true }
 });
 
+const AUTO_RETRY_DELAY = 3000; // Time the device needs to finish its first scan
 const { t } = useI18n();
 const globalStore = useGlobalStore();
 const selectedNetwork = ref(null);
@@ -39,18 +40,45 @@ const networks = computed(() => {
 });
 
 // Refresh the list of networks found by the device
-const handleRefreshPress = async () => {
+const scanNetworks = async () => {
     isLoading.value = true;
 
     try {
         const networksData = await getNetworks();
         globalStore.value.networksList = networksData.networks;
-    } catch (error) {
-        handleBackendErrors({ error, defaultMessage: t('pages.wifi.refreshError'), showDialog: true });
     } finally {
         isLoading.value = false;
     }
 };
+
+// Scan again when the user asks for it
+const handleRefreshPress = async () => {
+    try {
+        await scanNetworks();
+    } catch (error) {
+        handleBackendErrors({ error, defaultMessage: t('pages.wifi.refreshError'), showDialog: true });
+    }
+};
+
+// The first scan after boot comes back empty while the device is still scanning, so try once more by itself (quietly: the user can still scan again)
+let autoRetryTimer = null;
+onMounted(() => {
+    autoRetryTimer = setTimeout(async () => {
+        autoRetryTimer = null;
+        if (networks.value.length || isLoading.value) return;
+
+        try {
+            await scanNetworks();
+        } catch (error) {
+            console.warn('Automatic Wi-Fi scan failed', error);
+        }
+    }, AUTO_RETRY_DELAY);
+});
+
+// Stop the retry when leaving the page
+onBeforeUnmount(() => {
+    clearTimeout(autoRetryTimer);
+});
 
 // Send the credentials to the device and wait for the result
 const connectDeviceToWiFi = async () => {
