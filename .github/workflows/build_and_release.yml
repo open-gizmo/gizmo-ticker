@@ -6,6 +6,8 @@ on:
 jobs:
   build-and-release:
     name: Build & Release 📦
+    # Release only from main (the release goes live on the website flasher)
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -65,25 +67,6 @@ jobs:
         working-directory: microcontroller
         run: pio run
 
-      # Check if the firmware build was successful
-      - name: ✅ Check build output
-        id: check
-        run: |
-          firmware_path=$(find microcontroller/.pio/build -path '*/firmware.bin' -print -quit)
-          firmware_elf_path=$(find microcontroller/.pio/build -path '*/firmware.elf' -print -quit)
-
-          if [ -n "$firmware_path" ]; then
-            echo "FIRMWARE_EXISTS=true" >> $GITHUB_OUTPUT
-            echo "FIRMWARE_PATH=$firmware_path" >> $GITHUB_OUTPUT
-            echo "FIRMWARE_ELF_PATH=$firmware_elf_path" >> $GITHUB_OUTPUT
-            echo "✅ Firmware build successful!"
-            echo "Firmware: $firmware_path"
-          else
-            echo "FIRMWARE_EXISTS=false" >> $GITHUB_OUTPUT
-            echo "❌ Firmware file not found! Build may have failed."
-            exit 1
-          fi
-
       # Generate version code (es. v2023.09.15.1)
       - name: 🏷️ Generate version
         id: version
@@ -91,17 +74,11 @@ jobs:
           echo "DATE=$(date +'%Y.%m.%d')" >> $GITHUB_OUTPUT
           echo "VERSION=v$(date +'%Y.%m.%d').${{ github.run_number }}" >> $GITHUB_OUTPUT
 
-      # Upload firmware to the deployed OpenGizmo website
-      - name: 🚀 Upload firmware to OpenGizmo VPS
-        if: steps.check.outputs.FIRMWARE_EXISTS == 'true'
-        run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > id_rsa
-          chmod 600 id_rsa
-          ssh -i id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER }} "mkdir -p /var/www/open-gizmo/firmware/gizmo-ticker"
-          rsync -az -e "ssh -i id_rsa -o StrictHostKeyChecking=no" "${{ steps.check.outputs.FIRMWARE_PATH }}" ${{ secrets.SSH_USER }}@${{ secrets.SERVER }}:/var/www/open-gizmo/firmware/gizmo-ticker/firmware.bin
-          rm -f id_rsa
+      # Package the flash parts (bootloader, partition table, boot_app0, app) and the manifest of the browser flasher
+      - name: 🗂️ Package firmware
+        run: python .github/scripts/package_firmware.py --project-dir microcontroller --name "Gizmo Ticker" --version "${{ steps.version.outputs.VERSION }}" --output-dir dist
 
-      # Create a GitHub release with the built firmware files
+      # Create a GitHub release with the flash parts
       - name: 📦 Create Release
         uses: softprops/action-gh-release@v2
         with:
@@ -109,10 +86,34 @@ jobs:
           name: Release ${{ steps.version.outputs.VERSION }}
           body: |
             Automated build and release - ${{ steps.version.outputs.DATE }}
-            
+
             Built from commit SHA: ${{ github.sha }}
+
+            Flash it from the browser on https://opengizmo.dev/projects/gizmo-ticker, or over USB:
+
+            ```bash
+            esptool.py --chip esp32 write_flash 0x1000 bootloader.bin 0x8000 partitions.bin 0xe000 boot_app0.bin 0x10000 firmware.bin
+            ```
           files: |
-            ${{ steps.check.outputs.FIRMWARE_PATH }}
-            ${{ steps.check.outputs.FIRMWARE_ELF_PATH }}
+            dist/${{ steps.version.outputs.VERSION }}/*.bin
+            microcontroller/.pio/build/esp32dev/firmware.elf
           draft: false
           prerelease: false
+
+      # Upload the parts and the manifest to R2, where the website flasher downloads them (last, so the website only offers a released version)
+      - name: ☁️ Upload firmware to R2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          AWS_REQUEST_CHECKSUM_CALCULATION: when_required # R2 refuses some checksums the AWS CLI sends by default
+          AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+          R2_ENDPOINT: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          VERSION: ${{ steps.version.outputs.VERSION }}
+        run: |
+          # The parts of a version never change, so they can be cached for ever
+          aws s3 cp "dist/$VERSION" "s3://$R2_BUCKET/gizmo-ticker/$VERSION" --recursive --endpoint-url "$R2_ENDPOINT" --cache-control "public, max-age=31536000, immutable" --content-type application/octet-stream
+
+          # The manifest points the flasher to the new version, so it goes last and is cached for a minute only
+          aws s3 cp dist/manifest.json "s3://$R2_BUCKET/gizmo-ticker/manifest.json" --endpoint-url "$R2_ENDPOINT" --cache-control "public, max-age=60" --content-type application/json

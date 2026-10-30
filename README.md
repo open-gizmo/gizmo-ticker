@@ -288,6 +288,14 @@ The device is configured through its embedded web UI and local network flow.
 - `webapp/app/composables/stores/useGlobalStore.js` for shared UI and device-backed state.
 - `webapp/app/composables/useDeviceApi.js` for browser-to-device communication.
 
+### Releasing a new version
+
+1. Merge `feature` into `develop`, then `develop` into `main`.
+2. Run the **Build & Release 📦** workflow by hand (Actions > Build & Release > Run workflow, on `main`). It runs the tests, builds the web app and the firmware, and creates a GitHub Release named after the date (for example `v2026.10.30.1`) with the four flash parts.
+3. The same parts go to Cloudflare R2, with a `manifest.json` that lists each part and its flash address. The flash button on [opengizmo.dev](https://opengizmo.dev/projects/gizmo-ticker) reads that manifest, so it always installs the latest release, and keeps the saved settings.
+
+The workflow only runs on `main`, and needs these repository secrets: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` (an R2 API token limited to the bucket) and `R2_BUCKET`.
+
 <a id="troubleshooting"></a>
 ## 🧰 Troubleshooting
 
