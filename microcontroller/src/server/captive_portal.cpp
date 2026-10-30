@@ -35,7 +35,7 @@ namespace {
 		}
 
 		// Send the asset data as the response
-		AsyncWebServerResponse *response = request->beginResponse_P(statusCode, asset->contentType, asset->data, asset->size);
+		AsyncWebServerResponse *response = request->beginResponse(statusCode, asset->contentType, asset->data, asset->size);
 		if (asset->gzip) {
 			response->addHeader("Content-Encoding", "gzip");
 		}
