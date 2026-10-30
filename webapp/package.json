@@ -1,23 +1,51 @@
 {
-    "name": "gizmo-ticker",
-    "version": "0.0.0",
-    "type": "module",
-    "scripts": {
-        "dev": "nuxt dev",
-        "build": "nuxt generate",
-        "build:embedded": "nuxt generate && node ./scripts/export-embedded-static.js",
-        "preview": "nuxt preview",
-        "postinstall": "nuxt prepare"
-    },
-    "dependencies": {
-        "@brumaombra/ui-vintage": "0.7.6",
-        "@hugeicons/core-free-icons": "4.1.1",
-        "@hugeicons/vue": "1.0.5",
-        "@nuxtjs/i18n": "10.2.3",
-        "nuxt": "4.4.8"
-    },
-    "devDependencies": {
-        "@tailwindcss/vite": "4.2.4",
-        "tailwindcss": "4.2.4"
-    }
+	"name": "gizmo-ticker",
+	"version": "0.0.0",
+	"description": "Gizmo Ticker web app, the device configuration UI embedded in the ESP32 firmware.",
+	"homepage": "https://github.com/open-gizmo/gizmo-ticker",
+	"bugs": {
+		"url": "https://github.com/open-gizmo/gizmo-ticker/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/open-gizmo/gizmo-ticker.git"
+	},
+	"license": "MIT",
+	"author": "Mauro Brambilla",
+	"private": true,
+	"type": "module",
+	"engines": {
+		"node": ">=24.21.0"
+	},
+	"scripts": {
+		"dev": "nuxt dev",
+		"build": "nuxt generate",
+		"build:embedded": "nuxt generate && node ./scripts/export-embedded-static.js",
+		"preview": "nuxt preview",
+		"postinstall": "nuxt prepare"
+	},
+	"dependencies": {
+		"@brumaombra/ui-vintage": "0.9.23",
+		"@hugeicons/core-free-icons": "4.3.5",
+		"@hugeicons/vue": "1.0.8",
+		"@nuxtjs/i18n": "10.6.0",
+		"nuxt": "4.5.2"
+	},
+	"devDependencies": {
+		"@tailwindcss/vite": "4.2.4",
+		"tailwindcss": "4.2.4"
+	},
+	"overrides": {
+		"archiver-utils": {
+			"glob": "13.0.6"
+		},
+		"@intlify/vue-i18n-extensions": {
+			"vue-i18n": "11.4.13",
+			"@intlify/shared": "11.4.13"
+		}
+	},
+	"allowScripts": {
+		"esbuild": true,
+		"vue-demi": true
+	}
 }

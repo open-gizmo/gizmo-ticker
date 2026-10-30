@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted } from 'vue';
+import { LoadingStateCard } from '@brumaombra/ui-vintage/loading-state-card';
 
 const { t } = useI18n();
 const localePath = useLocalePath();
@@ -16,5 +17,7 @@ definePageMeta({
 </script>
 
 <template>
-    <div class="flex min-h-[50vh] items-center justify-center text-sm text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)]">{{ t('common.redirectingWifiSetup') }}</div>
+    <div class="mx-auto w-full max-w-2xl">
+        <LoadingStateCard :title="t('common.redirectingWifiSetup')" />
+    </div>
 </template>

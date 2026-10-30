@@ -1,4 +1,0 @@
-@import "tailwindcss";
-@import "@brumaombra/ui-vintage/style.css";
-@custom-variant dark (&:where(.dark, .dark *));
-@import "./crypto.css";

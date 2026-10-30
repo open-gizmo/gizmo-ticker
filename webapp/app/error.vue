@@ -1,13 +1,9 @@
 <script setup>
 import { computed } from 'vue';
-import { HugeiconsIcon } from '@hugeicons/vue';
-import { ArrowLeft01Icon } from '@hugeicons/core-free-icons';
-import BackgroundGrid from '@brumaombra/ui-vintage/background-grid';
-import { Button } from '@brumaombra/ui-vintage/button';
-import { Card, CardContent, CardFooter } from '@brumaombra/ui-vintage/card';
-import LanguageSelector from '@brumaombra/ui-vintage/language-selector';
-import ThemeSelector from '@brumaombra/ui-vintage/theme-selector';
-import BrandLogo from '~/components/BrandLogo.vue';
+import { ErrorPage } from '@brumaombra/ui-vintage/error-page';
+import { LanguageSelector } from '@brumaombra/ui-vintage/language-selector';
+import { ThemeSelector } from '@brumaombra/ui-vintage/theme-selector';
+import BrandLogo from '~/components/common/BrandLogo.vue';
 
 // Props
 const props = defineProps({
@@ -17,94 +13,40 @@ const props = defineProps({
 const { locale, locales, setLocale, t } = useI18n();
 const localePath = useLocalePath();
 
-// Supported locale codes for the shared language selector
-const availableLanguages = computed(() => {
-    return locales.value.map(language => language.code);
-});
+// Displayed status code
+const statusCode = computed(() => props.error?.statusCode ?? 500);
 
-// Resolve the displayed status code
-const statusCode = computed(() => {
-    return props.error?.statusCode ?? 500;
-});
+// Page title
+const errorTitle = computed(() => statusCode.value === 404 ? t('errors.pageNotFound') : t('errors.genericTitle'));
 
-// Resolve the page title
-const title = computed(() => {
-    if (statusCode.value === 404) {
-        return t('errors.pageNotFound');
-    }
+// Supporting message
+const errorMessage = computed(() => statusCode.value === 404 ? t('errors.pageNotFoundMessage') : (props.error?.statusMessage || t('errors.genericMessage')));
 
-    return t('errors.genericTitle');
-});
+// Available language codes for the selector
+const languageOptions = computed(() => locales.value.map(language => language.code));
 
-// Resolve the supporting message
-const message = computed(() => {
-    if (statusCode.value === 404) {
-        return t('errors.pageNotFoundMessage');
-    }
-
-    return props.error?.statusMessage || t('errors.genericMessage');
-});
-
-// Clear the error and return to the main setup flow
-const handleBackHome = async () => {
-    await clearError({ redirect: localePath('/wifi') });
-};
-
-// Apply the selected locale from the shared language selector
+// Apply a selected language
 const handleSelectLanguage = async language => {
     await setLocale(language);
+};
+
+// Clear the error and return to the Wi-Fi page
+const handleAction = async () => {
+    await clearError({ redirect: localePath('/wifi') });
 };
 </script>
 
 <template>
-    <div class="relative min-h-screen bg-[var(--bg-main-light)] text-[var(--text-primary-light)] dark:bg-[var(--bg-main-dark)] dark:text-[var(--text-primary-dark)]">
-        <!-- Decorative background grid -->
-        <BackgroundGrid />
+    <ErrorPage :status-code="statusCode" :label="t('errors.label')" :title="errorTitle" :message="errorMessage" :action-label="t('errors.backToSetup')" @action="handleAction">
+        <!-- Language and theme -->
+        <template #toolbar>
+            <LanguageSelector :model-value="locale" :languages="languageOptions" @select="handleSelectLanguage" />
+            <ThemeSelector />
+        </template>
 
-        <!-- Main content -->
-        <main class="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
-            <div class="w-full max-w-xl">
-                <!-- Toolbar -->
-                <div class="mb-4 flex justify-end gap-3">
-                    <LanguageSelector :model-value="locale" :languages="availableLanguages" @update:model-value="handleSelectLanguage" />
-                    <ThemeSelector />
-                </div>
-
-                <!-- Error card -->
-                <Card>
-                    <CardContent>
-                        <!-- Brand -->
-                        <BrandLogo :brand-name="t('app.title')" />
-
-                        <!-- Error copy -->
-                        <div>
-                            <!-- Status code -->
-                            <div class="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--button-primary-light)] dark:text-[var(--button-primary-dark)]">
-                                {{ t('errors.label') }} {{ statusCode }}
-                            </div>
-
-                            <!-- Title -->
-                            <h1 class="mt-3 text-2xl font-bold">
-                                {{ title }}
-                            </h1>
-
-                            <!-- Message -->
-                            <p class="mt-4 text-sm leading-7 text-[var(--text-secondary-light)] dark:text-[var(--text-secondary-dark)] sm:text-base">
-                                {{ message }}
-                            </p>
-                        </div>
-                    </CardContent>
-
-                    <!-- Actions -->
-                    <CardFooter class="items-start flex-col gap-3 sm:flex-row sm:items-center">
-                        <!-- Back home button -->
-                        <Button variant="primary" @click="handleBackHome">
-                            <HugeiconsIcon :icon="ArrowLeft01Icon" class="size-4" />
-                            {{ t('errors.backToSetup') }}
-                        </Button>
-                    </CardFooter>
-                </Card>
-            </div>
-        </main>
-    </div>
+        <!-- Brand -->
+        <template #brand>
+            <BrandLogo :brand-name="t('app.title')" />
+        </template>
+    </ErrorPage>
 </template>

@@ -11,10 +11,9 @@ export default defineNuxtConfig({
             title: 'Gizmo Ticker'
         },
 
-        // Global page transition
+        // Page transition: the new page fades in while the old one goes at once (main.css). Not "out-in", which left the page blank when a navigation was interrupted
         pageTransition: {
-            name: 'page',
-            mode: 'out-in'
+            name: 'page'
         }
     },
 
@@ -24,7 +23,7 @@ export default defineNuxtConfig({
         }
     },
 
-    css: ['~/assets/main.css'],
+    css: ['~/assets/css/main.css'],
 
     modules: [
         '@brumaombra/ui-vintage',
@@ -48,8 +47,7 @@ export default defineNuxtConfig({
         optimizeDeps: {
             include: [
                 '@brumaombra/ui-vintage',
-                '@hugeicons/vue',
-                '@hugeicons/core-free-icons'
+                '@hugeicons/vue'
             ]
         }
     },

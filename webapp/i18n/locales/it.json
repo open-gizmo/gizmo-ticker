@@ -6,32 +6,14 @@
     "common": {
         "close": "Chiudi",
         "cancel": "Annulla",
-        "note": "Nota",
-        "save": "Salva",
-        "refresh": "Aggiorna",
         "refreshing": "Aggiornamento...",
         "keepEditing": "Continua a modificare",
         "controlPanel": "Pannello di controllo",
         "redirectingWifiSetup": "Reindirizzamento alla configurazione WiFi...",
         "genericError": "Si e verificato un errore",
-        "deviceUi": "Interfaccia dispositivo",
         "syncingDevice": "Sincronizzazione del dispositivo..."
     },
-    "theme": {
-        "title": "Tema",
-        "toggleMenu": "Apri il menu del tema",
-        "light": "Chiaro",
-        "dark": "Scuro",
-        "system": "Sistema"
-    },
-    "language": {
-        "title": "Lingua",
-        "toggleMenu": "Apri il menu della lingua",
-        "en": "English",
-        "it": "Italiano"
-    },
     "nav": {
-        "openNavigation": "Apri navigazione",
         "wifi": {
             "label": "WiFi",
             "description": "Scansiona le reti e collega il dispositivo"
@@ -46,13 +28,8 @@
         }
     },
     "dialogs": {
-        "messageTitle": "Messaggio",
-        "confirmTitle": "Conferma azione",
-        "confirmMessage": "Sei sicuro?",
-        "confirm": "Conferma",
         "errorTitle": "Errore",
-        "successTitle": "Successo",
-        "infoTitle": "Informazione"
+        "successTitle": "Successo"
     },
     "errors": {
         "pageNotFound": "Pagina non trovata",
@@ -63,11 +40,6 @@
         "label": "Errore"
     },
     "api": {
-        "loadNetworks": "Si e verificato un errore durante il caricamento delle reti Wi-Fi",
-        "loadSettings": "Si e verificato un errore durante il caricamento delle impostazioni",
-        "saveSettings": "Si e verificato un errore durante il salvataggio delle impostazioni",
-        "resetSettings": "Si e verificato un errore durante il ripristino delle impostazioni",
-        "saveApiKey": "Si e verificato un errore durante il salvataggio della chiave API",
         "wifiWrongCredentials": "Le credenziali Wi-Fi sono errate oppure la rete non e disponibile.",
         "wifiUnknownStatus": "Il dispositivo ha restituito uno stato di connessione Wi-Fi sconosciuto.",
         "wifiTimeout": "Il dispositivo non ha completato la connessione Wi-Fi in tempo.",
@@ -83,9 +55,7 @@
     },
     "pages": {
         "apiKey": {
-            "eyebrow": "Credenziali",
             "title": "Chiave API",
-            "description": "Memorizza la chiave API dei dati di mercato usata dal firmware del ticker. Il valore viene inviato direttamente all'endpoint di configurazione del dispositivo.",
             "label": "Chiave API",
             "placeholder": "Incolla la tua chiave API",
             "note": "Usa una chiave con una quota sufficiente per interrogazioni frequenti. Il firmware attuale si aspetta la chiave API come stringa semplice.",
@@ -93,18 +63,15 @@
             "saveSuccess": "La chiave API e stata salvata correttamente!",
             "saveError": "Si e verificato un errore durante il salvataggio della chiave API",
             "confirmTitle": "Salva chiave API",
-            "confirmMessage": "Memorizzare questa chiave API sul dispositivo e sostituire il valore attuale?"
+            "confirmMessage": "Memorizzare questa chiave API sul dispositivo e sostituire il valore attuale?",
+            "currentKeyLabel": "Chiave salvata",
+            "notSet": "Nessuna chiave salvata"
         },
         "wifi": {
-            "eyebrow": "Configurazione",
             "title": "Connetti al WiFi",
-            "description": "Collega il dispositivo alla tua rete locale in modo che possa recuperare i dati di mercato e mantenere aggiornata la matrice LED.",
             "currentNetworkLabel": "Rete corrente",
-            "networkCountLabel": "Reti trovate",
-            "networkCountValue": "{count} rilevate dal dispositivo",
             "notConnected": "Non connesso",
             "availableNetworks": "Reti disponibili",
-            "networkPlaceholder": "Seleziona una rete",
             "password": "Password",
             "passwordPlaceholder": "Inserisci la password WiFi",
             "note": "Il dispositivo provera immediatamente le credenziali e disattivera il suo hotspot temporaneo dopo una connessione riuscita.",
@@ -115,26 +82,24 @@
             "refreshError": "Si e verificato un errore durante l'aggiornamento dell'elenco SSID",
             "connectConfirmTitle": "Connetti il dispositivo al WiFi",
             "connectConfirmMessage": "Inviare al dispositivo le credenziali selezionate per {ssid} e passare a quella rete?",
-            "secured": "Protetta",
-            "open": "Aperta"
+            "noNetworksTitle": "Nessuna rete trovata",
+            "noNetworksDescription": "Il dispositivo sta ancora cercando, oppure non ci sono reti nelle vicinanze. Riprova tra qualche secondo.",
+            "scanAgain": "Cerca di nuovo",
+            "passwordDialogTitle": "Connetti a {ssid}",
+            "passwordDialogDescription": "Inserisci la password di questa rete."
         },
         "apSetup": {
-            "eyebrow": "Modalita access point",
             "title": "Connetti al WiFi",
             "connectConfirmTitle": "Connetti ed esci dalla modalita AP",
             "connectConfirmMessage": "Inviare al dispositivo le credenziali selezionate per {ssid}, connetterlo a quella rete e disattivare l'hotspot temporaneo?"
         },
         "settings": {
-            "eyebrow": "Display",
             "title": "Impostazioni ticker",
-            "description": "Regola con precisione cosa mostra la matrice LED e con quale aggressivita scorre i dati di mercato.",
             "visibilityTitle": "Visibilita",
             "visibilityDescription": "Scegli quali metriche di mercato devono ruotare sulla matrice.",
             "formattingTitle": "Formato e movimento",
-            "formattingDescription": "Regola il formato dei numeri e l'intensita di riproduzione della matrice.",
             "cryptoCoin": {
                 "label": "Moneta del ticker",
-                "placeholder": "Scegli una cripto",
                 "note": "Seleziona quale moneta il dispositivo deve recuperare e applica il relativo stile di accento nell'interfaccia web."
             },
             "saveAction": "Salva impostazioni",
@@ -150,37 +115,29 @@
             "resetConfirmMessage": "Cancellare le impostazioni salvate e riavviare il firmware?",
             "visibility": {
                 "currentPrice": {
-                    "label": "Prezzo attuale",
-                    "description": "Il prezzo live attualmente recuperato per la moneta selezionata."
+                    "label": "Prezzo attuale"
                 },
                 "priceChange": {
-                    "label": "Variazione prezzo",
-                    "description": "Quanto il prezzo e cambiato rispetto al periodo precedente."
+                    "label": "Variazione prezzo"
                 },
                 "marketCap": {
-                    "label": "Capitalizzazione",
-                    "description": "Il valore totale di mercato della moneta selezionata."
+                    "label": "Capitalizzazione"
                 },
                 "dailyHighLow": {
-                    "label": "Massimo / minimo giornaliero",
-                    "description": "Il prezzo piu alto e piu basso raggiunto oggi."
+                    "label": "Massimo / minimo giornaliero"
                 },
                 "yearHighLow": {
-                    "label": "Massimo / minimo storico",
-                    "description": "Il prezzo piu alto e piu basso mai raggiunto."
+                    "label": "Massimo / minimo storico"
                 },
                 "openPrice": {
-                    "label": "Prezzo di apertura",
-                    "description": "Il prezzo all'apertura del periodo corrente."
+                    "label": "Prezzo di apertura"
                 },
                 "volume": {
-                    "label": "Volume",
-                    "description": "Il volume di scambio del periodo corrente."
+                    "label": "Volume"
                 }
             },
             "formatType": {
                 "label": "Separatore delle migliaia",
-                "placeholder": "Scegli un formato numerico",
                 "note": "La formattazione verra aggiornata al prossimo refresh dell'API.",
                 "usMeta": "Virgola per le migliaia, punto per i decimali",
                 "euMeta": "Punto per le migliaia, virgola per i decimali"
@@ -192,7 +149,9 @@
             "scrollSpeed": {
                 "label": "Velocita di scorrimento",
                 "note": "Controlla la velocita con cui ogni blocco di testo attraversa il display."
-            }
+            },
+            "matrixTitle": "Matrice",
+            "deviceTitle": "Dispositivo"
         }
     }
 }

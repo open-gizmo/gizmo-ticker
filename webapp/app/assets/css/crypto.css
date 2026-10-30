@@ -1,0 +1,21 @@
+/* Accent color of the selected coin: only the palette is overridden, the library derives its semantic tokens (primary, ring, sidebar) from it in light and dark mode */
+
+/* Bitcoin theme */
+:root[data-crypto-coin='bitcoin'] {
+	--button-primary-light: #f7931a;
+	--button-primary-hover-light: #df8112;
+	--button-primary-dark: #f7931a;
+	--button-primary-hover-dark: #df8112;
+	--button-primary-foreground-light: #ffffff;
+	--button-primary-foreground-dark: #1b1307;
+}
+
+/* Kaspa theme */
+:root[data-crypto-coin='kaspa'] {
+	--button-primary-light: #6fc7ba;
+	--button-primary-hover-light: #5bb7ab;
+	--button-primary-dark: #6fc7ba;
+	--button-primary-hover-dark: #5bb7ab;
+	--button-primary-foreground-light: #ffffff;
+	--button-primary-foreground-dark: #06211f;
+}

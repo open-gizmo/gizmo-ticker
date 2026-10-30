@@ -1,24 +1,32 @@
 <script setup>
-import { computed } from 'vue';
-import { Cancel01Icon, CheckmarkCircle02Icon, InformationCircleIcon, RefreshIcon, SaveIcon, Settings01Icon } from '@hugeicons/core-free-icons';
+import { computed, ref } from 'vue';
+import Cancel01Icon from '@hugeicons/core-free-icons/Cancel01Icon';
+import CheckmarkCircle02Icon from '@hugeicons/core-free-icons/CheckmarkCircle02Icon';
+import Coins01Icon from '@hugeicons/core-free-icons/Coins01Icon';
+import InformationCircleIcon from '@hugeicons/core-free-icons/InformationCircleIcon';
+import RefreshIcon from '@hugeicons/core-free-icons/RefreshIcon';
+import SaveIcon from '@hugeicons/core-free-icons/SaveIcon';
+import SlidersHorizontalIcon from '@hugeicons/core-free-icons/SlidersHorizontalIcon';
+import TextNumberSignIcon from '@hugeicons/core-free-icons/TextNumberSignIcon';
 import { HugeiconsIcon } from '@hugeicons/vue';
 import { setBusy } from '@brumaombra/ui-vintage/busy-indicator';
 import { Button } from '@brumaombra/ui-vintage/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@brumaombra/ui-vintage/card';
 import { showConfirmDialog } from '@brumaombra/ui-vintage/confirm-dialog';
+import { ListGroup, ListRow } from '@brumaombra/ui-vintage/list';
 import { showMessageDialog } from '@brumaombra/ui-vintage/message-dialog';
-import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from '@brumaombra/ui-vintage/field';
+import { PageHeader } from '@brumaombra/ui-vintage/page-header';
+import { SectionTitle } from '@brumaombra/ui-vintage/section-title';
 import { SliderFormComponent } from '@brumaombra/ui-vintage/slider-form-component';
-import { Select, SelectContent, SelectItem, SelectItemContent, SelectTrigger, SelectValueContent } from '@brumaombra/ui-vintage/select';
-import { SwitchFormComponent } from '@brumaombra/ui-vintage/switch-form-component';
+import { Switch } from '@brumaombra/ui-vintage/switch';
 import { resetSettings, saveSettings } from '~/composables/useDeviceApi.js';
-import { getCryptoCoins, handleBackendErrors, setCryptoCoin } from '~/composables/useUtils.js';
+import { getCryptoCoinById, getCryptoCoins, handleBackendErrors, setCryptoCoin } from '~/composables/useUtils.js';
 import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
-import PageIntroCard from '~/components/PageIntroCard.vue';
+import OptionPickerDialog from '~/components/dialog/OptionPickerDialog.vue';
 
 const globalStore = useGlobalStore();
 const cryptoCoins = getCryptoCoins();
 const { t } = useI18n();
+const openPicker = ref(''); // Picker currently open ('coin', 'format', or none)
 
 // Reactive config payload
 const config = computed(() => globalStore.value.config);
@@ -35,8 +43,8 @@ const scrollSpeedPercentage = computed(() => {
 
 // Available thousands separator formats
 const separatorOptions = computed(() => ([
-    { value: 'US', label: '21,000.00', meta: t('pages.settings.formatType.usMeta') },
-    { value: 'EU', label: '21.000,00', meta: t('pages.settings.formatType.euMeta') }
+    { value: 'US', label: '21,000.00', description: t('pages.settings.formatType.usMeta') },
+    { value: 'EU', label: '21.000,00', description: t('pages.settings.formatType.euMeta') }
 ]));
 
 // Available crypto coin choices
@@ -44,19 +52,33 @@ const cryptoCoinOptions = computed(() => {
     return cryptoCoins.map(coin => ({
         value: coin.id,
         label: coin.name,
-        icon: coin.image
+        image: coin.image
     }));
 });
 
-// Currently selected crypto coin metadata for the select trigger
-const selectedCryptoCoinOption = computed(() => {
-    return cryptoCoinOptions.value.find(option => option.value === config.value?.cryptoCoin) || null;
+// Name of the selected coin, shown in its row
+const selectedCryptoCoinName = computed(() => getCryptoCoinById(config.value?.cryptoCoin).name);
+
+// Example of the selected number format, shown in its row
+const selectedSeparatorLabel = computed(() => {
+    return separatorOptions.value.find(option => option.value === config.value?.formatType)?.label || '';
 });
 
-// Currently selected separator metadata for the select trigger
-const selectedSeparatorOption = computed(() => {
-    return separatorOptions.value.find(option => option.value === config.value?.formatType) || null;
-});
+// Matrix sections the user can show or hide, top to bottom
+const visibilityRows = computed(() => ['currentPrice', 'priceChange', 'marketCap', 'dailyHighLow', 'yearHighLow', 'openPrice', 'volume'].map(id => ({
+    id,
+    label: t(`pages.settings.visibility.${id}.label`)
+})));
+
+// Pick a coin (the accent color of the web app follows it right away)
+const handleCryptoCoinSelect = cryptoCoin => {
+    setCryptoCoin(cryptoCoin);
+};
+
+// Pick a number format
+const handleFormatTypeSelect = formatType => {
+    config.value.formatType = formatType;
+};
 
 // Save the current settings payload
 const saveCurrentSettings = async () => {
@@ -69,7 +91,7 @@ const saveCurrentSettings = async () => {
         setBusy(true);
         await saveSettings(config.value);
         showMessageDialog({
-            type: 'Success',
+            type: 'success',
             icon: CheckmarkCircle02Icon,
             title: t('dialogs.successTitle'),
             message: t('pages.settings.saveSuccess'),
@@ -89,7 +111,7 @@ const resetSavedSettings = async () => {
         setBusy(true);
         const result = await resetSettings();
         showMessageDialog({
-            type: 'Info',
+            type: 'info',
             icon: InformationCircleIcon,
             title: t('pages.settings.resetInfoTitle'),
             message: result.message || t('pages.settings.resetInfoMessage'),
@@ -142,160 +164,68 @@ definePageMeta({
 </script>
 
 <template>
-    <div class="mx-auto flex w-full flex-col gap-4 md:gap-6">
-        <!-- Page intro -->
-        <PageIntroCard class="min-w-0"
-            :eyebrow="t('pages.settings.eyebrow')"
-            :title="t('pages.settings.title')"
-            :description="t('pages.settings.description')"
-            :icon="Settings01Icon"
-            :icon-label="t('nav.settings.label')" />
+    <div class="mx-auto w-full max-w-2xl space-y-6">
+        <!-- Title -->
+        <PageHeader :title="t('pages.settings.title')" size="medium" />
 
         <!-- Settings form -->
-        <form class="min-w-0 space-y-6" @submit.prevent="handleSavePress">
-            <!-- Visibility card -->
-            <Card>
-                <!-- Visibility section -->
-                <CardHeader>
-                    <CardTitle>{{ t('pages.settings.visibilityTitle') }}</CardTitle>
-                    <CardDescription>{{ t('pages.settings.visibilityDescription') }}</CardDescription>
-                </CardHeader>
+        <form class="space-y-6" @submit.prevent="handleSavePress">
+            <!-- Sections shown on the matrix -->
+            <ListGroup :title="t('pages.settings.visibilityTitle')" :hint="t('pages.settings.visibilityDescription')">
+                <ListRow v-for="row in visibilityRows" :key="row.id" :label="row.label" :label-for="row.id">
+                    <template #trailing>
+                        <Switch :id="row.id" v-model="config[row.id]" />
+                    </template>
+                </ListRow>
+            </ListGroup>
 
-                <!-- Visibility toggles -->
-                <CardContent>
-                    <!-- Current price -->
-                    <SwitchFormComponent id="currentPrice"
-                        v-model="config.currentPrice"
-                        :label="t('pages.settings.visibility.currentPrice.label')"
-                        :description="t('pages.settings.visibility.currentPrice.description')" />
+            <!-- Coin and number format -->
+            <ListGroup :title="t('pages.settings.formattingTitle')" :hint="t('pages.settings.formatType.note')">
+                <ListRow :label="t('pages.settings.cryptoCoin.label')" :icon="Coins01Icon" :value="selectedCryptoCoinName" action @click="openPicker = 'coin'" />
+                <ListRow :label="t('pages.settings.formatType.label')" :icon="TextNumberSignIcon" :value="selectedSeparatorLabel" action @click="openPicker = 'format'" />
+            </ListGroup>
 
-                    <!-- Price change -->
-                    <SwitchFormComponent id="priceChange"
-                        v-model="config.priceChange"
-                        :label="t('pages.settings.visibility.priceChange.label')"
-                        :description="t('pages.settings.visibility.priceChange.description')" />
+            <!-- Matrix brightness and speed -->
+            <section>
+                <SectionTitle :title="t('pages.settings.matrixTitle')" :icon="SlidersHorizontalIcon" />
+                <div class="space-y-4">
+                    <SliderFormComponent id="matrixIntensity"
+                        v-model="config.matrixIntensity"
+                        :label="t('pages.settings.matrixIntensity.label')"
+                        :description="t('pages.settings.matrixIntensity.note')"
+                        :min="0"
+                        :max="15"
+                        :value-text="`${matrixIntensityPercentage}%`" />
+                    <SliderFormComponent id="scrollSpeed"
+                        v-model="config.scrollSpeed"
+                        :label="t('pages.settings.scrollSpeed.label')"
+                        :description="t('pages.settings.scrollSpeed.note')"
+                        :min="0"
+                        :max="15"
+                        :value-text="`${scrollSpeedPercentage}%`" />
+                </div>
+            </section>
 
-                    <!-- Market cap -->
-                    <SwitchFormComponent id="marketCap"
-                        v-model="config.marketCap"
-                        :label="t('pages.settings.visibility.marketCap.label')"
-                        :description="t('pages.settings.visibility.marketCap.description')" />
-
-                    <!-- 24h volume -->
-                    <SwitchFormComponent id="dailyHighLow"
-                        v-model="config.dailyHighLow"
-                        :label="t('pages.settings.visibility.dailyHighLow.label')"
-                        :description="t('pages.settings.visibility.dailyHighLow.description')" />
-
-                    <!-- 24h high / low -->
-                    <SwitchFormComponent id="yearHighLow"
-                        v-model="config.yearHighLow"
-                        :label="t('pages.settings.visibility.yearHighLow.label')"
-                        :description="t('pages.settings.visibility.yearHighLow.description')" />
-
-                    <!-- Open price -->
-                    <SwitchFormComponent id="openPrice"
-                        v-model="config.openPrice"
-                        :label="t('pages.settings.visibility.openPrice.label')"
-                        :description="t('pages.settings.visibility.openPrice.description')" />
-
-                    <!-- Volume -->
-                    <SwitchFormComponent id="volume"
-                        v-model="config.volume"
-                        :label="t('pages.settings.visibility.volume.label')"
-                        :description="t('pages.settings.visibility.volume.description')" />
-                </CardContent>
-            </Card>
-
-            <!-- Formatting & motion card -->
-            <Card>
-                <!-- Formatting section -->
-                <CardHeader>
-                    <CardTitle>{{ t('pages.settings.formattingTitle') }}</CardTitle>
-                    <CardDescription>{{ t('pages.settings.formattingDescription') }}</CardDescription>
-                </CardHeader>
-
-                <!-- Formatting controls -->
-                <CardContent>
-                    <FieldGroup>
-                        <!-- Crypto coin -->
-                        <Field>
-                            <FieldLabel for="cryptoCoin">{{ t('pages.settings.cryptoCoin.label') }}</FieldLabel>
-                            <FieldContent>
-                                <Select v-model="config.cryptoCoin" @update:modelValue="setCryptoCoin">
-                                    <SelectTrigger id="cryptoCoin" class="w-full">
-                                        <div v-if="selectedCryptoCoinOption" class="flex min-w-0 flex-1 items-center gap-2 text-left">
-                                            <img :src="selectedCryptoCoinOption.icon" alt="" aria-hidden="true" decoding="async" class="size-5 shrink-0" />
-                                            <span class="truncate">{{ selectedCryptoCoinOption.label }}</span>
-                                        </div>
-                                        <span v-else class="truncate text-muted-foreground">{{ t('pages.settings.cryptoCoin.placeholder') }}</span>
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem v-for="option in cryptoCoinOptions" :key="option.value" :value="option.value" :text-value="option.label">
-                                            <div class="flex items-center gap-2">
-                                                <img :src="option.icon" alt="" aria-hidden="true" loading="lazy" decoding="async" class="size-5 shrink-0" />
-                                                <span>{{ option.label }}</span>
-                                            </div>
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FieldDescription>{{ t('pages.settings.cryptoCoin.note') }}</FieldDescription>
-                            </FieldContent>
-                        </Field>
-
-                        <!-- Thousands separator format -->
-                        <Field>
-                            <FieldLabel for="selectFormatType">{{ t('pages.settings.formatType.label') }}</FieldLabel>
-                            <FieldContent>
-                                <Select v-model="config.formatType">
-                                    <SelectTrigger id="selectFormatType" class="w-full">
-                                        <SelectValueContent :placeholder="t('pages.settings.formatType.placeholder')" :label="selectedSeparatorOption?.label" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem v-for="option in separatorOptions" :key="option.value" :value="option.value" :text-value="option.label">
-                                            <SelectItemContent :label="option.label" :description="option.meta" />
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FieldDescription>{{ t('pages.settings.formatType.note') }}</FieldDescription>
-                            </FieldContent>
-                        </Field>
-
-                        <!-- Matrix intensity -->
-                        <SliderFormComponent id="matrixIntensity"
-                            v-model="config.matrixIntensity"
-                            :label="t('pages.settings.matrixIntensity.label')"
-                            :description="t('pages.settings.matrixIntensity.note')"
-                            :min="0"
-                            :max="15"
-                            :value-text="`${matrixIntensityPercentage}%`" />
-
-                        <!-- Scroll speed -->
-                        <SliderFormComponent id="scrollSpeed"
-                            v-model="config.scrollSpeed"
-                            :label="t('pages.settings.scrollSpeed.label')"
-                            :description="t('pages.settings.scrollSpeed.note')"
-                            :min="0"
-                            :max="15"
-                            :value-text="`${scrollSpeedPercentage}%`" />
-                    </FieldGroup>
-                </CardContent>
-            </Card>
-
-            <!-- Action buttons -->
-            <div class="flex flex-col gap-3 md:flex-row md:justify-end">
-                <!-- Save button -->
-                <Button variant="primary" type="submit" class="w-full md:w-auto">
-                    <HugeiconsIcon :icon="SaveIcon" class="size-4" />
-                    {{ t('pages.settings.saveAction') }}
-                </Button>
-                
-                <!-- Reset button -->
-                <Button variant="secondary" type="button" class="w-full md:w-auto" @click="handleResetPress">
-                    <HugeiconsIcon :icon="RefreshIcon" class="size-4" />
-                    {{ t('pages.settings.resetAction') }}
-                </Button>
-            </div>
+            <!-- Save button -->
+            <Button variant="primary" type="submit" class="w-full">
+                <HugeiconsIcon :icon="SaveIcon" class="size-4" />
+                {{ t('pages.settings.saveAction') }}
+            </Button>
         </form>
+
+        <!-- Device -->
+        <ListGroup :title="t('pages.settings.deviceTitle')">
+            <ListRow :label="t('pages.settings.resetAction')" :icon="RefreshIcon" action danger @click="handleResetPress" />
+        </ListGroup>
+
+        <!-- Coin picker -->
+        <OptionPickerDialog :visible="openPicker === 'coin'" :title="t('pages.settings.cryptoCoin.label')" :description="t('pages.settings.cryptoCoin.note')" :options="cryptoCoinOptions" :model-value="config.cryptoCoin" @update:model-value="handleCryptoCoinSelect" @close="openPicker = ''">
+            <template #icon="{ option }">
+                <img :src="option.image" alt="" aria-hidden="true" decoding="async" class="size-5 shrink-0">
+            </template>
+        </OptionPickerDialog>
+
+        <!-- Number format picker -->
+        <OptionPickerDialog :visible="openPicker === 'format'" :title="t('pages.settings.formatType.label')" :options="separatorOptions" :model-value="config.formatType" @update:model-value="handleFormatTypeSelect" @close="openPicker = ''" />
     </div>
 </template>

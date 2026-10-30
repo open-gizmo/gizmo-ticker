@@ -1,13 +1,7 @@
-import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
-import { Alert02Icon, Cancel01Icon } from '@hugeicons/core-free-icons';
+import Alert02Icon from '@hugeicons/core-free-icons/Alert02Icon';
+import Cancel01Icon from '@hugeicons/core-free-icons/Cancel01Icon';
 import { showMessageDialog } from '@brumaombra/ui-vintage/message-dialog';
-
-// Available theme modes for the webapp
-const availableThemes = [
-    { id: 'light' },
-    { id: 'dark' },
-    { id: 'system' }
-];
+import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
 
 // Available crypto coins for the ticker and matching webapp accent styles
 const availableCryptoCoins = [
@@ -28,22 +22,9 @@ export const translate = (key, params = {}) => {
     return key;
 };
 
-// Apply the resolved theme class to the document root
-const applyThemeToDocument = theme => {
-    const isDarkSystem = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const resolvedTheme = theme === 'system' ? (isDarkSystem ? 'dark' : 'light') : theme;
-    document.documentElement.classList.remove('light', 'dark');
-    document.documentElement.classList.add(resolvedTheme);
-};
-
 // Apply the active crypto coin accent style to the document root
 const applyCryptoCoinToDocument = cryptoCoin => {
     document.documentElement.dataset.cryptoCoin = cryptoCoin;
-};
-
-// Return the list of supported theme options
-export const getThemes = () => {
-    return availableThemes;
 };
 
 // Return the list of supported crypto coins
@@ -56,41 +37,12 @@ export const getCryptoCoinById = cryptoCoinId => {
     return availableCryptoCoins.find(coin => coin.id === cryptoCoinId) || availableCryptoCoins[0];
 };
 
-// Persist and apply a selected theme
-export const setTheme = theme => {
-    const globalStore = useGlobalStore();
-    globalStore.value.themeMode = theme;
-
-    // Save the preference in localStorage for persistence across sessions
-    localStorage.setItem('theme', theme);
-
-    // Apply the theme to the document root to update the UI
-    applyThemeToDocument(theme);
-};
-
 // Apply a selected crypto coin to the shared store and document
 export const setCryptoCoin = cryptoCoin => {
     const globalStore = useGlobalStore();
     const isSupportedCryptoCoin = availableCryptoCoins.some(coin => coin.id === cryptoCoin);
     globalStore.value.config.cryptoCoin = isSupportedCryptoCoin ? cryptoCoin : 'bitcoin';
     applyCryptoCoinToDocument(globalStore.value.config.cryptoCoin);
-};
-
-// Initialize the theme from storage and system preference
-export const initializeTheme = () => {
-    const globalStore = useGlobalStore();
-
-    // Check localStorage for a saved theme preference
-    const storedTheme = localStorage.getItem('theme') || 'system';
-    globalStore.value.themeMode = storedTheme;
-    applyThemeToDocument(storedTheme);
-
-    // Listen for changes in the system theme preference
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-        if (globalStore.value.themeMode === 'system') {
-            applyThemeToDocument('system');
-        }
-    });
 };
 
 // Initialize the crypto coin accent state from the current store value
@@ -118,7 +70,7 @@ export const handleBackendErrors = ({ error, defaultMessage = '', showDialog = f
     // Show a user-friendly error dialog if requested
     if (showDialog) {
         showMessageDialog({
-            type: 'Error',
+            type: 'error',
             icon: Alert02Icon,
             title: translate('dialogs.errorTitle'),
             message: resolvedMessage,

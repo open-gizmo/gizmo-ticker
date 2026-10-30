@@ -1,12 +1,14 @@
 <script setup>
 import { onMounted } from 'vue';
 import { setBusy } from '@brumaombra/ui-vintage/busy-indicator';
+import { useTheme } from '@brumaombra/ui-vintage/theme-selector';
 import { getConfig, getNetworks } from '~/composables/useDeviceApi.js';
-import { handleBackendErrors, initializeCryptoCoin, initializeTheme, setCryptoCoin } from '~/composables/useUtils.js';
+import { handleBackendErrors, initializeCryptoCoin, setCryptoCoin } from '~/composables/useUtils.js';
 import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
 
 const globalStore = useGlobalStore();
 const { t } = useI18n();
+const { startTheme } = useTheme();
 
 // Load the initial device data once for the app shell
 const loadInitialData = async () => {
@@ -43,9 +45,9 @@ const loadInitialData = async () => {
     }
 };
 
-// Initialize the theme and preload device data once the app mounts
+// Apply the saved theme (shared with the theme selector) and preload device data once the app mounts
 onMounted(async () => {
-    initializeTheme();
+    startTheme();
     initializeCryptoCoin();
     await loadInitialData();
 });

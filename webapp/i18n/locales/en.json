@@ -6,32 +6,14 @@
     "common": {
         "close": "Close",
         "cancel": "Cancel",
-        "note": "Note",
-        "save": "Save",
-        "refresh": "Refresh",
         "refreshing": "Refreshing...",
         "keepEditing": "Keep editing",
         "controlPanel": "Control Panel",
         "redirectingWifiSetup": "Redirecting to WiFi setup...",
         "genericError": "An error occurred",
-        "deviceUi": "Device UI",
         "syncingDevice": "Syncing device..."
     },
-    "theme": {
-        "title": "Theme",
-        "toggleMenu": "Toggle theme menu",
-        "light": "Light",
-        "dark": "Dark",
-        "system": "System"
-    },
-    "language": {
-        "title": "Language",
-        "toggleMenu": "Toggle language menu",
-        "en": "English",
-        "it": "Italiano"
-    },
     "nav": {
-        "openNavigation": "Open navigation",
         "wifi": {
             "label": "WiFi",
             "description": "Scan networks and connect the device"
@@ -46,13 +28,8 @@
         }
     },
     "dialogs": {
-        "messageTitle": "Message",
-        "confirmTitle": "Confirm action",
-        "confirmMessage": "Are you sure?",
-        "confirm": "Confirm",
         "errorTitle": "Error",
-        "successTitle": "Success",
-        "infoTitle": "Info"
+        "successTitle": "Success"
     },
     "errors": {
         "pageNotFound": "Page not found",
@@ -63,11 +40,6 @@
         "label": "Error"
     },
     "api": {
-        "loadNetworks": "An error occurred while loading the Wi-Fi networks",
-        "loadSettings": "An error occurred while loading the settings",
-        "saveSettings": "An error occurred while saving the settings",
-        "resetSettings": "An error occurred while resetting the settings",
-        "saveApiKey": "An error occurred while saving the API key",
         "wifiWrongCredentials": "The Wi-Fi credentials are wrong or the network is unavailable.",
         "wifiUnknownStatus": "The device returned an unknown Wi-Fi connection status.",
         "wifiTimeout": "The device did not finish connecting to Wi-Fi in time.",
@@ -83,9 +55,7 @@
     },
     "pages": {
         "apiKey": {
-            "eyebrow": "Credentials",
             "title": "API Key",
-            "description": "Store the market data API key used by the ticker firmware. The value is sent directly to the device configuration endpoint.",
             "label": "API key",
             "placeholder": "Paste your API key",
             "note": "Use a key with enough quota for frequent polling. The current firmware expects the API key as a plain string.",
@@ -93,18 +63,15 @@
             "saveSuccess": "The API key has been saved successfully!",
             "saveError": "An error occurred while saving the API key",
             "confirmTitle": "Save API key",
-            "confirmMessage": "Store this API key on the device and replace the current value?"
+            "confirmMessage": "Store this API key on the device and replace the current value?",
+            "currentKeyLabel": "Saved key",
+            "notSet": "No key saved yet"
         },
         "wifi": {
-            "eyebrow": "Setup",
             "title": "Connect to WiFi",
-            "description": "Join the device to your local network so it can fetch market data and keep the LED matrix updated.",
             "currentNetworkLabel": "Current network",
-            "networkCountLabel": "Networks found",
-            "networkCountValue": "{count} detected by the device",
             "notConnected": "Not connected",
             "availableNetworks": "Available networks",
-            "networkPlaceholder": "Select a network",
             "password": "Password",
             "passwordPlaceholder": "Enter the WiFi password",
             "note": "The device will try the credentials immediately and disable its temporary hotspot after a successful connection.",
@@ -115,26 +82,24 @@
             "refreshError": "An error occurred while refreshing the SSID list",
             "connectConfirmTitle": "Connect device to WiFi",
             "connectConfirmMessage": "Send the selected credentials for {ssid} to the device and switch it to that network?",
-            "secured": "Secured",
-            "open": "Open"
+            "noNetworksTitle": "No networks found yet",
+            "noNetworksDescription": "The device is still scanning, or no network is in range. Scan again in a few seconds.",
+            "scanAgain": "Scan again",
+            "passwordDialogTitle": "Join {ssid}",
+            "passwordDialogDescription": "Enter the password of this network."
         },
         "apSetup": {
-            "eyebrow": "Access point mode",
             "title": "Connect to WiFi",
             "connectConfirmTitle": "Connect and leave AP mode",
             "connectConfirmMessage": "Send the selected credentials for {ssid} to the device, connect to that network, and disable the temporary hotspot?"
         },
         "settings": {
-            "eyebrow": "Display",
             "title": "Ticker Settings",
-            "description": "Fine-tune what the LED matrix shows and how aggressively it scrolls through the market data.",
             "visibilityTitle": "Visibility",
             "visibilityDescription": "Choose which market metrics rotate on the matrix.",
             "formattingTitle": "Formatting & Motion",
-            "formattingDescription": "Tweak the number formatting and playback intensity for the matrix.",
             "cryptoCoin": {
                 "label": "Ticker coin",
-                "placeholder": "Choose a crypto coin",
                 "note": "Selects which coin the device fetches and applies the matching accent style in the web interface."
             },
             "saveAction": "Save settings",
@@ -150,37 +115,29 @@
             "resetConfirmMessage": "Clear the saved settings and restart the firmware?",
             "visibility": {
                 "currentPrice": {
-                    "label": "Current price",
-                    "description": "The live price currently fetched for the selected coin."
+                    "label": "Current price"
                 },
                 "priceChange": {
-                    "label": "Price change",
-                    "description": "How much the price moved compared to the previous period."
+                    "label": "Price change"
                 },
                 "marketCap": {
-                    "label": "Market cap",
-                    "description": "The total market value of the selected coin."
+                    "label": "Market cap"
                 },
                 "dailyHighLow": {
-                    "label": "Daily high / low",
-                    "description": "The highest and lowest price reached today."
+                    "label": "Daily high / low"
                 },
                 "yearHighLow": {
-                    "label": "All-time high / low",
-                    "description": "The highest and lowest price ever reached."
+                    "label": "All-time high / low"
                 },
                 "openPrice": {
-                    "label": "Open price",
-                    "description": "The price when the current period opened."
+                    "label": "Open price"
                 },
                 "volume": {
-                    "label": "Volume",
-                    "description": "The trading volume for the current period."
+                    "label": "Volume"
                 }
             },
             "formatType": {
                 "label": "Thousands separator",
-                "placeholder": "Choose a number format",
                 "note": "The formatting updates on the next API refresh.",
                 "usMeta": "Comma thousands, dot decimals",
                 "euMeta": "Dot thousands, comma decimals"
@@ -192,7 +149,9 @@
             "scrollSpeed": {
                 "label": "Scroll speed",
                 "note": "Controls how fast each text block moves across the display."
-            }
+            },
+            "matrixTitle": "Matrix",
+            "deviceTitle": "Device"
         }
     }
 }

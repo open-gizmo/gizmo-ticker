@@ -122,10 +122,10 @@ If you want to build and flash everything yourself, follow this path:
 
 2. **Build the app UI first.**
 
-	The web app lives in `webapp/`. From that folder, install the dependencies and build the embedded UI bundle:
+	The web app lives in `webapp/` and needs Node.js 24.21 or newer. From that folder, install the exact dependencies of the lockfile and build the embedded UI bundle:
 
 	```bash
-	npm install
+	npm ci
 	npm run build:embedded
 	```
 

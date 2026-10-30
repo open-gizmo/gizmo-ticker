@@ -1,98 +1,66 @@
 <script setup>
-import { computed, resolveComponent } from 'vue';
-import { useRoute } from 'vue-router';
-import { Key01Icon, Settings01Icon, WifiFullSignalIcon } from '@hugeicons/core-free-icons';
+import { computed } from 'vue';
 import { DashboardShell } from '@brumaombra/ui-vintage/dashboard-shell';
-import LanguageSelector from '@brumaombra/ui-vintage/language-selector';
-import ThemeSelector from '@brumaombra/ui-vintage/theme-selector';
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@brumaombra/ui-vintage/sidebar';
-import CryptoLogo from '~/components/crypto/CryptoLogo.vue';
+import { LanguageSelector } from '@brumaombra/ui-vintage/language-selector';
+import { ThemeSelector } from '@brumaombra/ui-vintage/theme-selector';
+import { getCryptoCoinById } from '~/composables/useUtils.js';
+import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
+import { useNavItems } from '~/composables/useNavItems.js';
 
 const { locale, locales, setLocale, t } = useI18n();
-const route = useRoute();
-const localePath = useLocalePath();
-const nuxtLinkComponent = resolveComponent('NuxtLink');
+const globalStore = useGlobalStore();
 
-// Supported locale codes for the shared language selector
-const availableLanguages = computed(() => {
+// Pages of the device UI (the shell shows them in the sidebar, and in the bottom navigation on phones)
+const navItems = useNavItems();
+
+// Logo of the coin shown by the ticker
+const appLogo = computed(() => getCryptoCoinById(globalStore.value.config.cryptoCoin).image);
+
+// Sidebar sections
+const sidebarSections = computed(() => [{
+    id: 'control-panel',
+    label: t('common.controlPanel'),
+    items: navItems.value
+}]);
+
+// Bottom navigation items on phones (the same pages, without descriptions)
+const bottomNavItems = computed(() => navItems.value.map(({ id, label, icon, to, active }) => ({ id, label, icon, to, active })));
+
+// Available language codes for the selector
+const languageOptions = computed(() => {
     return locales.value.map(language => language.code);
 });
 
-// Sidebar sections and items configuration
-const sidebarSections = computed(() => ([{
-    id: 'control-panel',
-    label: t('common.controlPanel'),
-    items: [{
-        id: 'wifi',
-        label: t('nav.wifi.label'),
-        description: t('nav.wifi.description'),
-        icon: WifiFullSignalIcon,
-        to: localePath('/wifi'),
-        active: route.path === localePath('/wifi')
-    }, {
-        id: 'settings',
-        label: t('nav.settings.label'),
-        description: t('nav.settings.description'),
-        icon: Settings01Icon,
-        to: localePath('/settings'),
-        active: route.path === localePath('/settings')
-    }, {
-        id: 'api-key',
-        label: t('nav.apiKey.label'),
-        description: t('nav.apiKey.description'),
-        icon: Key01Icon,
-        to: localePath('/api-key'),
-        active: route.path === localePath('/api-key')
-    }]
-}]));
-
-// The currently active sidebar item
-const activeItem = computed(() => {
-    return sidebarSections.value.flatMap(section => section.items).find(item => item.active) || null;
-});
-
-// Apply the selected locale from the shared language selector
+// Apply a selected language
 const handleSelectLanguage = async language => {
     await setLocale(language);
 };
 </script>
 
 <template>
-    <DashboardShell :title="activeItem?.label || t('common.controlPanel')" :description="activeItem?.description || ''" :sidebar-sections="sidebarSections" :sidebar-link-component="nuxtLinkComponent">
-        <!-- Sidebar header slot -->
-        <template #sidebar-header>
-            <SidebarMenu>
-                <SidebarMenuItem>
-                    <SidebarMenuButton as-child size="lg" class="rounded">
-                        <NuxtLink :to="localePath('/')" class="flex items-center gap-3">
-                            <!-- Crypto logo -->
-                            <CryptoLogo class="size-5" />
-
-                            <!-- Brand name and tagline -->
-                            <div class="grid min-w-0 flex-1 text-left text-sm leading-tight">
-                                <span class="truncate font-semibold">{{ t('app.title') }}</span>
-                                <span class="truncate text-xs text-sidebar-foreground/70">{{ t('common.deviceUi') }}</span>
-                            </div>
-                        </NuxtLink>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-            </SidebarMenu>
-        </template>
-
-        <!-- Sidebar footer slot -->
+    <DashboardShell :app-name="t('app.title')"
+        :app-logo="appLogo"
+        app-link-to="/wifi"
+        :compact="true"
+        :sidebar-sections="sidebarSections"
+        :bottom-nav-items="bottomNavItems">
+        <!-- Sidebar footer: language and theme -->
         <template #sidebar-footer>
-            <div class="flex items-center gap-2 px-2">
-                <!-- Language selector -->
-                <LanguageSelector :model-value="locale"
-                    :languages="availableLanguages"
-                    @update:model-value="handleSelectLanguage" />
-
-                <!-- Theme selector -->
+            <div class="flex items-center gap-2">
+                <LanguageSelector :model-value="locale" :languages="languageOptions" @select="handleSelectLanguage" />
                 <ThemeSelector />
             </div>
         </template>
 
-        <!-- Main page slot -->
+        <!-- Topbar actions: language and theme on phones (the bottom navigation replaces the sidebar there) -->
+        <template #topbar-trailing>
+            <div class="flex items-center gap-2 md:hidden">
+                <LanguageSelector :model-value="locale" :languages="languageOptions" @select="handleSelectLanguage" />
+                <ThemeSelector />
+            </div>
+        </template>
+
+        <!-- Main content -->
         <slot />
     </DashboardShell>
 </template>
