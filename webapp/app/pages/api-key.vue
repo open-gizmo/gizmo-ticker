@@ -18,13 +18,19 @@ import { saveApiKey } from '~/composables/useDeviceApi.js';
 import { handleBackendErrors } from '~/composables/useUtils.js';
 import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
 
+const API_KEY_MAX_LENGTH = 34; // Longest key the device stores
 const { t } = useI18n();
 const globalStore = useGlobalStore();
 const apiKey = ref('');
 
+// Key without the spaces or line breaks a paste can bring (CoinGecko would refuse it)
+const trimmedApiKey = computed(() => {
+    return apiKey.value.trim();
+});
+
 // Require a non-empty API key before submitting
 const isFormValid = computed(() => {
-    return apiKey.value.trim();
+    return trimmedApiKey.value !== '';
 });
 
 // Key saved on the device (the device only ever returns it masked)
@@ -42,8 +48,9 @@ const maskApiKey = key => {
 const saveCurrentApiKey = async () => {
     try {
         setBusy(true);
-        await saveApiKey(apiKey.value);
-        globalStore.value.config.apiKey = maskApiKey(apiKey.value);
+        await saveApiKey(trimmedApiKey.value);
+        globalStore.value.config.apiKey = maskApiKey(trimmedApiKey.value);
+        apiKey.value = ''; // Clear the field once saved (after a failure, the key stays to try again)
         showMessageDialog({
             type: 'success',
             icon: CheckmarkCircle02Icon,
@@ -56,7 +63,6 @@ const saveCurrentApiKey = async () => {
         handleBackendErrors({ error, defaultMessage: t('pages.apiKey.saveError'), showDialog: true });
     } finally {
         setBusy(false);
-        apiKey.value = '';
     }
 };
 
@@ -100,7 +106,7 @@ definePageMeta({
                     <Field>
                         <FieldLabel for="apiKey">{{ t('pages.apiKey.label') }}</FieldLabel>
                         <FieldContent>
-                            <Input id="apiKey" v-model="apiKey" type="text" autocomplete="off" :placeholder="t('pages.apiKey.placeholder')" />
+                            <Input id="apiKey" v-model="apiKey" type="text" autocomplete="off" :maxlength="API_KEY_MAX_LENGTH" :placeholder="t('pages.apiKey.placeholder')" />
                             <FieldDescription>{{ t('pages.apiKey.note') }}</FieldDescription>
                         </FieldContent>
                     </Field>

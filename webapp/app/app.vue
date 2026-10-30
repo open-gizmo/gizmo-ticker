@@ -2,42 +2,22 @@
 import { onMounted } from 'vue';
 import { setBusy } from '@brumaombra/ui-vintage/busy-indicator';
 import { useTheme } from '@brumaombra/ui-vintage/theme-selector';
-import { getConfig, getNetworks } from '~/composables/useDeviceApi.js';
-import { handleBackendErrors, initializeCryptoCoin, setCryptoCoin } from '~/composables/useUtils.js';
+import { loadDeviceConfig } from '~/composables/useDeviceConfig.js';
+import { handleBackendErrors, initializeCryptoCoin } from '~/composables/useUtils.js';
 import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
 
 const globalStore = useGlobalStore();
 const { t } = useI18n();
 const { startTheme } = useTheme();
 
-// Load the initial device data once for the app shell
+// Load the device config once for the app shell (the Wi-Fi pages scan the networks themselves, so a failed scan can't block the config)
 const loadInitialData = async () => {
+    // Nothing to load if the config is already there
+    if (globalStore.value.configLoaded) return;
+
     try {
         setBusy(true, { label: t('common.syncingDevice') });
-
-        // Load the networks if needed
-        if (!globalStore.value.networksList?.length) {
-            const networksData = await getNetworks();
-            globalStore.value.networksList = networksData.networks;
-        }
-
-        // Load the config if needed
-        if (!globalStore.value.configLoaded) {
-            // Get the full device config
-            const config = await getConfig();
-
-            // Merge with the existing config
-            globalStore.value.config = {
-                ...globalStore.value.config,
-                ...config
-            };
-
-            // Mark config as loaded
-            globalStore.value.configLoaded = true;
-        }
-
-        // Set the crypto coin in the global store
-        setCryptoCoin(globalStore.value.config?.cryptoCoin || 'bitcoin');
+        await loadDeviceConfig();
     } catch (error) {
         handleBackendErrors({ error, defaultMessage: t('app.loadError'), showDialog: true });
     } finally {

@@ -24,7 +24,6 @@ extern char currentMessage[BUF_SIZE]; // Current message
 
 // Web server and market data configuration
 extern AsyncWebServer server;
-extern unsigned long timestampStockData;
 
 // Scrolling text configuration
 enum printType { PRINT_PRICE = 0, PRINT_CHANGE = 1, PRINT_MARKET_CAP = 2, PRINT_DAILY_HIGH_LOW = 3, PRINT_YEAR_HIGH_LOW = 4, PRINT_OPEN = 5, PRINT_VOLUME = 6 };

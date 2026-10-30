@@ -8,6 +8,7 @@
 #include <freertos/task.h>
 #include "../config/config.h"
 #include "../matrix/matrix.h"
+#include "market_refresh.h"
 #include "../serial/serial.h"
 #include "../utils/utils.h"
 
@@ -21,18 +22,14 @@ const char marketApiUrlTemplate[] = "https://api.coingecko.com/api/v3/coins/mark
 const char apiKeyHeaderName[] = "x-cg-demo-api-key"; // CoinGecko demo key header
 
 namespace {
-	constexpr unsigned long API_REFRESH_INTERVAL = 360000;
-	constexpr unsigned long API_RETRY_INTERVAL = 30000;
 	constexpr uint32_t API_TASK_STACK_SIZE = 8192;
 
 	// Shared market-data struct
 	struct MarketDataRuntimeState {
 		MarketTickerData cachedData = { "BTC", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 		bool hasCachedData = false;
-		bool fetchInProgress = false;
 		bool hasPendingError = false;
-		unsigned long nextFetchScheduledAt = 0; // When the wait for the next fetch started
-		unsigned long nextFetchDelay = 0; // How long to wait before the next fetch (0 = fetch now)
+		MarketRefreshSchedule refreshSchedule = { false, true, 0, 0 }; // A fetch right away
 		char pendingErrorMessage[BUF_SIZE] = "";
 		portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
 	};
@@ -44,7 +41,7 @@ namespace {
 	bool shouldScheduleMarketDataRefresh() {
 		portENTER_CRITICAL(&marketState.mux);
 		const unsigned long currentMillis = millis(); // Read inside the lock so it is never older than a time stored by the worker
-		const bool refreshDue = !marketState.fetchInProgress && (timestampStockData == 0 || currentMillis - marketState.nextFetchScheduledAt >= marketState.nextFetchDelay); // Elapsed-time check stays correct across millis() rollover
+		const bool refreshDue = isMarketRefreshDue(marketState.refreshSchedule, currentMillis);
 		portEXIT_CRITICAL(&marketState.mux);
 		return refreshDue;
 	}
@@ -86,43 +83,27 @@ namespace {
 		portENTER_CRITICAL(&marketState.mux);
 		marketState.cachedData = marketData;
 		marketState.hasCachedData = true;
-		marketState.fetchInProgress = false;
 		marketState.hasPendingError = false;
-		marketState.nextFetchScheduledAt = refreshedAt;
-		marketState.nextFetchDelay = API_REFRESH_INTERVAL;
-		timestampStockData = refreshedAt;
+		completeMarketRefresh(marketState.refreshSchedule, true, refreshedAt);
 		portEXIT_CRITICAL(&marketState.mux);
 	}
 
 	// Drop an outdated refresh result and schedule a new fetch right away
 	void discardMarketDataRefresh(unsigned long discardedAt) {
 		portENTER_CRITICAL(&marketState.mux);
-		marketState.fetchInProgress = false;
-		marketState.nextFetchScheduledAt = discardedAt;
-		marketState.nextFetchDelay = 0;
+		completeMarketRefresh(marketState.refreshSchedule, true, discardedAt);
+		requestMarketRefresh(marketState.refreshSchedule);
 		portEXIT_CRITICAL(&marketState.mux);
 	}
 
 	// Store a refresh failure so the main loop can retry later without blocking
 	void completeMarketDataRefreshFailure(const char* message, unsigned long failedAt) {
 		portENTER_CRITICAL(&marketState.mux);
-		marketState.fetchInProgress = false;
 		marketState.hasPendingError = true;
-		marketState.nextFetchScheduledAt = failedAt;
-		marketState.nextFetchDelay = API_RETRY_INTERVAL;
+		completeMarketRefresh(marketState.refreshSchedule, false, failedAt);
 		stringCopy(marketState.pendingErrorMessage, message, sizeof(marketState.pendingErrorMessage));
 		portEXIT_CRITICAL(&marketState.mux);
 	}
-}
-
-// Get the CoinGecko API ID of a crypto coin
-static const char* getCryptoApiId(const char* cryptoCoin) {
-	return strcmp(cryptoCoin, "kaspa") == 0 ? "kaspa" : "bitcoin";
-}
-
-// Get the ticker label of a crypto coin
-static const char* getCryptoTickerLabel(const char* cryptoCoin) {
-	return strcmp(cryptoCoin, "kaspa") == 0 ? "KAS" : "BTC";
 }
 
 // Get the main market data used by the ticker
@@ -176,34 +157,16 @@ static bool fetchMarketData(JsonDocument &doc, const char* cryptoCoin) {
 
 // Setup the web client
 void setupWebClient() {
-	marketState.nextFetchDelay = 0;
+	portENTER_CRITICAL(&marketState.mux);
+	resetMarketRefreshSchedule(marketState.refreshSchedule);
+	portEXIT_CRITICAL(&marketState.mux);
 }
 
-// Parse the fetched market data into the runtime model
-static bool parseMarketData(JsonDocument& marketDoc, MarketTickerData& marketData, const char* cryptoCoin) {
-	JsonVariant marketDataJson = marketDoc[0];
-
-	// Check if the market data is present
-	if (marketDataJson.isNull()) {
-		printLogfln("Missing CoinGecko market data item");
-		return false;
-	}
-
-	// Parse the market data into the output model
-	marketData.tickerLabel = getCryptoTickerLabel(cryptoCoin);
-	marketData.currentPrice = marketDataJson["current_price"].as<double>();
-	marketData.priceChangePercentage24h = marketDataJson["price_change_percentage_24h_in_currency"].as<double>();
-	marketData.priceChange24h = marketDataJson["price_change_24h"].as<double>();
-	marketData.marketCap = marketDataJson["market_cap"].as<double>();
-	marketData.dailyHigh = marketDataJson["high_24h"].as<double>();
-	marketData.dailyLow = marketDataJson["low_24h"].as<double>();
-	marketData.yearHigh = marketDataJson["ath"].as<double>();
-	marketData.yearLow = marketDataJson["atl"].as<double>();
-	marketData.openPrice = marketData.currentPrice - marketData.priceChange24h;
-	marketData.volume = marketDataJson["total_volume"].as<double>();
-
-	// Mark as successful
-	return true;
+// Fetch the market data again as soon as possible (for example after a coin change)
+void requestMarketDataRefresh() {
+	portENTER_CRITICAL(&marketState.mux);
+	requestMarketRefresh(marketState.refreshSchedule);
+	portEXIT_CRITICAL(&marketState.mux);
 }
 
 // Fetch and parse the market data
@@ -216,7 +179,11 @@ static bool getStockDataAPI(MarketTickerData& marketData, const char* cryptoCoin
 	}
 
 	// Parse the result into the output model
-	return parseMarketData(marketDoc, marketData, cryptoCoin);
+	if (!parseMarketData(marketDoc.as<JsonVariantConst>(), cryptoCoin, marketData)) {
+		printLogfln("Missing CoinGecko market data item");
+		return false;
+	}
+	return true;
 }
 
 // Worker task that performs the blocking HTTP request away from the main loop
@@ -254,13 +221,13 @@ static bool scheduleMarketDataRefresh() {
 	portENTER_CRITICAL(&marketState.mux);
 
 	// If refresh already in progress, return true
-	if (marketState.fetchInProgress) {
+	if (marketState.refreshSchedule.isFetchInProgress) {
 		portEXIT_CRITICAL(&marketState.mux);
 		return true;
 	}
 
 	// Otherwise, mark that a refresh is now in progress
-	marketState.fetchInProgress = true;
+	startMarketRefresh(marketState.refreshSchedule);
 	portEXIT_CRITICAL(&marketState.mux);
 
 	// Start the background worker task

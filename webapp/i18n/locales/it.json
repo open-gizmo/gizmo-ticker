@@ -159,7 +159,10 @@
                 "note": "Controlla la velocita con cui ogni blocco di testo attraversa il display."
             },
             "matrixTitle": "Matrice",
-            "deviceTitle": "Dispositivo"
+            "deviceTitle": "Dispositivo",
+            "loadErrorTitle": "Impossibile leggere le impostazioni",
+            "loadErrorDescription": "Il dispositivo non ha risposto. Controlla che sia acceso e sulla stessa rete, poi riprova.",
+            "loadRetryAction": "Riprova"
         }
     }
 }

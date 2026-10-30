@@ -193,7 +193,7 @@ The firmware is responsible for the runtime behavior of the physical ticker.
 
 The firmware is split into focused modules under `microcontroller/src/`:
 
-- 📡 `api/` handles market data fetching and parsing.
+- 📡 `api/` handles market data fetching (`market_refresh.*` decides when to fetch, `market_data.*` reads the CoinGecko reply).
 - ⚙️ `config/` centralizes settings, defaults, and validation.
 - 📺 `matrix/` manages LED output and scrolling text.
 - 🌐 `server/` exposes the embedded HTTP routes (`settings_json.*` maps the settings to and from the API JSON).
@@ -202,7 +202,7 @@ The firmware is split into focused modules under `microcontroller/src/`:
 
 ### 🧪 Tests
 
-The hardware-free logic (the settings format of the web API) is tested on your computer, no board needed:
+The hardware-free logic (the settings format of the web API, when to fetch the market data, and how its reply is read) is tested on your computer, no board needed:
 
 ```bash
 cd microcontroller

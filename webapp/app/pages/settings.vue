@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue';
+import Alert02Icon from '@hugeicons/core-free-icons/Alert02Icon';
 import Cancel01Icon from '@hugeicons/core-free-icons/Cancel01Icon';
 import CheckmarkCircle02Icon from '@hugeicons/core-free-icons/CheckmarkCircle02Icon';
 import Coins01Icon from '@hugeicons/core-free-icons/Coins01Icon';
@@ -12,13 +13,16 @@ import { HugeiconsIcon } from '@hugeicons/vue';
 import { setBusy } from '@brumaombra/ui-vintage/busy-indicator';
 import { Button } from '@brumaombra/ui-vintage/button';
 import { showConfirmDialog } from '@brumaombra/ui-vintage/confirm-dialog';
+import { EmptyStateCard } from '@brumaombra/ui-vintage/empty-state-card';
 import { ListGroup, ListRow } from '@brumaombra/ui-vintage/list';
+import { LoadingStateCard } from '@brumaombra/ui-vintage/loading-state-card';
 import { showMessageDialog } from '@brumaombra/ui-vintage/message-dialog';
 import { PageHeader } from '@brumaombra/ui-vintage/page-header';
 import { SectionTitle } from '@brumaombra/ui-vintage/section-title';
 import { SliderFormComponent } from '@brumaombra/ui-vintage/slider-form-component';
 import { Switch } from '@brumaombra/ui-vintage/switch';
 import { resetSettings, saveSettings } from '~/composables/useDeviceApi.js';
+import { loadDeviceConfig } from '~/composables/useDeviceConfig.js';
 import { getCryptoCoinById, getCryptoCoins, handleBackendErrors, setCryptoCoin } from '~/composables/useUtils.js';
 import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
 import OptionPickerDialog from '~/components/dialog/OptionPickerDialog.vue';
@@ -80,10 +84,22 @@ const handleFormatTypeSelect = formatType => {
     config.value.formatType = formatType;
 };
 
+// Load the device config again after a failed load
+const handleRetryLoadPress = async () => {
+    try {
+        setBusy(true, { label: t('common.syncingDevice') });
+        await loadDeviceConfig();
+    } catch (error) {
+        handleBackendErrors({ error, defaultMessage: t('app.loadError'), showDialog: true });
+    } finally {
+        setBusy(false);
+    }
+};
+
 // Save the current settings payload
 const saveCurrentSettings = async () => {
-    // If no config, there is nothing to save
-    if (!config.value) {
+    // Only save the config read from the device (never the store defaults)
+    if (!config.value || !globalStore.value.configLoaded) {
         return;
     }
 
@@ -168,8 +184,21 @@ definePageMeta({
         <!-- Title -->
         <PageHeader :title="t('pages.settings.title')" size="medium" />
 
+        <!-- The settings couldn't be read: offer to try again (a form here would save the defaults over the real settings) -->
+        <EmptyStateCard v-if="globalStore.configLoadFailed && !globalStore.configLoaded" :icon="Alert02Icon" :title="t('pages.settings.loadErrorTitle')" :description="t('pages.settings.loadErrorDescription')">
+            <template #action>
+                <Button variant="primary" @click="handleRetryLoadPress">
+                    <HugeiconsIcon :icon="RefreshIcon" class="size-4" />
+                    {{ t('pages.settings.loadRetryAction') }}
+                </Button>
+            </template>
+        </EmptyStateCard>
+
+        <!-- Still reading the settings from the device -->
+        <LoadingStateCard v-else-if="!globalStore.configLoaded" :title="t('common.syncingDevice')" />
+
         <!-- Settings form -->
-        <form class="space-y-6" @submit.prevent="handleSavePress">
+        <form v-else class="space-y-6" @submit.prevent="handleSavePress">
             <!-- Sections shown on the matrix -->
             <ListGroup :title="t('pages.settings.visibilityTitle')" :hint="t('pages.settings.visibilityDescription')">
                 <ListRow v-for="row in visibilityRows" :key="row.id" :label="row.label" :label-for="row.id">
@@ -214,7 +243,7 @@ definePageMeta({
         </form>
 
         <!-- Device -->
-        <ListGroup :title="t('pages.settings.deviceTitle')">
+        <ListGroup v-if="globalStore.configLoaded" :title="t('pages.settings.deviceTitle')">
             <ListRow :label="t('pages.settings.resetAction')" :icon="RefreshIcon" action danger @click="handleResetPress" />
         </ListGroup>
 

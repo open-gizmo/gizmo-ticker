@@ -60,23 +60,30 @@ const handleRefreshPress = async () => {
     }
 };
 
-// The first scan after boot comes back empty while the device is still scanning, so try once more by itself (quietly: the user can still scan again)
-let autoRetryTimer = null;
-onMounted(() => {
-    autoRetryTimer = setTimeout(async () => {
-        autoRetryTimer = null;
-        if (networks.value.length || isLoading.value) return;
+// Scan without an error dialog (the user didn't ask for it, and can still scan again)
+const scanNetworksQuietly = async () => {
+    try {
+        await scanNetworks();
+    } catch (error) {
+        console.warn('Automatic Wi-Fi scan failed', error);
+    }
+};
 
-        try {
-            await scanNetworks();
-        } catch (error) {
-            console.warn('Automatic Wi-Fi scan failed', error);
-        }
-    }, AUTO_RETRY_DELAY);
+// Scan when the page opens, then once more by itself if the list is still empty (the first scan after boot comes back empty while the device is still scanning)
+let autoRetryTimer = null;
+let isUnmounted = false;
+onMounted(async () => {
+    // Scan right away if no network is known yet
+    if (!networks.value.length) await scanNetworksQuietly();
+
+    // Try once more after a few seconds, unless the page was left meanwhile
+    if (networks.value.length || isUnmounted) return;
+    autoRetryTimer = setTimeout(scanNetworksQuietly, AUTO_RETRY_DELAY);
 });
 
 // Stop the retry when leaving the page
 onBeforeUnmount(() => {
+    isUnmounted = true;
     clearTimeout(autoRetryTimer);
 });
 

@@ -40,7 +40,6 @@ char currentMessage[BUF_SIZE]; // Current message
 
 // Web server and market data configuration
 AsyncWebServer server(80);
-unsigned long timestampStockData = 0;
 
 // Scrolling text configuration
 printType switchText = PRINT_PRICE;

@@ -4,8 +4,10 @@
 #include "../../config/config.h"
 #include "../../storage/storage.h"
 #include "../settings_json.h"
+#include "../../api/api.h"
 #include "../../matrix/matrix.h"
 #include "../../serial/serial.h"
+#include "../../utils/utils.h"
 
 namespace {
 	constexpr uint8_t MIN_SETTINGS_LEVEL = 0;
@@ -135,6 +137,8 @@ void setupSettingsPostRoute() {
 
 		// Get the current config
 		DeviceConfig config = getDeviceConfig();
+		char previousCryptoCoin[CRYPTO_COIN_SIZE];
+		stringCopy(previousCryptoCoin, config.cryptoCoin, sizeof(previousCryptoCoin));
 
 		// Update the settings with the new values
 		applySettingsFromJson(doc.as<JsonObjectConst>(), config);
@@ -147,7 +151,7 @@ void setupSettingsPostRoute() {
 
 		// Apply changes
 		setDeviceConfig(config);
-		timestampStockData = 0;
+		if (strcmp(previousCryptoCoin, config.cryptoCoin) != 0) requestMarketDataRefresh(); // The cached prices are for the old coin (the other settings only change how they are shown)
 		queueMatrixIntensityChange(); // Applied by the main loop, which owns the matrix
 		setMatrixSpeed(config.scrollSpeed);
 
