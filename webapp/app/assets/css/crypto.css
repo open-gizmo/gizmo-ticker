@@ -1,21 +1,13 @@
 /* Accent color of the selected coin: only the palette is overridden, the library derives its semantic tokens (primary, ring, sidebar) from it in light and dark mode */
 
-/* Bitcoin theme */
-:root[data-crypto-coin='bitcoin'] {
-	--button-primary-light: #f7931a;
-	--button-primary-hover-light: #df8112;
-	--button-primary-dark: #f7931a;
-	--button-primary-hover-dark: #df8112;
-	--button-primary-foreground-light: #ffffff;
-	--button-primary-foreground-dark: #1b1307;
-}
+/* Bitcoin uses the library palette as is: its accent is already the Bitcoin orange */
 
-/* Kaspa theme */
+/* Kaspa theme (dark text on the accent, like the library buttons) */
 :root[data-crypto-coin='kaspa'] {
 	--button-primary-light: #6fc7ba;
 	--button-primary-hover-light: #5bb7ab;
-	--button-primary-dark: #6fc7ba;
-	--button-primary-hover-dark: #5bb7ab;
-	--button-primary-foreground-light: #ffffff;
+	--button-primary-dark: #7dd0c4;
+	--button-primary-hover-dark: #96dbd1;
+	--button-primary-foreground-light: var(--text-primary-light);
 	--button-primary-foreground-dark: #06211f;
 }

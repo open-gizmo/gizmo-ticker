@@ -1,15 +1,13 @@
 import { createSuccessResponse, handleEspMockError, resetEspMockState } from '~~/server/utils/esp-mock-state.js';
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async event => {
     try {
-        // Reset the mock device state to defaults
+        // Clear the settings and the saved network (the device then restarts with its hotspot open)
         resetEspMockState();
 
         // Return the firmware success payload
-        return createSuccessResponse({
-            message: 'Settings cleared. Restarting...'
-        });
+        return createSuccessResponse({ message: 'Settings cleared. Restarting...' });
     } catch (error) {
-        handleEspMockError({ error, errorId: 'mock_reset_failed', errorMessage: 'Failed to reset mock settings' });
+        return handleEspMockError({ event, error, errorId: 'clear_settings_failed', errorMessage: 'Failed to clear the settings' });
     }
 });

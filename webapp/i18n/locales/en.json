@@ -50,7 +50,15 @@
             "request_body_read_failed": "The device could not process the request. Please try again.",
             "invalid_json": "The device received data in an unexpected format. Please try again.",
             "clear_settings_failed": "The device could not reset the saved settings. Please try again.",
-            "missing_api_key": "Please enter an API key before saving."
+            "missing_api_key": "Please enter an API key before saving.",
+            "invalid_connection_field": "The network name or password is too long, or not valid. Network names are up to 32 characters and passwords up to 64.",
+            "invalid_settings_field": "One of the settings has a value the device does not accept. Please check them and try again.",
+            "invalid_api_key": "The API key is not valid or too long (up to 34 characters).",
+            "request_body_too_large": "The request is too large for the device.",
+            "cors_origin_not_allowed": "The device only accepts requests from its own page.",
+            "wifi_scan_failed": "The device could not scan the Wi-Fi networks. Please try again.",
+            "api_key_save_failed": "The device could not save the API key. Please try again.",
+            "settings_save_failed": "The device could not save the settings. Please try again."
         }
     },
     "pages": {

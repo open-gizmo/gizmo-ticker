@@ -50,7 +50,15 @@
             "request_body_read_failed": "Il dispositivo non e riuscito a elaborare la richiesta. Riprova.",
             "invalid_json": "Il dispositivo ha ricevuto dati in un formato non valido. Riprova.",
             "clear_settings_failed": "Il dispositivo non e riuscito a reimpostare le impostazioni salvate. Riprova.",
-            "missing_api_key": "Inserisci una chiave API prima di salvare."
+            "missing_api_key": "Inserisci una chiave API prima di salvare.",
+            "invalid_connection_field": "Il nome della rete o la password sono troppo lunghi o non validi. Il nome può avere al massimo 32 caratteri e la password 64.",
+            "invalid_settings_field": "Una delle impostazioni ha un valore che il dispositivo non accetta. Controllale e riprova.",
+            "invalid_api_key": "La chiave API non è valida o è troppo lunga (al massimo 34 caratteri).",
+            "request_body_too_large": "La richiesta è troppo grande per il dispositivo.",
+            "cors_origin_not_allowed": "Il dispositivo accetta solo richieste dalla sua pagina.",
+            "wifi_scan_failed": "Il dispositivo non è riuscito a cercare le reti Wi-Fi. Riprova.",
+            "api_key_save_failed": "Il dispositivo non è riuscito a salvare la chiave API. Riprova.",
+            "settings_save_failed": "Il dispositivo non è riuscito a salvare le impostazioni. Riprova."
         }
     },
     "pages": {

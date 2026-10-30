@@ -1,15 +1,10 @@
-import { createSuccessResponse, getEspMockState, handleEspMockError } from '~~/server/utils/esp-mock-state.js';
+import { createSuccessResponse, getEspMockState, handleEspMockError, scanNetworks } from '~~/server/utils/esp-mock-state.js';
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async event => {
     try {
-        // Get the current mock device state
-        const state = getEspMockState();
-
-        // Return the scanned networks list
-        return createSuccessResponse({
-            networks: state.networks
-        });
+        // Start a scan and return the networks found so far (the first call is empty, like on the device)
+        return createSuccessResponse({ networks: scanNetworks(getEspMockState()) });
     } catch (error) {
-        handleEspMockError({ error, errorId: 'mock_networks_read_failed', errorMessage: 'Failed to read mock networks' });
+        return handleEspMockError({ event, error, errorId: 'wifi_scan_failed', errorMessage: 'Unable to scan Wi-Fi networks.' });
     }
 });
