@@ -3,7 +3,7 @@
 #include <cstring>
 #include "../../config/config.h"
 #include "../../utils/utils.h"
-#include "../../eeprom/eeprom.h"
+#include "../../storage/storage.h"
 #include "../../serial/serial.h"
 
 namespace {
@@ -41,43 +41,9 @@ namespace {
 void setupApiKeyPostRoute() {
 	// POST to update the API key
 	server.on("/api/api-key", HTTP_POST, [](AsyncWebServerRequest *request) {}, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
-		// Validate CORS on the first chunk only (so a rejected request gets a single response)
-		if (index == 0 && !ensureCorsAllowed(request)) {
-			return;
-		}
-
-		// Accumulate the request body (later chunks of a rejected body are ignored)
-		const RequestBodyResult body = accumulateRequestBody(request, data, len, index, total);
-		if (body.state == RequestBodyState::InProgress || body.state == RequestBodyState::Ignored) {
-			return;
-		}
-
-		// If the body is too large, send error response
-		if (body.state == RequestBodyState::TooLarge) {
-			sendErrorResponse(request, 413, "request_body_too_large", "Request body too large");
-			return;
-		}
-
-		// If error, send error response
-		if (body.state == RequestBodyState::Error) {
-			sendErrorResponse(request, 500, "request_body_read_failed", "Failed to read request body");
-			return;
-		}
-
-		// Parse the JSON object and release the request body memory
+		// Read the JSON body
 		JsonDocument doc;
-		DeserializationError error = deserializeJson(doc, body.data, body.length + 1);
-		releaseRequestBody(request);
-
-		// If error, send error response
-		if (error) {
-			sendErrorResponse(request, 400, "invalid_json", "Invalid JSON");
-			return;
-		}
-
-		// Validate that the root is a JSON object
-		if (!doc.is<JsonObject>()) {
-			sendErrorResponse(request, 400, "invalid_json", "Invalid JSON object");
+		if (!gizmo::readJsonBody(request, data, len, index, total, doc)) {
 			return;
 		}
 
@@ -86,10 +52,10 @@ void setupApiKeyPostRoute() {
 			return;
 		}
 
-		// Save the new API key to EEPROM before applying it
+		// Save the new API key before applying it
 		DeviceConfig config = getDeviceConfig();
 		stringCopy(config.apiKey, doc["apiKey"].as<const char*>(), sizeof(config.apiKey));
-		if (!saveDeviceConfigToEEPROM(config)) {
+		if (!saveDeviceConfigToStorage(config)) {
 			sendErrorResponse(request, 500, "api_key_save_failed", "Failed to save the API key");
 			return;
 		}

@@ -1,5 +1,5 @@
 #include "serial/serial.h"
-#include "eeprom/eeprom.h"
+#include "storage/storage.h"
 #include "api/api.h"
 #include "wifi/wifi.h"
 #include "matrix/matrix.h"
@@ -8,8 +8,8 @@
 // Setup
 void setup() {
 	initSerial(); // Init serial
-	setupEEPROM(); // Setup EEPROM
-	setAccessPointMode(); // Enter access point mode (Do not start the access point)
+	setupStorage(); // Load the saved settings
+	setupWiFi(); // Start the Wi-Fi setup and its web API
 	setupServer(); // Setup server
 	manageWiFiConnection(); // Manage the WiFi connection
 	setupWebClient(); // Setup web client

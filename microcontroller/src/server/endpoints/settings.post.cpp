@@ -2,8 +2,8 @@
 #include <ArduinoJson.h>
 #include <cstring>
 #include "../../config/config.h"
-#include "../../utils/utils.h"
-#include "../../eeprom/eeprom.h"
+#include "../../storage/storage.h"
+#include "../settings_json.h"
 #include "../../matrix/matrix.h"
 #include "../../serial/serial.h"
 
@@ -112,43 +112,9 @@ namespace {
 void setupSettingsPostRoute() {
 	// POST to update the settings
 	server.on("/api/settings", HTTP_POST, [](AsyncWebServerRequest *request) {}, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
-		// Validate CORS on the first chunk only (so a rejected request gets a single response)
-		if (index == 0 && !ensureCorsAllowed(request)) {
-			return;
-		}
-
-		// Accumulate the request body (later chunks of a rejected body are ignored)
-		const RequestBodyResult body = accumulateRequestBody(request, data, len, index, total);
-		if (body.state == RequestBodyState::InProgress || body.state == RequestBodyState::Ignored) {
-			return;
-		}
-
-		// If the body is too large, send error response
-		if (body.state == RequestBodyState::TooLarge) {
-			sendErrorResponse(request, 413, "request_body_too_large", "Request body too large");
-			return;
-		}
-
-		// If error, send error response
-		if (body.state == RequestBodyState::Error) {
-			sendErrorResponse(request, 500, "request_body_read_failed", "Failed to read request body");
-			return;
-		}
-		
-		// Parse the JSON object and release the request body memory
+		// Read the JSON body
 		JsonDocument doc;
-		DeserializationError error = deserializeJson(doc, body.data, body.length + 1);
-		releaseRequestBody(request);
-
-		// If error, send error response
-		if (error) {
-			sendErrorResponse(request, 400, "invalid_json", "Invalid JSON");
-			return;
-		}
-
-		// Validate that the root is a JSON object
-		if (!doc.is<JsonObject>()) {
-			sendErrorResponse(request, 400, "invalid_json", "Invalid JSON object");
+		if (!gizmo::readJsonBody(request, data, len, index, total, doc)) {
 			return;
 		}
 
@@ -171,31 +137,10 @@ void setupSettingsPostRoute() {
 		DeviceConfig config = getDeviceConfig();
 
 		// Update the settings with the new values
-		if (!doc["currentPrice"].isNull())
-			config.currentPriceVisible = doc["currentPrice"].as<bool>();
-		if (!doc["priceChange"].isNull())
-			config.priceChangeVisible = doc["priceChange"].as<bool>();
-		if (!doc["marketCap"].isNull())
-			config.marketCapVisible = doc["marketCap"].as<bool>();
-		if (!doc["dailyHighLow"].isNull())
-			config.dailyHighLowVisible = doc["dailyHighLow"].as<bool>();
-		if (!doc["yearHighLow"].isNull())
-			config.yearHighLowVisible = doc["yearHighLow"].as<bool>();
-		if (!doc["openPrice"].isNull())
-			config.openPriceVisible = doc["openPrice"].as<bool>();
-		if (!doc["volume"].isNull())
-			config.volumeVisible = doc["volume"].as<bool>();
-		if (!doc["cryptoCoin"].isNull())
-			stringCopy(config.cryptoCoin, doc["cryptoCoin"].as<const char*>(), sizeof(config.cryptoCoin));
-		if (!doc["formatType"].isNull())
-			config.formatType = strcmp(doc["formatType"].as<const char*>(), "US") == 0 ? FORMAT_US : FORMAT_EU;
-		if (!doc["matrixIntensity"].isNull())
-			config.matrixIntensity = doc["matrixIntensity"].as<uint8_t>();
-		if (!doc["scrollSpeed"].isNull())
-			config.scrollSpeed = doc["scrollSpeed"].as<uint8_t>();
+		applySettingsFromJson(doc.as<JsonObjectConst>(), config);
 
 		// Persist the changes before mutating runtime state
-		if (!saveDeviceConfigToEEPROM(config)) {
+		if (!saveDeviceConfigToStorage(config)) {
 			sendErrorResponse(request, 500, "settings_save_failed", "Failed to save settings");
 			return;
 		}

@@ -1,31 +1,25 @@
 #include "../server.h"
 #include <ArduinoJson.h>
-#include "../../eeprom/eeprom.h"
+#include <gizmo/wifi_setup.h>
+#include "../settings_json.h"
 #include "../../utils/utils.h"
 
 namespace {
 	// Build the JSON response for the full device config snapshot
 	JsonDocument buildConfigData(const DeviceConfig& config) {
-        // Build the JSON response
 		JsonDocument doc;
 		JsonObject data = doc.to<JsonObject>();
 
-        // Add all config fields to the response
-		data["currentPrice"] = config.currentPriceVisible;
-		data["priceChange"] = config.priceChangeVisible;
-		data["marketCap"] = config.marketCapVisible;
-		data["dailyHighLow"] = config.dailyHighLowVisible;
-		data["yearHighLow"] = config.yearHighLowVisible;
-		data["openPrice"] = config.openPriceVisible;
-		data["volume"] = config.volumeVisible;
-		data["cryptoCoin"] = config.cryptoCoin;
-		data["formatType"] = config.formatType == FORMAT_US ? "US" : "EU";
-		data["matrixIntensity"] = config.matrixIntensity;
-		data["scrollSpeed"] = config.scrollSpeed;
-		data["ssid"] = config.ssid;
+		// Add the display settings
+		writeSettingsToJson(data, config);
+
+		// Add the saved network (stored by gizmo-common) and the masked API key
+		char ssid[gizmo::WIFI_SSID_SIZE];
+		gizmo::getSavedWifiSsid(ssid, sizeof(ssid));
+		data["ssid"] = ssid;
 		data["apiKey"] = maskInternalChars(config.apiKey);
 
-        // Return the built JSON document
+		// Return the built JSON document
 		return doc;
 	}
 }

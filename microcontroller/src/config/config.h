@@ -22,17 +22,9 @@ void setDeviceConfig(const DeviceConfig& config);
 // Global message buffers shared by serial and scrolling functions
 extern char currentMessage[BUF_SIZE]; // Current message
 
-// WiFi and client configuration
+// Web server and market data configuration
 extern AsyncWebServer server;
-extern WiFiClient client;
-extern const char accessPointSSID[];
-extern const char mdnsHostname[];
-extern bool accessPointEnabled;
-extern bool disableAccessPoint;
-enum connectionStatus { WIFI_TRY = 2, WIFI_OK = 1, WIFI_KO = 0 };
-extern connectionStatus wiFiConnectionStatus;
 extern unsigned long timestampStockData;
-extern unsigned long timestampWiFiConnection;
 
 // Scrolling text configuration
 enum printType { PRINT_PRICE = 0, PRINT_CHANGE = 1, PRINT_MARKET_CAP = 2, PRINT_DAILY_HIGH_LOW = 3, PRINT_YEAR_HIGH_LOW = 4, PRINT_OPEN = 5, PRINT_VOLUME = 6 };

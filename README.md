@@ -70,7 +70,7 @@ Behind the scenes, the firmware and web app stay aligned through the same settin
 ## ✨ Features
 
 - Live cryptocurrency data on a MAX7219 LED matrix.
-- ESP32 firmware with WiFi, EEPROM-backed settings, and embedded HTTP configuration.
+- ESP32 firmware with WiFi setup, settings stored in flash, and embedded HTTP configuration.
 - Web-based configuration for WiFi credentials, API key, and display settings.
 - Adjustable scroll speed, selected metrics, and matrix behavior.
 - Nuxt 4 interface that mirrors the firmware configuration flow.
@@ -182,7 +182,7 @@ Current firmware pin assignments:
 The firmware is responsible for the runtime behavior of the physical ticker.
 
 - Connects the ESP32 to WiFi.
-- Persists settings in EEPROM-backed local storage.
+- Persists settings in flash with `Preferences` (one key per setting).
 - Hosts the embedded HTTP server.
 - Fetches and parses cryptocurrency market data.
 - Renders scrolling text to the MAX7219 matrix.
@@ -196,13 +196,13 @@ The firmware is split into focused modules under `microcontroller/src/`:
 - 📡 `api/` handles market data fetching and parsing.
 - ⚙️ `config/` centralizes settings, defaults, and validation.
 - 📺 `matrix/` manages LED output and scrolling text.
-- 🌐 `server/` exposes the embedded HTTP routes.
-- 💾 `eeprom/` stores settings in persistent memory (`config_json.*` maps them to and from the stored JSON).
-- 🔌 `wifi/` handles network connection logic.
+- 🌐 `server/` exposes the embedded HTTP routes (`settings_json.*` maps the settings to and from the API JSON).
+- 💾 `storage/` stores settings in flash with `Preferences`.
+- 🔌 `wifi/` gives the ticker's names to the shared Wi-Fi setup and shows its status on the matrix.
 
 ### 🧪 Tests
 
-The hardware-free logic (the saved-settings format) is tested on your computer, no board needed:
+The hardware-free logic (the settings format of the web API) is tested on your computer, no board needed:
 
 ```bash
 cd microcontroller
@@ -211,7 +211,7 @@ pio test -e native
 
 The tests live in [microcontroller/test/](microcontroller/test/). They also run in the release workflow before the firmware is built.
 
-Logging and number formatting come from the shared [gizmo-common](https://github.com/open-gizmo/gizmo-common) library, which has its own tests.
+Logging, number formatting, the web API helpers and the whole Wi-Fi setup (connection, setup hotspot, captive portal, and the `/api/networks`, `/api/connect` and `/api/check-connection` endpoints) come from the shared [gizmo-common](https://github.com/open-gizmo/gizmo-common) library, which has its own tests.
 
 ### 🌐 Web App Overview
 

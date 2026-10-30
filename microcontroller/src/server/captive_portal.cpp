@@ -1,3 +1,4 @@
+#include <gizmo/wifi_setup.h>
 #include "server.h"
 #include "../config/config.h"
 #include "../webui/generated_assets.h"
@@ -45,14 +46,6 @@ namespace {
 		return true;
 	}
 
-	// Determine if the request should be redirected to the setup page (only for clients connected through the access point)
-	bool shouldRedirectToSetupPage(AsyncWebServerRequest *request, const String& requestPath) {
-		if (!accessPointEnabled) return false;
-		if (request->client()->localIP() != WiFi.softAPIP()) return false; // LAN clients keep the normal dashboard
-		if (requestPath == "/ap-setup" || requestPath.startsWith("/_nuxt/") || requestPath.startsWith("/api/")) return false;
-		return true;
-	}
-
 	// Detect whether the request expects an HTML document instead of a static asset or API payload
 	bool shouldServeNotFoundPage(AsyncWebServerRequest *request) {
 		const String requestPath = request->url();
@@ -77,9 +70,8 @@ namespace {
 // Setup the captive portal route to handle all unmatched requests
 void setupCaptivePortalRoute() {
 	server.onNotFound([](AsyncWebServerRequest *request) {
-		// Redirect to Wi-Fi setup page if in AP mode
-		if ((request->method() == HTTP_GET || request->method() == HTTP_HEAD) && shouldRedirectToSetupPage(request, request->url())) {
-			request->redirect("/ap-setup");
+		// Redirect hotspot clients to the Wi-Fi setup page
+		if (gizmo::handleCaptivePortalRequest(request)) {
 			return;
 		}
 

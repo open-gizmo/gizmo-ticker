@@ -1,13 +1,8 @@
 #include "utils.h"
 #include <Arduino.h>
-#include <ESPAsyncWebServer.h>
 #include <math.h>
 #include <gizmo/format.h>
 #include "../config/config.h"
-
-namespace {
-	constexpr size_t MAX_REQUEST_BODY_SIZE = 2048; // Largest API payload is well under 1 KB, even with escaped Wi-Fi credentials
-}
 
 // Custom string copy function
 void stringCopy(char* destination, const char* text, size_t length) {
@@ -67,48 +62,4 @@ void formatCurrency(double value, char* output, const byte length) {
 // Format a price with the configured separators (2 decimals from $1 up, more below so coins worth cents stay readable)
 void formatPrice(double value, char* output, const byte length) {
 	gizmo::formatNumber(value, gizmo::getSignificantDecimals(value), getConfiguredNumberFormat(), output, length);
-}
-
-// Accumulate the request body for POST requests
-RequestBodyResult accumulateRequestBody(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
-	// If it's the first chunk, allocate memory for the entire body
-	if (index == 0) {
-		releaseRequestBody(request);
-
-		// Reject bodies larger than any valid API payload before allocating them
-		if (total > MAX_REQUEST_BODY_SIZE) {
-			return { RequestBodyState::TooLarge, NULL, 0 };
-		}
-
-		// Allocate the body buffer
-		request->_tempObject = malloc(total + 1);
-		if (request->_tempObject == NULL) {
-			return { RequestBodyState::Error, NULL, 0 };
-		}
-	}
-
-	// If the first chunk was rejected, ignore the rest of the body (the error response was already sent)
-	if (request->_tempObject == NULL) {
-		return { RequestBodyState::Ignored, NULL, 0 };
-	}
-
-	// Copy the current chunk into the allocated memory
-	memcpy(static_cast<uint8_t*>(request->_tempObject) + index, data, len);
-
-	// If still receiving data, wait for the next call
-	if (index + len != total) {
-		return { RequestBodyState::InProgress, NULL, 0 };
-	}
-
-	// All data received, return the complete body
-	char* body = static_cast<char*>(request->_tempObject);
-	body[total] = '\0';
-	return { RequestBodyState::Ready, body, total };
-}
-
-// Release the memory allocated for the request body
-void releaseRequestBody(AsyncWebServerRequest *request) {
-	if (request->_tempObject == NULL) return;
-	free(request->_tempObject);
-	request->_tempObject = NULL;
 }

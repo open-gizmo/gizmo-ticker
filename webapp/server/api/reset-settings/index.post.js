@@ -7,7 +7,7 @@ export default defineEventHandler(async () => {
 
         // Return the firmware success payload
         return createSuccessResponse({
-            message: 'EEPROM cleared. Restarting...'
+            message: 'Settings cleared. Restarting...'
         });
     } catch (error) {
         handleEspMockError({ error, errorId: 'mock_reset_failed', errorMessage: 'Failed to reset mock settings' });

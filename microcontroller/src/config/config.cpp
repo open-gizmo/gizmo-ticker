@@ -13,8 +13,6 @@ namespace {
 		FORMAT_US,
 		1,
 		1,
-		"",
-		"",
 		""
 	};
 
@@ -40,16 +38,9 @@ void setDeviceConfig(const DeviceConfig& config) {
 // Global message buffers shared by serial and scrolling functions
 char currentMessage[BUF_SIZE]; // Current message
 
-// WiFi and client configuration
+// Web server and market data configuration
 AsyncWebServer server(80);
-WiFiClient client;
-const char accessPointSSID[] = "Gizmo-Ticker";
-const char mdnsHostname[] = "ticker";
-bool accessPointEnabled = false;
-bool disableAccessPoint = false;
-connectionStatus wiFiConnectionStatus = WIFI_KO;
 unsigned long timestampStockData = 0;
-unsigned long timestampWiFiConnection = 0;
 
 // Scrolling text configuration
 printType switchText = PRINT_PRICE;

@@ -2,18 +2,16 @@
 #define SERVER_H
 
 #include <ArduinoJson.h>
+#include <gizmo/http.h>
 #include "../config/config.h"
 
-// Standard API responses
-void sendSuccessResponse(AsyncWebServerRequest* request, uint16_t statusCode = 200, const JsonDocument* dataDoc = nullptr);
-void sendErrorResponse(AsyncWebServerRequest* request, uint16_t statusCode, const char* errorId, const char* errorMessage);
-bool ensureCorsAllowed(AsyncWebServerRequest* request);
-void sendCorsPreflightResponse(AsyncWebServerRequest* request, const char* allowedMethods);
+// Standard API responses and CORS checks come from gizmo-common
+using gizmo::ensureCorsAllowed;
+using gizmo::sendCorsPreflightResponse;
+using gizmo::sendErrorResponse;
+using gizmo::sendSuccessResponse;
 
-// Web server routes
-void setupConnectPostRoute();
-void setupCheckConnectionGetRoute();
-void setupNetworksGetRoute();
+// Web server routes (the Wi-Fi setup routes are registered by gizmo-common)
 void setupApiKeyPostRoute();
 void setupConfigGetRoute();
 void setupSettingsPostRoute();
