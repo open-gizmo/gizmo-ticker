@@ -9,12 +9,12 @@ import { HugeiconsIcon } from '@hugeicons/vue';
 import { setBusy } from '@brumaombra/ui-vintage/busy-indicator';
 import { Button } from '@brumaombra/ui-vintage/button';
 import { showConfirmDialog } from '@brumaombra/ui-vintage/confirm-dialog';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@brumaombra/ui-vintage/dialog';
 import { EmptyStateCard } from '@brumaombra/ui-vintage/empty-state-card';
 import { Field, FieldContent, FieldLabel } from '@brumaombra/ui-vintage/field';
 import { Input } from '@brumaombra/ui-vintage/input';
 import { ListGroup, ListRow } from '@brumaombra/ui-vintage/list';
 import { showMessageDialog } from '@brumaombra/ui-vintage/message-dialog';
+import { ResponsiveDialog } from '@brumaombra/ui-vintage/responsive-dialog';
 import { connectToWiFi, getNetworks } from '~/composables/useDeviceApi.js';
 import { handleBackendErrors } from '~/composables/useUtils.js';
 import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
@@ -172,37 +172,29 @@ const handlePasswordSubmit = () => {
             {{ isLoading ? t('common.refreshing') : t('pages.wifi.scanAgain') }}
         </Button>
 
-        <!-- Password of a secured network -->
-        <Dialog :open="isPasswordDialogVisible" @update:open="value => { isPasswordDialogVisible = value; }">
-            <DialogContent>
-                <form @submit.prevent="handlePasswordSubmit">
-                    <!-- Header -->
-                    <DialogHeader>
-                        <DialogTitle>{{ t('pages.wifi.passwordDialogTitle', { ssid: selectedNetwork?.ssid }) }}</DialogTitle>
-                        <DialogDescription>{{ t('pages.wifi.passwordDialogDescription') }}</DialogDescription>
-                    </DialogHeader>
+        <!-- Password of a secured network (a sheet on phones, a dialog on larger screens) -->
+        <ResponsiveDialog v-model:open="isPasswordDialogVisible" :title="t('pages.wifi.passwordDialogTitle', { ssid: selectedNetwork?.ssid })" :description="t('pages.wifi.passwordDialogDescription')">
+            <!-- Password -->
+            <form id="wifi-password-form" @submit.prevent="handlePasswordSubmit">
+                <Field>
+                    <FieldLabel for="wifi-password">{{ t('pages.wifi.password') }}</FieldLabel>
+                    <FieldContent>
+                        <Input id="wifi-password" v-model="password" type="password" autocomplete="current-password" :placeholder="t('pages.wifi.passwordPlaceholder')" />
+                    </FieldContent>
+                </Field>
+            </form>
 
-                    <!-- Password -->
-                    <Field class="my-4">
-                        <FieldLabel for="wifi-password">{{ t('pages.wifi.password') }}</FieldLabel>
-                        <FieldContent>
-                            <Input id="wifi-password" v-model="password" type="password" autocomplete="current-password" :placeholder="t('pages.wifi.passwordPlaceholder')" />
-                        </FieldContent>
-                    </Field>
-
-                    <!-- Actions -->
-                    <DialogFooter>
-                        <Button type="button" variant="secondary" @click="isPasswordDialogVisible = false">
-                            <HugeiconsIcon :icon="Cancel01Icon" class="size-4" />
-                            {{ t('common.cancel') }}
-                        </Button>
-                        <Button type="submit" variant="primary" :disabled="!password">
-                            <HugeiconsIcon :icon="WifiFullSignalIcon" class="size-4" />
-                            {{ t('pages.wifi.connectAction') }}
-                        </Button>
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
+            <!-- Actions (the main one first: on top in the sheet, rightmost in the dialog) -->
+            <template #footer>
+                <Button type="submit" form="wifi-password-form" variant="primary" :disabled="!password">
+                    <HugeiconsIcon :icon="WifiFullSignalIcon" class="size-4" />
+                    {{ t('pages.wifi.connectAction') }}
+                </Button>
+                <Button type="button" variant="secondary" @click="isPasswordDialogVisible = false">
+                    <HugeiconsIcon :icon="Cancel01Icon" class="size-4" />
+                    {{ t('common.cancel') }}
+                </Button>
+            </template>
+        </ResponsiveDialog>
     </div>
 </template>
