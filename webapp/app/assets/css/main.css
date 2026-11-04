@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "@brumaombra/ui-vintage/style.css";
+@import "gizmo-common/web/app/assets/css/gizmo.css";
 @custom-variant dark (&:where(.dark, .dark *));
 @import "./crypto.css";
 

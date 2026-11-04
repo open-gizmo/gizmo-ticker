@@ -1,6 +1,3 @@
-import Alert02Icon from '@hugeicons/core-free-icons/Alert02Icon';
-import Cancel01Icon from '@hugeicons/core-free-icons/Cancel01Icon';
-import { showMessageDialog } from '@brumaombra/ui-vintage/message-dialog';
 import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
 
 // Available crypto coins for the ticker and matching webapp accent styles
@@ -9,22 +6,10 @@ const availableCryptoCoins = [
     { id: 'kaspa', name: 'Kaspa', shortLabel: 'KAS', image: '/crypto/kaspa.svg', accentLight: '#6fc7ba', accentDark: '#7dd3c7' }
 ];
 
-// Translate a key through the active i18n instance when available
-export const translate = (key, params = {}) => {
-    const nuxtApp = useNuxtApp();
-
-    // If the function is available, return the translated string
-    if (typeof nuxtApp?.$i18n?.t === 'function') {
-        return nuxtApp.$i18n.t(key, params);
-    }
-
-    // Otherwise, return the key as a fallback
-    return key;
-};
-
-// Apply the active crypto coin accent style to the document root
+// Apply the active crypto coin accent style to the document root, and its logo to the app config (the layer shows it in the sidebar, the setup page and the error page)
 const applyCryptoCoinToDocument = cryptoCoin => {
     document.documentElement.dataset.cryptoCoin = cryptoCoin;
+    updateAppConfig({ gizmo: { logo: getCryptoCoinById(cryptoCoin).image } });
 };
 
 // Return the list of supported crypto coins
@@ -49,36 +34,4 @@ export const setCryptoCoin = cryptoCoin => {
 export const initializeCryptoCoin = () => {
     const globalStore = useGlobalStore();
     applyCryptoCoinToDocument(globalStore.value.config.cryptoCoin || 'bitcoin');
-};
-
-// Pause execution for a short delay
-export const delay = timeout => {
-    return new Promise(resolve => setTimeout(resolve, timeout));
-};
-
-// Handle backend errors with a shared message strategy
-export const handleBackendErrors = ({ error, defaultMessage = '', showDialog = false }) => {
-    const backendErrorPayload = error?.response?._data || error?.data || error?.response?.data || null;
-    const backendErrorId = backendErrorPayload?.errorId || '';
-    const backendErrorMessage = backendErrorPayload?.errorMessage || '';
-    const translationKey = backendErrorId ? `api.backendErrors.${backendErrorId}` : '';
-    const backendErrorTranslated = translationKey ? translate(translationKey) : '';
-    const runtimeErrorMessage = error instanceof Error ? error.message : '';
-    const resolvedMessage = backendErrorTranslated || backendErrorMessage || runtimeErrorMessage || defaultMessage || translate('common.genericError');
-    const resolvedLogMessage = backendErrorMessage || runtimeErrorMessage || defaultMessage || translate('common.genericError');
-
-    // Show a user-friendly error dialog if requested
-    if (showDialog) {
-        showMessageDialog({
-            type: 'error',
-            icon: Alert02Icon,
-            title: translate('dialogs.errorTitle'),
-            message: resolvedMessage,
-            closeText: translate('common.close'),
-            closeButtonIcon: Cancel01Icon
-        });
-    }
-
-    // Log the error (this is the last stop: the callers only show it, so throwing it again left an unhandled error after the dialog)
-    console.error(resolvedLogMessage, error);
 };

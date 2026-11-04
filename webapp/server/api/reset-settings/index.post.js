@@ -1,4 +1,5 @@
-import { createSuccessResponse, handleEspMockError, resetEspMockState } from '~~/server/utils/esp-mock-state.js';
+import { createSuccessResponse, handleEspMockError } from 'gizmo-common/web/server/utils/gizmo-mock.js';
+import { resetEspMockState } from '~~/server/utils/esp-mock-state.js';
 
 export default defineEventHandler(async event => {
     try {

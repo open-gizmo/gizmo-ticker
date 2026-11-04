@@ -3,7 +3,7 @@ import { onMounted } from 'vue';
 import { setBusy } from '@brumaombra/ui-vintage/busy-indicator';
 import { useTheme } from '@brumaombra/ui-vintage/theme-selector';
 import { loadDeviceConfig } from '~/composables/useDeviceConfig.js';
-import { handleBackendErrors, initializeCryptoCoin } from '~/composables/useUtils.js';
+import { initializeCryptoCoin } from '~/composables/useUtils.js';
 import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
 
 const globalStore = useGlobalStore();

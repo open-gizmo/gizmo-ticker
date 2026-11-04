@@ -1,35 +1,41 @@
+import { IncomingMessage, ServerResponse } from 'node:http';
+import { Socket } from 'node:net';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { createEvent } from 'h3';
 
-// Stub the Nitro globals before the handler modules load (the event carries the raw body and receives the status code)
+// Stub the Nitro globals the routes of this app use before the handler modules load (the mock of the gizmo-common layer imports its h3 functions, so it runs on real h3 events)
 vi.hoisted(() => {
     globalThis.defineEventHandler = handler => handler;
-    globalThis.readRawBody = async event => event.body;
-    globalThis.setResponseStatus = (event, statusCode) => {
-        event.statusCode = statusCode;
-    };
+    globalThis.defineNitroPlugin = plugin => plugin;
+    globalThis.useAppConfig = () => ({ gizmo: { name: 'Gizmo Ticker' } });
 });
 
 // Load the handlers of the mock device API
 const { default: getConfig } = await import('../../server/api/config/index.get.js');
 const { default: postSettings } = await import('../../server/api/settings/index.post.js');
 const { default: postApiKey } = await import('../../server/api/api-key/index.post.js');
-const { default: getNetworks } = await import('../../server/api/networks/index.get.js');
-const { default: postConnect } = await import('../../server/api/connect/index.post.js');
-const { default: getCheckConnection } = await import('../../server/api/check-connection/index.get.js');
 const { default: postResetSettings } = await import('../../server/api/reset-settings/index.post.js');
+const { getEspMockState } = await import('../../server/utils/esp-mock-state.js');
+const { default: nameMockDevice } = await import('../../server/plugins/gizmo-mock.js');
+const { buildDevicePayload, resetGizmoMockState } = await import('gizmo-common/web/server/utils/gizmo-mock.js');
 
-// Build a request event, with a JSON body when one is given
-const buildEvent = (body = undefined) => ({ body: body === undefined ? undefined : JSON.stringify(body) });
+// Build a real h3 request event, with a JSON body when one is given (a string is sent as it is)
+const buildEvent = (body = undefined) => {
+    const request = new IncomingMessage(new Socket());
+    request.method = 'POST';
+    request.rawBody = Buffer.from(body === undefined ? '' : (typeof body === 'string' ? body : JSON.stringify(body)));
+    return createEvent(request, new ServerResponse(request));
+};
 
 // Call a handler and return its answer with the status code it set
 const callHandler = async (handler, event = buildEvent()) => {
     const response = await handler(event);
-    return { statusCode: event.statusCode || 200, response };
+    return { statusCode: event.node.res.statusCode, response };
 };
 
 // Start every test from the demo device the dev server boots with
 beforeEach(() => {
-    delete globalThis.__gizmoEspMockState;
+    resetGizmoMockState();
 });
 
 // Response shape: the web app reads the same { errorId, errorMessage, data } as on the device
@@ -52,7 +58,7 @@ describe('mock device responses', () => {
 
     // Bodies are checked like gizmo-common reads them
     it('refuses invalid, non-object and oversized bodies', async () => {
-        const invalidJson = await callHandler(postSettings, { body: '{nope' });
+        const invalidJson = await callHandler(postSettings, buildEvent('{nope'));
         const arrayBody = await callHandler(postSettings, buildEvent([1]));
         const largeBody = await callHandler(postSettings, buildEvent({ text: 'a'.repeat(2100) }));
         expect([invalidJson.statusCode, invalidJson.response.errorMessage]).toEqual([400, 'Invalid JSON']);
@@ -93,67 +99,38 @@ describe('mock settings', () => {
     });
 });
 
-// Wi-Fi setup
-describe('mock Wi-Fi setup', () => {
-    // Like gizmo-common, the scan started by the first call is not done yet
-    it('answers the first scan empty, then the networks', async () => {
-        const firstScan = await callHandler(getNetworks);
-        const secondScan = await callHandler(getNetworks);
-        expect(firstScan.response.data.networks).toEqual([]);
-        expect(secondScan.response.data.networks.length).toBeGreaterThan(0);
+// The Wi-Fi routes (/api/networks, /api/connect, /api/check-connection) and the device routes come from the gizmo-common layer, which tests them
+describe('mock Wi-Fi state shared with the layer', () => {
+    // The config endpoint reads the saved network of the layer's mock, so a network saved by the layer's routes shows up here
+    it('shows the network saved by the Wi-Fi routes of the layer', async () => {
+        getEspMockState().savedSsid = 'Warehouse Guest';
+        const { response } = await callHandler(getConfig);
+        expect(response.data.ssid).toBe('Warehouse Guest');
     });
 
-    // The SSID is up to 32 bytes and the password up to 64, and the password must be sent (empty for open networks)
-    it('checks the credentials like gizmo-common', async () => {
-        const longSsid = await callHandler(postConnect, buildEvent({ ssid: 'a'.repeat(33), password: '' }));
-        const noPassword = await callHandler(postConnect, buildEvent({ ssid: 'Office Fiber' }));
-        expect(longSsid.response).toEqual({ errorId: 'invalid_connection_field', errorMessage: 'ssid', data: null });
-        expect(noPassword.response).toEqual({ errorId: 'missing_required_fields', errorMessage: 'password', data: null });
-    });
-
-    // Good credentials connect after a few polls and are saved
-    it('connects and saves the new network', async () => {
-        // Start the attempt
-        const { response } = await callHandler(postConnect, buildEvent({ ssid: 'Warehouse Guest', password: '' }));
-        expect(response.data.connectionStatus).toBe(2);
-
-        // Poll until the attempt ends
-        const statuses = [];
-        for (let poll = 0; poll < 3; poll += 1) {
-            const { response: pollResponse } = await callHandler(getCheckConnection);
-            statuses.push(pollResponse.data.connectionStatus);
-        }
-
-        // Expect two polls while connecting, then the connection on the new network
-        expect(statuses).toEqual([2, 2, 1]);
-        const { response: configResponse } = await callHandler(getConfig);
-        expect(configResponse.data.ssid).toBe('Warehouse Guest');
-    });
-
-    // Wrong credentials fail once, then the device is back on the saved network
-    it('goes back to the saved network after a failed attempt', async () => {
-        // Try a wrong password
-        await callHandler(postConnect, buildEvent({ ssid: 'Office Fiber', password: 'wrong' }));
-
-        // Poll through the failure
-        const statuses = [];
-        for (let poll = 0; poll < 4; poll += 1) {
-            const { response } = await callHandler(getCheckConnection);
-            statuses.push(response.data.connectionStatus);
-        }
-
-        // Expect the failure, then the saved network again
-        expect(statuses).toEqual([2, 2, 0, 1]);
-        const { response } = await callHandler(getCheckConnection);
-        expect(response.data.ssid).toBe('BrumaLab WiFi');
+    // The ticker adds its settings to the state of the layer once, and keeps them
+    it('keeps the settings of the ticker in the state of the layer', async () => {
+        await callHandler(postSettings, buildEvent({ scrollSpeed: 3 }));
+        expect(getEspMockState().config.scrollSpeed).toBe(3);
+        expect(getEspMockState()).toBe(getEspMockState());
     });
 
     // A reset brings back the firmware defaults, with no saved network and the hotspot open
     it('resets like a device back to factory settings', async () => {
         await callHandler(postResetSettings);
         const { response: configResponse } = await callHandler(getConfig);
-        const { response: statusResponse } = await callHandler(getCheckConnection);
+        const device = buildDevicePayload({ state: getEspMockState() });
         expect(configResponse.data).toMatchObject({ apiKey: '', ssid: '', matrixIntensity: 1, scrollSpeed: 1, marketCap: true });
-        expect(statusResponse.data.connectionStatus).toBe(0);
+        expect(device).toMatchObject({ ssid: '', accessPointActive: true });
+        expect(device.ip).toBeUndefined();
+    });
+});
+
+// The mock device introduces itself as the app (the plugin reads the name from the app.config.ts)
+describe('mock device name', () => {
+    // The device card of the layer shows the name the plugin gave
+    it('names the mock device like the app', () => {
+        nameMockDevice();
+        expect(buildDevicePayload({ state: getEspMockState() }).name).toBe('Gizmo Ticker');
     });
 });

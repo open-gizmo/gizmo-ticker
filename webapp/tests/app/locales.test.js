@@ -20,6 +20,10 @@ const readSourceFiles = directory => readdirSync(directory, { withFileTypes: tru
 // Read a locale file as plain JSON (importing it would go through the i18n module, which compiles the messages)
 const readLocale = code => JSON.parse(readFileSync(join(process.cwd(), 'i18n', 'locales', `${code}.json`), 'utf8'));
 
+// Read a locale of the gizmo-common layer (its errors are translated for the app too)
+const readLayerLocale = code => JSON.parse(readFileSync(join(process.cwd(), 'node_modules', 'gizmo-common', 'web', 'i18n', 'locales', `${code}.json`), 'utf8'));
+const layerTexts = Object.fromEntries(flatten(readLayerLocale('en')));
+
 // The locales of the app, from the files in the locales folder
 const LANGUAGE_CODES = readdirSync(join(process.cwd(), 'i18n', 'locales')).map(file => file.replace(/\.json$/, ''));
 
@@ -65,7 +69,22 @@ describe('locales', () => {
         expect([...missing]).toEqual([]);
     });
 
-    // Every error the device can send has a translation (otherwise the dialog shows the raw message, like "ssid")
+    // The pages of the app list their navigation in app.config.ts, so the keys are not written as t('...') in the code
+    it('has the texts of the navigation', () => {
+        const source = readFileSync(join(process.cwd(), 'app', 'app.config.ts'), 'utf8');
+        const keys = [...source.matchAll(/(?:labelKey|descriptionKey):\s*'([a-zA-Z0-9_.]+)'/g)].map(match => match[1]);
+        expect(keys.length).toBeGreaterThan(0);
+        expect(keys.filter(key => !(key in englishTexts))).toEqual([]);
+    });
+
+    // The app words the button of the error page its own way (it goes to the Wi-Fi setup), and the rest of the layer's texts still has to be there
+    it('words the error page button without replacing the layer texts', () => {
+        expect(englishTexts['gizmo.errors.backToHome']).toBe('Back to setup');
+        expect(layerTexts['gizmo.errors.pageNotFound']).toBeDefined();
+        expect(Object.keys(englishTexts).filter(key => key.startsWith('gizmo.') && !(key in layerTexts))).toEqual([]);
+    });
+
+    // Every error the device can send has a translation, in the app or in the layer (otherwise the dialog shows the raw message, like "ssid")
     it('translates every error ID of the device', () => {
         const root = join(process.cwd(), '..', 'microcontroller');
         const libraryRoot = join(root, '.pio', 'libdeps', 'esp32dev', 'gizmo-common', 'src');
@@ -78,6 +97,6 @@ describe('locales', () => {
                 errorIds.add(match[1]);
             }
         }
-        expect([...errorIds].filter(errorId => !(`api.backendErrors.${errorId}` in englishTexts))).toEqual([]);
+        expect([...errorIds].filter(errorId => !(`api.backendErrors.${errorId}` in englishTexts) && !(`gizmo.api.backendErrors.${errorId}` in layerTexts))).toEqual([]);
     });
 });

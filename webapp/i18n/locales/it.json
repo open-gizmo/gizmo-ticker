@@ -1,23 +1,15 @@
 {
     "app": {
-        "title": "Gizmo Ticker",
         "loadError": "Si e verificato un errore durante il caricamento dei dati"
     },
     "common": {
         "close": "Chiudi",
         "cancel": "Annulla",
-        "refreshing": "Aggiornamento...",
         "keepEditing": "Continua a modificare",
-        "controlPanel": "Pannello di controllo",
         "redirectingWifiSetup": "Reindirizzamento alla configurazione WiFi...",
-        "genericError": "Si e verificato un errore",
         "syncingDevice": "Sincronizzazione del dispositivo..."
     },
     "nav": {
-        "wifi": {
-            "label": "WiFi",
-            "description": "Scansiona le reti e collega il dispositivo"
-        },
         "settings": {
             "label": "Impostazioni",
             "description": "Regola visibilita e comportamento del ticker"
@@ -28,35 +20,15 @@
         }
     },
     "dialogs": {
-        "errorTitle": "Errore",
         "successTitle": "Successo"
     },
-    "errors": {
-        "pageNotFound": "Pagina non trovata",
-        "pageNotFoundMessage": "La pagina richiesta non esiste o non e piu disponibile su questo dispositivo.",
-        "genericTitle": "Qualcosa e andato storto",
-        "genericMessage": "Un errore imprevisto ha interrotto l'interfaccia web.",
-        "backToSetup": "Torna alla configurazione",
-        "label": "Errore"
-    },
+    "errors": {},
     "api": {
-        "wifiWrongCredentials": "Le credenziali Wi-Fi sono errate oppure la rete non e disponibile.",
-        "wifiUnknownStatus": "Il dispositivo ha restituito uno stato di connessione Wi-Fi sconosciuto.",
-        "wifiTimeout": "Il dispositivo non ha completato la connessione Wi-Fi in tempo.",
-        "wifiFailed": "Connessione al WiFi non riuscita",
-        "wifiConnectError": "Si e verificato un errore durante la connessione alla rete Wi-Fi",
         "backendErrors": {
-            "missing_required_fields": "Mancano alcune informazioni. Controlla i campi e riprova.",
-            "request_body_read_failed": "Il dispositivo non e riuscito a elaborare la richiesta. Riprova.",
-            "invalid_json": "Il dispositivo ha ricevuto dati in un formato non valido. Riprova.",
             "clear_settings_failed": "Il dispositivo non e riuscito a reimpostare le impostazioni salvate. Riprova.",
             "missing_api_key": "Inserisci una chiave API prima di salvare.",
-            "invalid_connection_field": "Il nome della rete o la password sono troppo lunghi o non validi. Il nome può avere al massimo 32 caratteri e la password 64.",
             "invalid_settings_field": "Una delle impostazioni ha un valore che il dispositivo non accetta. Controllale e riprova.",
             "invalid_api_key": "La chiave API non è valida o è troppo lunga (al massimo 34 caratteri).",
-            "request_body_too_large": "La richiesta è troppo grande per il dispositivo.",
-            "cors_origin_not_allowed": "Il dispositivo accetta solo richieste dalla sua pagina.",
-            "wifi_scan_failed": "Il dispositivo non è riuscito a cercare le reti Wi-Fi. Riprova.",
             "api_key_save_failed": "Il dispositivo non è riuscito a salvare la chiave API. Riprova.",
             "settings_save_failed": "Il dispositivo non è riuscito a salvare le impostazioni. Riprova."
         }
@@ -74,32 +46,6 @@
             "confirmMessage": "Memorizzare questa chiave API sul dispositivo e sostituire il valore attuale?",
             "currentKeyLabel": "Chiave salvata",
             "notSet": "Nessuna chiave salvata"
-        },
-        "wifi": {
-            "title": "Connetti al WiFi",
-            "currentNetworkLabel": "Rete corrente",
-            "notConnected": "Non connesso",
-            "availableNetworks": "Reti disponibili",
-            "password": "Password",
-            "passwordPlaceholder": "Inserisci la password WiFi",
-            "note": "Il dispositivo provera immediatamente le credenziali e disattivera il suo hotspot temporaneo dopo una connessione riuscita.",
-            "connectAction": "Connetti dispositivo",
-            "connectedTitle": "Dispositivo connesso",
-            "connectedMessage": "Il microcontrollore si e connesso a {ssid} ed e disponibile su {hostname} e {ip}.",
-            "connectError": "Si e verificato un errore durante la connessione alla rete Wi-Fi",
-            "refreshError": "Si e verificato un errore durante l'aggiornamento dell'elenco SSID",
-            "connectConfirmTitle": "Connetti il dispositivo al WiFi",
-            "connectConfirmMessage": "Inviare al dispositivo le credenziali selezionate per {ssid} e passare a quella rete?",
-            "noNetworksTitle": "Nessuna rete trovata",
-            "noNetworksDescription": "Il dispositivo sta ancora cercando, oppure non ci sono reti nelle vicinanze. Riprova tra qualche secondo.",
-            "scanAgain": "Cerca di nuovo",
-            "passwordDialogTitle": "Connetti a {ssid}",
-            "passwordDialogDescription": "Inserisci la password di questa rete."
-        },
-        "apSetup": {
-            "title": "Connetti al WiFi",
-            "connectConfirmTitle": "Connetti ed esci dalla modalita AP",
-            "connectConfirmMessage": "Inviare al dispositivo le credenziali selezionate per {ssid}, connetterlo a quella rete e disattivare l'hotspot temporaneo?"
         },
         "settings": {
             "title": "Impostazioni ticker",
@@ -159,10 +105,15 @@
                 "note": "Controlla la velocita con cui ogni blocco di testo attraversa il display."
             },
             "matrixTitle": "Matrice",
-            "deviceTitle": "Dispositivo",
+            "deviceTitle": "Ripristino",
             "loadErrorTitle": "Impossibile leggere le impostazioni",
             "loadErrorDescription": "Il dispositivo non ha risposto. Controlla che sia acceso e sulla stessa rete, poi riprova.",
             "loadRetryAction": "Riprova"
+        }
+    },
+    "gizmo": {
+        "errors": {
+            "backToHome": "Torna alla configurazione"
         }
     }
 }

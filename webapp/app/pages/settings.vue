@@ -23,9 +23,8 @@ import { SliderFormComponent } from '@brumaombra/ui-vintage/slider-form-componen
 import { Switch } from '@brumaombra/ui-vintage/switch';
 import { resetSettings, saveSettings } from '~/composables/useDeviceApi.js';
 import { loadDeviceConfig } from '~/composables/useDeviceConfig.js';
-import { getCryptoCoinById, getCryptoCoins, handleBackendErrors, setCryptoCoin } from '~/composables/useUtils.js';
+import { getCryptoCoinById, getCryptoCoins, setCryptoCoin } from '~/composables/useUtils.js';
 import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
-import OptionPickerDialog from '~/components/dialog/OptionPickerDialog.vue';
 
 const globalStore = useGlobalStore();
 const cryptoCoins = getCryptoCoins();
@@ -242,7 +241,10 @@ definePageMeta({
             </Button>
         </form>
 
-        <!-- Device -->
+        <!-- Device info, restart and forget network (from the gizmo-common layer, it reads the device by itself) -->
+        <GizmoDeviceCard />
+
+        <!-- Reset of the saved settings (the ticker's own action) -->
         <ListGroup v-if="globalStore.configLoaded" :title="t('pages.settings.deviceTitle')">
             <ListRow :label="t('pages.settings.resetAction')" :icon="RefreshIcon" action danger @click="handleResetPress" />
         </ListGroup>

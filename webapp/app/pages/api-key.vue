@@ -15,7 +15,6 @@ import { ListGroup, ListRow } from '@brumaombra/ui-vintage/list';
 import { showMessageDialog } from '@brumaombra/ui-vintage/message-dialog';
 import { PageHeader } from '@brumaombra/ui-vintage/page-header';
 import { saveApiKey } from '~/composables/useDeviceApi.js';
-import { handleBackendErrors } from '~/composables/useUtils.js';
 import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
 
 const API_KEY_MAX_LENGTH = 34; // Longest key the device stores

@@ -1,4 +1,5 @@
-import { EspMockError, MAX_API_KEY_LENGTH, byteLength, createSuccessResponse, getEspMockState, handleEspMockError, readMockJsonBody } from '~~/server/utils/esp-mock-state.js';
+import { EspMockError, byteLength, createSuccessResponse, handleEspMockError, readMockJsonBody } from 'gizmo-common/web/server/utils/gizmo-mock.js';
+import { MAX_API_KEY_LENGTH, getEspMockState } from '~~/server/utils/esp-mock-state.js';
 
 export default defineEventHandler(async event => {
     try {

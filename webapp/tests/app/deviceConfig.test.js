@@ -34,6 +34,19 @@ const deviceConfig = {
     apiKey: 'CG-***************xyz'
 };
 
+// Details of the device, as GET /api/device answers them (the device card of the gizmo-common layer reads them)
+const deviceDetails = {
+    name: 'Gizmo Ticker',
+    version: 'v2026.11.04.1',
+    uptimeSeconds: 93784,
+    freeHeap: 187432,
+    ssid: 'Home',
+    accessPointActive: false,
+    ip: '192.168.1.42',
+    hostname: 'ticker.local',
+    signalQuality: 74
+};
+
 // The device API: whether the config answers, and the bodies of the saves
 let isConfigAvailable;
 let savedBodies;
@@ -44,6 +57,7 @@ const registerDeviceEndpoints = () => {
         if (!isConfigAvailable) throw createError({ statusCode: 500, data: { errorId: null, errorMessage: 'Unreachable', data: null } });
         return { errorId: null, errorMessage: null, data: deviceConfig };
     });
+    registerEndpoint('/api/device', () => ({ errorId: null, errorMessage: null, data: deviceDetails }));
     registerEndpoint('/api/settings', {
         method: 'POST',
         handler: async event => {
@@ -60,10 +74,14 @@ const registerDeviceEndpoints = () => {
     });
 };
 
+// Find a button of a page by its text
+const findButton = (wrapper, text) => wrapper.findAll('button').find(button => button.text().includes(text));
+
 // Start each test with the store of a page that has not loaded the config yet
 beforeEach(() => {
     isConfigAvailable = true;
     savedBodies = [];
+    resetGizmoStore();
     const globalStore = useGlobalStore();
     globalStore.value.configLoaded = false;
     globalStore.value.configLoadFailed = false;
@@ -128,6 +146,33 @@ describe('settings page', () => {
     it('waits for the config before showing the form', async () => {
         const wrapper = await mountSuspended(SettingsPage);
         expect(wrapper.find('form').exists()).toBe(false);
+    });
+
+    // The device rows come from the card of the gizmo-common layer, which reads GET /api/device
+    it('shows the device card with the details of the device', async () => {
+        await loadDeviceConfig();
+        const wrapper = await mountSuspended(SettingsPage);
+        await vi.waitFor(() => expect(wrapper.text()).toContain('v2026.11.04.1'));
+        expect(wrapper.text()).toContain('1d 2h 3m');
+        expect(wrapper.text()).toContain('192.168.1.42');
+        expect(findButton(wrapper, 'Restart')).toBeDefined();
+        expect(findButton(wrapper, 'Forget network')).toBeDefined();
+    });
+
+    // Restarting is most needed when the settings can't be read, so the card doesn't wait for them
+    it('shows the device card even when the settings cannot be read', async () => {
+        isConfigAvailable = false;
+        await loadDeviceConfig().catch(() => {});
+        const wrapper = await mountSuspended(SettingsPage);
+        await vi.waitFor(() => expect(findButton(wrapper, 'Restart')).toBeDefined());
+        expect(wrapper.text()).toContain('Try again');
+    });
+
+    // The reset of the settings is the ticker's own action, next to the ones of the card
+    it('keeps the reset of the saved settings', async () => {
+        await loadDeviceConfig();
+        const wrapper = await mountSuspended(SettingsPage);
+        expect(wrapper.text()).toContain('Reset saved settings');
     });
 
     // Saving sends the settings read from the device

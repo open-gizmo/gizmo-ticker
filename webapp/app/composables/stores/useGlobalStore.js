@@ -1,8 +1,5 @@
 // Shared device and UI state for the webapp
 export const useGlobalStore = () => useState('global', () => ({
-    // Cached WiFi scan results
-    networksList: [],
-
     // Cached full device config payload
     config: {
         currentPrice: false,
@@ -16,7 +13,6 @@ export const useGlobalStore = () => useState('global', () => ({
         formatType: 'US',
         matrixIntensity: 0,
         scrollSpeed: 0,
-        ssid: '',
         apiKey: ''
     },
 

@@ -1,4 +1,5 @@
-import { EspMockError, createSuccessResponse, getEspMockState, handleEspMockError, readMockJsonBody } from '~~/server/utils/esp-mock-state.js';
+import { EspMockError, createSuccessResponse, handleEspMockError, readMockJsonBody } from 'gizmo-common/web/server/utils/gizmo-mock.js';
+import { getEspMockState } from '~~/server/utils/esp-mock-state.js';
 
 // Fields the firmware reads, anything else in the body is ignored
 const booleanFields = ['currentPrice', 'priceChange', 'marketCap', 'dailyHighLow', 'yearHighLow', 'openPrice', 'volume'];

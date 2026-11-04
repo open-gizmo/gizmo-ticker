@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { handleBackendErrors, setCryptoCoin } from '~/composables/useUtils.js';
+import { setCryptoCoin } from '~/composables/useUtils.js';
 import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
 
 // Record the error dialogs instead of rendering them
@@ -10,7 +10,7 @@ vi.mock('@brumaombra/ui-vintage/message-dialog', () => ({
     }
 }));
 
-// Errors of the device: one dialog, with the translated message when the error ID is known
+// Errors of the device: handleBackendErrors comes from the gizmo-common layer, which translates its own errors and then the ones of this app
 describe('handleBackendErrors', () => {
     // Start without dialogs, and keep the logged errors out of the test output
     beforeEach(() => {
@@ -25,12 +25,19 @@ describe('handleBackendErrors', () => {
         expect(dialogs).toHaveLength(1);
     });
 
-    // A known error ID of the firmware is shown in the user's words, not as the raw message ("ssid")
-    it('translates a known error ID of the device', () => {
+    // A known error ID of the layer is shown in the user's words, not as the raw message ("ssid")
+    it('translates an error ID of the layer', () => {
         const error = { data: { errorId: 'invalid_connection_field', errorMessage: 'ssid', data: null } };
         handleBackendErrors({ error, showDialog: true });
         expect(dialogs[0].message).toContain('32 characters');
         expect(dialogs[0].type).toBe('error');
+    });
+
+    // The refusal of the API key is explained in the words of this app (api.backendErrors), not shown as the raw message
+    it('translates an error ID of the app', () => {
+        const error = { data: { errorId: 'invalid_api_key', errorMessage: 'apiKey is too long', data: null } };
+        handleBackendErrors({ error, showDialog: true });
+        expect(dialogs[0].message).toContain('up to 34 characters');
     });
 
     // Without an error ID, the device message, then the default message, is shown
@@ -55,6 +62,7 @@ describe('setCryptoCoin', () => {
         setCryptoCoin('dogecoin');
         expect(useGlobalStore().value.config.cryptoCoin).toBe('bitcoin');
         expect(document.documentElement.dataset.cryptoCoin).toBe('bitcoin');
+        expect(useAppConfig().gizmo.logo).toBe('/crypto/bitcoin.svg');
     });
 
     // A supported coin is applied
@@ -62,5 +70,13 @@ describe('setCryptoCoin', () => {
         setCryptoCoin('kaspa');
         expect(useGlobalStore().value.config.cryptoCoin).toBe('kaspa');
         expect(document.documentElement.dataset.cryptoCoin).toBe('kaspa');
+    });
+
+    // The layer reads the logo from the app config, so the coin has to be there (sidebar, setup page and error page)
+    it('shows the logo of the coin in the layer', () => {
+        setCryptoCoin('kaspa');
+        expect(useAppConfig().gizmo.logo).toBe('/crypto/kaspa.svg');
+        setCryptoCoin('bitcoin');
+        expect(useAppConfig().gizmo.logo).toBe('/crypto/bitcoin.svg');
     });
 });
