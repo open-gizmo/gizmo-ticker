@@ -22,8 +22,5 @@ void setupCaptivePortalRoute();
 void setupRoutes();
 void setupServer();
 
-// Deferred restart (requested by the web server task, performed by the main loop)
-void scheduleRestart();
-void manageScheduledRestart();
 
 #endif

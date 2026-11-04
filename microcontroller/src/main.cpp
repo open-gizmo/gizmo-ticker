@@ -4,6 +4,7 @@
 #include "wifi/wifi.h"
 #include "matrix/matrix.h"
 #include "server/server.h"
+#include <gizmo/device.h>
 
 // Setup
 void setup() {
@@ -19,7 +20,7 @@ void setup() {
 // Loop
 void loop() {
 	// Restart the device if the web server asked for it
-	manageScheduledRestart();
+	gizmo::manageDevice();
 
 	// Manage the WiFi connection
 	manageWiFiConnection();

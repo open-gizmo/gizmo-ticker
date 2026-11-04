@@ -1,4 +1,5 @@
 #include "../server.h"
+#include <gizmo/device.h>
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <gizmo/wifi_setup.h>
@@ -27,7 +28,7 @@ void setupResetSettingsPostRoute() {
 		JsonObject data = doc.to<JsonObject>();
 		data["message"] = "Settings cleared. Restarting...";
 		sendSuccessResponse(request, 200, &doc);
-		scheduleRestart();
+		gizmo::scheduleRestart();
 	});
 
 	// OPTIONS request for preflighted requests
