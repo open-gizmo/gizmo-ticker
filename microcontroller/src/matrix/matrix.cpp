@@ -16,7 +16,7 @@ namespace {
 	volatile bool isIntensityChangePending = false;
 
 	// Format the current price message
-	void formatPriceMessage(char* message, size_t messageLength, const MarketTickerData& marketData) {
+	void formatPriceMessage(char *message, size_t messageLength, const MarketTickerData &marketData) {
 		char tempString[MAX_NUMBER_SIZE];
 		char tempString2[MAX_NUMBER_SIZE];
 		formatPrice(marketData.currentPrice, tempString, MAX_NUMBER_SIZE);
@@ -25,21 +25,21 @@ namespace {
 	}
 
 	// Format the price change message
-	void formatChangeMessage(char* message, size_t messageLength, const MarketTickerData& marketData) {
+	void formatChangeMessage(char *message, size_t messageLength, const MarketTickerData &marketData) {
 		char tempString[MAX_NUMBER_SIZE];
 		formatPrice(marketData.priceChange24h, tempString, MAX_NUMBER_SIZE);
 		snprintf(message, messageLength, "Daily Change: $ %s", tempString);
 	}
 
 	// Format the market cap message
-	void formatMarketCapMessage(char* message, size_t messageLength, const MarketTickerData& marketData) {
+	void formatMarketCapMessage(char *message, size_t messageLength, const MarketTickerData &marketData) {
 		char tempString[MAX_NUMBER_SIZE];
 		formatCurrency(marketData.marketCap, tempString, MAX_NUMBER_SIZE);
 		snprintf(message, messageLength, "Market Cap: $ %s", tempString);
 	}
 
 	// Format the daily high/low message
-	void formatDailyHighLowMessage(char* message, size_t messageLength, const MarketTickerData& marketData) {
+	void formatDailyHighLowMessage(char *message, size_t messageLength, const MarketTickerData &marketData) {
 		char tempString[MAX_NUMBER_SIZE];
 		char tempString2[MAX_NUMBER_SIZE];
 		formatPrice(marketData.dailyHigh, tempString, MAX_NUMBER_SIZE);
@@ -48,7 +48,7 @@ namespace {
 	}
 
 	// Format the all-time high/low message (CoinGecko ath/atl, the markets API has no 52-week data)
-	void formatYearHighLowMessage(char* message, size_t messageLength, const MarketTickerData& marketData) {
+	void formatYearHighLowMessage(char *message, size_t messageLength, const MarketTickerData &marketData) {
 		char tempString[MAX_NUMBER_SIZE];
 		char tempString2[MAX_NUMBER_SIZE];
 		formatPrice(marketData.yearHigh, tempString, MAX_NUMBER_SIZE);
@@ -57,19 +57,19 @@ namespace {
 	}
 
 	// Format the open price message
-	void formatOpenMessage(char* message, size_t messageLength, const MarketTickerData& marketData) {
+	void formatOpenMessage(char *message, size_t messageLength, const MarketTickerData &marketData) {
 		char tempString[MAX_NUMBER_SIZE];
 		formatPrice(marketData.openPrice, tempString, MAX_NUMBER_SIZE);
 		snprintf(message, messageLength, "Open: $ %s", tempString);
 	}
 
 	// Check whether at least one section is enabled
-	bool hasVisibleSection(const DeviceConfig& config) {
+	bool hasVisibleSection(const DeviceConfig &config) {
 		return config.currentPriceVisible || config.priceChangeVisible || config.marketCapVisible || config.dailyHighLowVisible || config.yearHighLowVisible || config.openPriceVisible || config.volumeVisible;
 	}
 
 	// Format the volume message
-	void formatVolumeMessage(char* message, size_t messageLength, const MarketTickerData& marketData) {
+	void formatVolumeMessage(char *message, size_t messageLength, const MarketTickerData &marketData) {
 		char tempString[MAX_NUMBER_SIZE];
 		formatCurrency(marketData.volume, tempString, MAX_NUMBER_SIZE);
 		snprintf(message, messageLength, "Volume: $ %s", tempString);
@@ -77,7 +77,7 @@ namespace {
 }
 
 // Print the message on the matrix
-void printOnLedMatrix(const char* message, const byte stringLength, uint16_t messageStill) {
+void printOnLedMatrix(const char *message, const byte stringLength, uint16_t messageStill) {
 	gizmo::copyString(currentMessage, message, stringLength); // Copy the message
 	P.displayText(currentMessage, scrollAlign, scrollDelay, messageStill, scrollEffect, scrollEffect); // Print the message on the matrix
 }
@@ -89,13 +89,13 @@ void setMatrixIntensity(uint8_t intensity) {
 
 // Set the speed of the matrix
 void setMatrixSpeed(uint8_t speed) {
-    scrollDelay = map(speed, 0, 15, 100, 20); // Map 0-15 to 100-20ms (slower to faster)
+	scrollDelay = map(speed, 0, 15, 100, 20); // Map 0-15 to 100-20ms (slower to faster)
 }
 
 // Setup the LED matrix
 void setupLedMatrix() {
 	P.begin(); // Start the LED matrix
-	const DeviceConfig& config = getDeviceConfig();
+	const DeviceConfig &config = getDeviceConfig();
 	setMatrixIntensity(config.matrixIntensity); // Set the intensity of the matrix
 	setMatrixSpeed(config.scrollSpeed); // Set the saved scroll speed before the first message
 	printOnLedMatrix("Initializing...", BUF_SIZE); // Print the message on the matrix
@@ -119,10 +119,10 @@ bool isLedMatrixReadyForNextMessage() {
 }
 
 // Manage the LED matrix using already-available market data
-void renderNextLedMatrixMessage(const MarketTickerData& marketData, const char* staleDataWarning) {
+void renderNextLedMatrixMessage(const MarketTickerData &marketData, const char *staleDataWarning) {
 	// Get the current config
-	const DeviceConfig& config = getDeviceConfig();
-	
+	const DeviceConfig &config = getDeviceConfig();
+
 	// Single buffer for all the messages
 	char message[BUF_SIZE];
 
@@ -140,7 +140,9 @@ void renderNextLedMatrixMessage(const MarketTickerData& marketData, const char* 
 		isStaleWarningShown = true;
 		return;
 	}
-	if (switchText == PRINT_PRICE) isStaleWarningShown = false;
+	if (switchText == PRINT_PRICE) {
+		isStaleWarningShown = false;
+	}
 
 	// Print messages
 	switch (switchText) {
@@ -167,7 +169,7 @@ void renderNextLedMatrixMessage(const MarketTickerData& marketData, const char* 
 			// Move to the next section
 			switchText = PRINT_MARKET_CAP;
 			break;
-		
+
 		case PRINT_MARKET_CAP:
 			// Show the data only if enabled
 			if (config.marketCapVisible) {
@@ -215,7 +217,7 @@ void renderNextLedMatrixMessage(const MarketTickerData& marketData, const char* 
 			// Move to the next section
 			switchText = PRINT_VOLUME;
 			break;
-			
+
 		case PRINT_VOLUME:
 			// Show the data only if enabled
 			if (config.volumeVisible) {

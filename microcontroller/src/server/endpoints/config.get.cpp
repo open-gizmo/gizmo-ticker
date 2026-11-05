@@ -6,7 +6,7 @@
 
 namespace {
 	// Build the JSON response for the full device config snapshot
-	JsonDocument buildConfigData(const DeviceConfig& config) {
+	JsonDocument buildConfigData(const DeviceConfig &config) {
 		JsonDocument doc;
 		JsonObject data = doc.to<JsonObject>();
 
@@ -33,7 +33,7 @@ void setupConfigGetRoute() {
 		}
 
 		// Get the current config send the JSON responses
-		const DeviceConfig& config = getDeviceConfig();
+		const DeviceConfig &config = getDeviceConfig();
 		JsonDocument doc = buildConfigData(config);
 		sendSuccessResponse(request, 200, &doc);
 	});

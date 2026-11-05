@@ -20,8 +20,10 @@ namespace {
 	};
 
 	// Choose the matrix message for the current Wi-Fi state (string literals, so the pointer stays valid)
-	const char* getWiFiStatusMessage() {
-		if (gizmo::getWifiStatus() == gizmo::WifiStatus::Connecting) return "Connecting to Wi-Fi...";
+	const char *getWiFiStatusMessage() {
+		if (gizmo::getWifiStatus() == gizmo::WifiStatus::Connecting) {
+			return "Connecting to Wi-Fi...";
+		}
 		return "Not connected to Wi-Fi. Use the 'Gizmo-Ticker' access point to enter the Wi-Fi credentials.";
 	}
 }
@@ -40,7 +42,7 @@ void manageWiFiConnection() {
 bool checkWifiConnection() {
 	// If not connected, show a notice on the matrix
 	if (!gizmo::isWifiConnected()) {
-		const char* errorMessage = getWiFiStatusMessage();
+		const char *errorMessage = getWiFiStatusMessage();
 		printLogfln("%s", errorMessage);
 		printOnLedMatrix(errorMessage, strlen(errorMessage) + 1); // Print the message on the matrix
 

@@ -6,7 +6,7 @@
 // Market data shown on the matrix, read from the CoinGecko reply (kept free of the hardware so the native tests can check it)
 
 struct MarketTickerData {
-	const char* tickerLabel;
+	const char *tickerLabel;
 	double currentPrice;
 	double priceChangePercentage24h;
 	double priceChange24h;
@@ -19,8 +19,8 @@ struct MarketTickerData {
 	double volume;
 };
 
-const char* getCryptoApiId(const char* cryptoCoin);
-const char* getCryptoTickerLabel(const char* cryptoCoin);
-bool parseMarketData(JsonVariantConst marketDoc, const char* cryptoCoin, MarketTickerData& marketData);
+const char *getCryptoApiId(const char *cryptoCoin);
+const char *getCryptoTickerLabel(const char *cryptoCoin);
+bool parseMarketData(JsonVariantConst marketDoc, const char *cryptoCoin, MarketTickerData &marketData);
 
 #endif

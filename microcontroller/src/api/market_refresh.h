@@ -18,13 +18,13 @@ struct MarketRefreshSchedule {
 	uint32_t lastSuccessAt; // When the data on screen was fetched
 };
 
-void resetMarketRefreshSchedule(MarketRefreshSchedule& schedule);
-bool isMarketRefreshDue(const MarketRefreshSchedule& schedule, uint32_t currentMillis);
-void startMarketRefresh(MarketRefreshSchedule& schedule);
-void completeMarketRefresh(MarketRefreshSchedule& schedule, bool isSuccessful, uint32_t completedAt);
-void cancelMarketRefresh(MarketRefreshSchedule& schedule);
-void requestMarketRefresh(MarketRefreshSchedule& schedule);
-bool isMarketDataStale(const MarketRefreshSchedule& schedule, uint32_t currentMillis);
-uint32_t getMarketDataAgeMinutes(const MarketRefreshSchedule& schedule, uint32_t currentMillis);
+void resetMarketRefreshSchedule(MarketRefreshSchedule &schedule);
+bool isMarketRefreshDue(const MarketRefreshSchedule &schedule, uint32_t currentMillis);
+void startMarketRefresh(MarketRefreshSchedule &schedule);
+void completeMarketRefresh(MarketRefreshSchedule &schedule, bool isSuccessful, uint32_t completedAt);
+void cancelMarketRefresh(MarketRefreshSchedule &schedule);
+void requestMarketRefresh(MarketRefreshSchedule &schedule);
+bool isMarketDataStale(const MarketRefreshSchedule &schedule, uint32_t currentMillis);
+uint32_t getMarketDataAgeMinutes(const MarketRefreshSchedule &schedule, uint32_t currentMillis);
 
 #endif

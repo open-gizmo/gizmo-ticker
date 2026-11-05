@@ -15,7 +15,7 @@ namespace {
 	constexpr uint8_t MAX_SETTINGS_LEVEL = 15;
 
 	// Validate the boolean fields
-	bool validateBooleanField(AsyncWebServerRequest* request, JsonVariantConst value, const char* fieldName) {
+	bool validateBooleanField(AsyncWebServerRequest *request, JsonVariantConst value, const char *fieldName) {
 		// Null is allowed
 		if (value.isNull()) {
 			return true;
@@ -33,7 +33,7 @@ namespace {
 	}
 
 	// Validate the numeric fields
-	bool validateLevelField(AsyncWebServerRequest* request, JsonVariantConst value, const char* fieldName) {
+	bool validateLevelField(AsyncWebServerRequest *request, JsonVariantConst value, const char *fieldName) {
 		// Null is allowed
 		if (value.isNull()) {
 			return true;
@@ -59,21 +59,21 @@ namespace {
 	}
 
 	// Validate the cryptoCoin field
-	bool validateCryptoCoinField(AsyncWebServerRequest* request, JsonVariantConst value) {
+	bool validateCryptoCoinField(AsyncWebServerRequest *request, JsonVariantConst value) {
 		// Null is allowed
 		if (value.isNull()) {
 			return true;
 		}
 
 		// If not null, must be a string
-		if (!value.is<const char*>()) {
+		if (!value.is<const char *>()) {
 			printLogfln("Invalid cryptoCoin type");
 			sendErrorResponse(request, 400, "invalid_settings_field", "cryptoCoin");
 			return false;
 		}
 
 		// If string, must be either "bitcoin" or "kaspa"
-		const char* cryptoCoinValue = value.as<const char*>();
+		const char *cryptoCoinValue = value.as<const char *>();
 		if (strcmp(cryptoCoinValue, "bitcoin") != 0 && strcmp(cryptoCoinValue, "kaspa") != 0) {
 			printLogfln("Unsupported cryptoCoin: %s", cryptoCoinValue);
 			sendErrorResponse(request, 400, "invalid_settings_field", "cryptoCoin");
@@ -85,21 +85,21 @@ namespace {
 	}
 
 	// Validate the formatType field
-	bool validateFormatTypeField(AsyncWebServerRequest* request, JsonVariantConst value) {
+	bool validateFormatTypeField(AsyncWebServerRequest *request, JsonVariantConst value) {
 		// Null is allowed
 		if (value.isNull()) {
 			return true;
 		}
 
 		// If not null, must be a string
-		if (!value.is<const char*>()) {
+		if (!value.is<const char *>()) {
 			printLogfln("Invalid formatType type");
 			sendErrorResponse(request, 400, "invalid_settings_field", "formatType");
 			return false;
 		}
 
 		// If string, must be either "US" or "EU"
-		const char* formatTypeValue = value.as<const char*>();
+		const char *formatTypeValue = value.as<const char *>();
 		if (strcmp(formatTypeValue, "US") != 0 && strcmp(formatTypeValue, "EU") != 0) {
 			printLogfln("Unsupported formatType: %s", formatTypeValue);
 			sendErrorResponse(request, 400, "invalid_settings_field", "formatType");
@@ -152,14 +152,14 @@ void setupSettingsPostRoute() {
 
 		// Apply changes
 		setDeviceConfig(config);
-		if (strcmp(previousCryptoCoin, config.cryptoCoin) != 0) requestMarketDataRefresh(); // The cached prices are for the old coin (the other settings only change how they are shown)
+		if (strcmp(previousCryptoCoin, config.cryptoCoin) != 0){ requestMarketDataRefresh(); // The cached prices are for the old coin (the other settings only change how they are shown)
+}
 		queueMatrixIntensityChange(); // Applied by the main loop, which owns the matrix
 		setMatrixSpeed(config.scrollSpeed);
 
 		// Send success response
 		sendSuccessResponse(request);
-		printLogfln("Values settings changed");
-	});
+		printLogfln("Values settings changed"); });
 
 	// OPTIONS request for preflighted requests
 	server.on("/api/settings", HTTP_OPTIONS, [](AsyncWebServerRequest *request) {

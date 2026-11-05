@@ -22,7 +22,7 @@ namespace {
 	}
 
 	// Apply a JSON text to a default config, like POST /api/settings does
-	DeviceConfig applyJsonText(const char* jsonText) {
+	DeviceConfig applyJsonText(const char *jsonText) {
 		JsonDocument doc;
 		deserializeJson(doc, jsonText);
 		DeviceConfig config = buildDefaultConfig();
@@ -70,7 +70,7 @@ void test_api_key_is_not_written() {
 	writeSettingsToJson(doc.to<JsonObject>(), config);
 
 	// Expect no API key
-	TEST_ASSERT_FALSE(doc["apiKey"].is<const char*>());
+	TEST_ASSERT_FALSE(doc["apiKey"].is<const char *>());
 }
 
 /******************************** POST /api/settings ********************************/

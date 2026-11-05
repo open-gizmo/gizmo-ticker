@@ -12,7 +12,7 @@ namespace {
 	constexpr size_t MAX_API_KEY_LENGTH = API_KEY_SIZE - 1;
 
 	// Validate the apiKey field
-	bool validateApiKeyField(AsyncWebServerRequest* request, JsonVariantConst value) {
+	bool validateApiKeyField(AsyncWebServerRequest *request, JsonVariantConst value) {
 		// Null is not allowed
 		if (value.isNull()) {
 			sendErrorResponse(request, 400, "missing_api_key", "Missing apiKey field");
@@ -20,14 +20,14 @@ namespace {
 		}
 
 		// Must be a string
-		if (!value.is<const char*>()) {
+		if (!value.is<const char *>()) {
 			printLogfln("Invalid apiKey type");
 			sendErrorResponse(request, 400, "invalid_api_key", "Invalid apiKey field");
 			return false;
 		}
 
 		// If string, must not exceed max length
-		const char* apiKeyValue = value.as<const char*>();
+		const char *apiKeyValue = value.as<const char *>();
 		if (strlen(apiKeyValue) > MAX_API_KEY_LENGTH) {
 			printLogfln("apiKey is too long: %d", strlen(apiKeyValue));
 			sendErrorResponse(request, 400, "invalid_api_key", "apiKey is too long");
@@ -68,10 +68,9 @@ void setupApiKeyPostRoute() {
 
 		// Send success response
 		sendSuccessResponse(request);
-		printLogfln("API key changed");
-	});
+		printLogfln("API key changed"); });
 
-    // OPTIONS request for preflighted requests
+	// OPTIONS request for preflighted requests
 	server.on("/api/api-key", HTTP_OPTIONS, [](AsyncWebServerRequest *request) {
 		sendCorsPreflightResponse(request, "POST, OPTIONS");
 	});

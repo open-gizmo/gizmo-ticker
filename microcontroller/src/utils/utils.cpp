@@ -5,7 +5,7 @@
 #include "../config/config.h"
 
 // Mask the internal portion of a string while leaving the edges visible
-String maskInternalChars(const char* text, size_t visibleEdgeChars) {
+String maskInternalChars(const char *text, size_t visibleEdgeChars) {
 	// If the input text is null, return an empty string
 	if (text == nullptr) {
 		return String();
@@ -41,18 +41,17 @@ String maskInternalChars(const char* text, size_t visibleEdgeChars) {
 	return masked;
 }
 
-
 // Get the separator style of the configured number format
 static gizmo::NumberFormat getConfiguredNumberFormat() {
 	return getDeviceConfig().formatType == FORMAT_US ? gizmo::NumberFormat::US : gizmo::NumberFormat::EU;
 }
 
 // Format currency with the configured separators (always 2 decimals, for large amounts and percentages)
-void formatCurrency(double value, char* output, const byte length) {
+void formatCurrency(double value, char *output, const byte length) {
 	gizmo::formatNumber(value, 2, getConfiguredNumberFormat(), output, length);
 }
 
 // Format a price with the configured separators (2 decimals from $1 up, more below so coins worth cents stay readable)
-void formatPrice(double value, char* output, const byte length) {
+void formatPrice(double value, char *output, const byte length) {
 	gizmo::formatNumber(value, gizmo::getSignificantDecimals(value), getConfiguredNumberFormat(), output, length);
 }

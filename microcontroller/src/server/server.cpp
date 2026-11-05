@@ -23,4 +23,3 @@ void setupServer() {
 	setupRoutes(); // Setup routes
 	server.begin(); // Start the server
 }
-

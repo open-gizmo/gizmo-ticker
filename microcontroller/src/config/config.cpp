@@ -29,7 +29,7 @@ DeviceConfig getDeviceConfig() {
 }
 
 // Update the device config
-void setDeviceConfig(const DeviceConfig& config) {
+void setDeviceConfig(const DeviceConfig &config) {
 	portENTER_CRITICAL(&configMux);
 	currentConfig = config;
 	portEXIT_CRITICAL(&configMux);

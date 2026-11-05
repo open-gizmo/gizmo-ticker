@@ -2,17 +2,17 @@
 #include <cstring>
 
 // Get the CoinGecko API ID of a crypto coin
-const char* getCryptoApiId(const char* cryptoCoin) {
+const char *getCryptoApiId(const char *cryptoCoin) {
 	return strcmp(cryptoCoin, "kaspa") == 0 ? "kaspa" : "bitcoin";
 }
 
 // Get the ticker label of a crypto coin
-const char* getCryptoTickerLabel(const char* cryptoCoin) {
+const char *getCryptoTickerLabel(const char *cryptoCoin) {
 	return strcmp(cryptoCoin, "kaspa") == 0 ? "KAS" : "BTC";
 }
 
 // Parse the CoinGecko markets reply (an array with one item for the coin) into the runtime model
-bool parseMarketData(JsonVariantConst marketDoc, const char* cryptoCoin, MarketTickerData& marketData) {
+bool parseMarketData(JsonVariantConst marketDoc, const char *cryptoCoin, MarketTickerData &marketData) {
 	JsonVariantConst marketDataJson = marketDoc[0];
 
 	// Check if the market data is present

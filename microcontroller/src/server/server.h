@@ -22,5 +22,4 @@ void setupCaptivePortalRoute();
 void setupRoutes();
 void setupServer();
 
-
 #endif

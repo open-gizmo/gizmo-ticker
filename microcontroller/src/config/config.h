@@ -17,7 +17,7 @@ constexpr uint8_t CS_PIN = 5; // SS
 
 // Device config getter and setter
 DeviceConfig getDeviceConfig();
-void setDeviceConfig(const DeviceConfig& config);
+void setDeviceConfig(const DeviceConfig &config);
 
 // Global message buffers shared by serial and scrolling functions
 extern char currentMessage[BUF_SIZE]; // Current message
@@ -26,7 +26,13 @@ extern char currentMessage[BUF_SIZE]; // Current message
 extern AsyncWebServer server;
 
 // Scrolling text configuration
-enum printType { PRINT_PRICE = 0, PRINT_CHANGE = 1, PRINT_MARKET_CAP = 2, PRINT_DAILY_HIGH_LOW = 3, PRINT_YEAR_HIGH_LOW = 4, PRINT_OPEN = 5, PRINT_VOLUME = 6 };
+enum printType { PRINT_PRICE = 0,
+	PRINT_CHANGE = 1,
+	PRINT_MARKET_CAP = 2,
+	PRINT_DAILY_HIGH_LOW = 3,
+	PRINT_YEAR_HIGH_LOW = 4,
+	PRINT_OPEN = 5,
+	PRINT_VOLUME = 6 };
 extern printType switchText;
 extern MD_Parola P;
 extern uint8_t scrollDelay;

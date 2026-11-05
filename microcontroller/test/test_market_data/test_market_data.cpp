@@ -5,7 +5,7 @@
 
 namespace {
 	// Parse a CoinGecko reply into a document
-	JsonDocument parseReply(const char* jsonText) {
+	JsonDocument parseReply(const char *jsonText) {
 		JsonDocument doc;
 		TEST_ASSERT_FALSE(deserializeJson(doc, jsonText));
 		return doc;

@@ -20,7 +20,7 @@ namespace {
 	constexpr char API_KEY_KEY[] = "apiKey";
 
 	// Read the stored settings on top of the defaults (missing keys keep their default)
-	DeviceConfig loadDeviceConfig(Preferences& preferences, const DeviceConfig& defaults) {
+	DeviceConfig loadDeviceConfig(Preferences &preferences, const DeviceConfig &defaults) {
 		DeviceConfig config = defaults;
 
 		// Section visibility
@@ -33,13 +33,17 @@ namespace {
 		config.volumeVisible = preferences.getBool(VOLUME_KEY, defaults.volumeVisible);
 
 		// Coin, number format and matrix
-		if (preferences.isKey(CRYPTO_COIN_KEY)) preferences.getString(CRYPTO_COIN_KEY, config.cryptoCoin, sizeof(config.cryptoCoin));
+		if (preferences.isKey(CRYPTO_COIN_KEY)) {
+			preferences.getString(CRYPTO_COIN_KEY, config.cryptoCoin, sizeof(config.cryptoCoin));
+		}
 		config.formatType = preferences.getUChar(FORMAT_TYPE_KEY, defaults.formatType) == FORMAT_EU ? FORMAT_EU : FORMAT_US;
 		config.matrixIntensity = preferences.getUChar(MATRIX_INTENSITY_KEY, defaults.matrixIntensity);
 		config.scrollSpeed = preferences.getUChar(SCROLL_SPEED_KEY, defaults.scrollSpeed);
 
 		// API key
-		if (preferences.isKey(API_KEY_KEY)) preferences.getString(API_KEY_KEY, config.apiKey, sizeof(config.apiKey));
+		if (preferences.isKey(API_KEY_KEY)) {
+			preferences.getString(API_KEY_KEY, config.apiKey, sizeof(config.apiKey));
+		}
 
 		// Return the loaded settings
 		return config;
@@ -63,9 +67,11 @@ void setupStorage() {
 }
 
 // Save the settings (NVS skips values that didn't change)
-bool saveDeviceConfigToStorage(const DeviceConfig& config) {
+bool saveDeviceConfigToStorage(const DeviceConfig &config) {
 	Preferences preferences;
-	if (!preferences.begin(STORAGE_NAMESPACE, false)) return false;
+	if (!preferences.begin(STORAGE_NAMESPACE, false)) {
+		return false;
+	}
 
 	// Write every setting, checking each write
 	bool isSaved = true;
@@ -91,7 +97,9 @@ bool saveDeviceConfigToStorage(const DeviceConfig& config) {
 // Remove all stored settings (the defaults apply after the next boot)
 bool clearStoredDeviceConfig() {
 	Preferences preferences;
-	if (!preferences.begin(STORAGE_NAMESPACE, false)) return false;
+	if (!preferences.begin(STORAGE_NAMESPACE, false)) {
+		return false;
+	}
 	const bool isCleared = preferences.clear();
 	preferences.end();
 	return isCleared;

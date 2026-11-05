@@ -4,7 +4,7 @@
 #include "../config/device_config.h"
 
 void setupStorage();
-bool saveDeviceConfigToStorage(const DeviceConfig& config);
+bool saveDeviceConfigToStorage(const DeviceConfig &config);
 bool clearStoredDeviceConfig();
 
 #endif

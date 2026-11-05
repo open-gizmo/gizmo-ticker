@@ -7,7 +7,8 @@
 // Device settings, kept free of hardware headers so the native tests can use them
 
 // Numeric formatting type
-enum formatNum { FORMAT_US = 1, FORMAT_EU = 2 };
+enum formatNum { FORMAT_US = 1,
+	FORMAT_EU = 2 };
 
 constexpr size_t API_KEY_SIZE = 35;
 constexpr size_t CRYPTO_COIN_SIZE = 16;

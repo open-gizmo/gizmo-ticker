@@ -49,7 +49,7 @@ namespace {
 	}
 
 	// Return the last cached snapshot, if one is available
-	bool readCachedMarketData(MarketTickerData& marketData) {
+	bool readCachedMarketData(MarketTickerData &marketData) {
 		portENTER_CRITICAL(&marketState.mux);
 
 		// If cached data is available, copy it to the output parameter
@@ -64,7 +64,7 @@ namespace {
 	}
 
 	// Consume the latest background refresh error so the main loop can decide whether to surface it
-	bool takePendingRefreshError(char* message, size_t messageLength) {
+	bool takePendingRefreshError(char *message, size_t messageLength) {
 		portENTER_CRITICAL(&marketState.mux);
 
 		// If no error is pending, return false
@@ -81,7 +81,7 @@ namespace {
 	}
 
 	// Store a successful refresh result and schedule the next periodic update
-	void completeMarketDataRefreshSuccess(const MarketTickerData& marketData, unsigned long refreshedAt) {
+	void completeMarketDataRefreshSuccess(const MarketTickerData &marketData, unsigned long refreshedAt) {
 		portENTER_CRITICAL(&marketState.mux);
 		marketState.cachedData = marketData;
 		marketState.hasCachedData = true;
@@ -99,7 +99,7 @@ namespace {
 	}
 
 	// Store a refresh failure so the main loop can retry later without blocking
-	void completeMarketDataRefreshFailure(const char* message, unsigned long failedAt) {
+	void completeMarketDataRefreshFailure(const char *message, unsigned long failedAt) {
 		portENTER_CRITICAL(&marketState.mux);
 		marketState.hasPendingError = true;
 		completeMarketRefresh(marketState.refreshSchedule, false, failedAt);
@@ -110,7 +110,7 @@ namespace {
 }
 
 // Get the main market data used by the ticker
-static bool fetchMarketData(JsonDocument &doc, const char* cryptoCoin) {
+static bool fetchMarketData(JsonDocument &doc, const char *cryptoCoin) {
 	char url[220];
 	WiFiClientSecure clientSecure;
 	HTTPClient http;
@@ -173,7 +173,7 @@ void requestMarketDataRefresh() {
 }
 
 // Build the warning shown before old data (the refreshes keep failing), and return whether there is one
-bool getStaleDataWarning(char* message, size_t messageLength) {
+bool getStaleDataWarning(char *message, size_t messageLength) {
 	char lastErrorMessage[BUF_SIZE];
 
 	// Read the age of the data and the last error while holding the lock
@@ -185,7 +185,9 @@ bool getStaleDataWarning(char* message, size_t messageLength) {
 	portEXIT_CRITICAL(&marketState.mux);
 
 	// Nothing to warn about while the data is fresh
-	if (!isStale) return false;
+	if (!isStale) {
+		return false;
+	}
 
 	// Say how old the prices are, and why
 	snprintf(message, messageLength, "Prices from %lu min ago. %s", static_cast<unsigned long>(ageMinutes), lastErrorMessage[0] != '\0' ? lastErrorMessage : "Retrying...");
@@ -193,7 +195,7 @@ bool getStaleDataWarning(char* message, size_t messageLength) {
 }
 
 // Fetch and parse the market data
-static bool getStockDataAPI(MarketTickerData& marketData, const char* cryptoCoin) {
+static bool getStockDataAPI(MarketTickerData &marketData, const char *cryptoCoin) {
 	JsonDocument marketDoc;
 
 	// Fetch the market data
@@ -210,7 +212,7 @@ static bool getStockDataAPI(MarketTickerData& marketData, const char* cryptoCoin
 }
 
 // Worker task that performs the blocking HTTP request away from the main loop
-static void marketDataRefreshWorker(void* parameter) {
+static void marketDataRefreshWorker(void *parameter) {
 	MarketTickerData refreshedMarketData;
 
 	// Read the selected coin once, so the URL and the label always match
@@ -265,7 +267,7 @@ static bool scheduleMarketDataRefresh() {
 }
 
 // Call the API to get the data
-bool callAPI(MarketTickerData& marketData) {
+bool callAPI(MarketTickerData &marketData) {
 	char errorMessage[BUF_SIZE];
 
 	// Check if the API key is present
