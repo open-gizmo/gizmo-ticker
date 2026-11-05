@@ -6,6 +6,7 @@
 #include "../../utils/utils.h"
 #include "../../storage/storage.h"
 #include "../../serial/serial.h"
+#include <gizmo/text.h>
 
 namespace {
 	constexpr size_t MAX_API_KEY_LENGTH = API_KEY_SIZE - 1;
@@ -55,7 +56,7 @@ void setupApiKeyPostRoute() {
 
 		// Save the new API key before applying it
 		DeviceConfig config = getDeviceConfig();
-		stringCopy(config.apiKey, doc["apiKey"].as<const char*>(), sizeof(config.apiKey));
+		gizmo::copyString(config.apiKey, doc["apiKey"].as<const char*>(), sizeof(config.apiKey));
 		if (!saveDeviceConfigToStorage(config)) {
 			sendErrorResponse(request, 500, "api_key_save_failed", "Failed to save the API key");
 			return;

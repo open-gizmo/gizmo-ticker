@@ -76,7 +76,7 @@ Behind the scenes, the firmware and web app stay aligned through the same settin
 - Nuxt 4 interface that mirrors the firmware configuration flow.
 - `@brumaombra/ui-vintage` UI system shared across layout, forms, dialogs, and overlays.
 - English and Italian localization with browser language detection.
-- Captive-portal setup flow in AP mode and `ticker.local` hostname access after joining WiFi.
+- Captive-portal setup flow in AP mode and `gizmo-ticker.local` hostname access after joining WiFi.
 
 <a id="architecture"></a>
 ## 🏗️ Architecture
@@ -187,7 +187,7 @@ The firmware is responsible for the runtime behavior of the physical ticker.
 - Fetches and parses cryptocurrency market data.
 - Renders scrolling text to the MAX7219 matrix.
 - Serves the embedded web UI assets.
-- Keeps AP setup available during onboarding and exposes `ticker.local` on supported networks after joining WiFi.
+- Keeps AP setup available during onboarding and exposes `gizmo-ticker.local` on supported networks after joining WiFi.
 
 ### 🧩 Firmware Layers
 
@@ -279,7 +279,7 @@ The device is configured through its embedded web UI and local network flow.
 1. The ESP32 starts in access point mode on first boot.
 2. The web app lets you edit the ticker settings in the browser.
 3. The firmware stores the settings locally and reuses them after reboot.
-4. The device can then be reached on the local network using `ticker.local` on supported setups.
+4. The device can then be reached on the local network using `gizmo-ticker.local` on supported setups.
 
 ### Key Files
 
@@ -300,7 +300,7 @@ The workflow only runs on `main`, and needs these repository secrets: `R2_ACCOUN
 ## 🧰 Troubleshooting
 
 - The LED matrix powers on but shows no text: verify the MAX7219 wiring, confirm the correct `GPIO18` / `GPIO23` / `GPIO5` connections, and check that the matrix is using the `FC16_HW` layout.
-- The web UI does not open after joining WiFi: make sure the ESP32 is connected to the same network and try the `ticker.local` hostname if your router supports mDNS.
+- The web UI does not open after joining WiFi: make sure the ESP32 is connected to the same network and try the `gizmo-ticker.local` hostname if your router supports mDNS.
 - The ticker does not update with new prices: confirm the WiFi credentials and the market data API key are saved correctly in the setup flow.
 - The matrix shows `Prices from N min ago` before the prices: the last fetches failed for more than 12 minutes, so the prices on screen are old. The rest of the message says why (for example a wrong API key or no internet). Saving a new API key fetches again right away.
 - The display scrolls too fast or too slow: adjust the scroll speed in the web configuration and rebuild the embedded assets if needed.

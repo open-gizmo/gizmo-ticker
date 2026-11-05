@@ -11,6 +11,7 @@
 #include "market_refresh.h"
 #include "../serial/serial.h"
 #include "../utils/utils.h"
+#include <gizmo/text.h>
 
 /*
 The main loop never performs the blocking HTTP request directly.
@@ -73,7 +74,7 @@ namespace {
 		}
 
 		// Otherwise, copy the error message to the output buffer and return true
-		stringCopy(message, marketState.pendingErrorMessage, messageLength);
+		gizmo::copyString(message, marketState.pendingErrorMessage, messageLength);
 		marketState.hasPendingError = false;
 		portEXIT_CRITICAL(&marketState.mux);
 		return true;
@@ -102,8 +103,8 @@ namespace {
 		portENTER_CRITICAL(&marketState.mux);
 		marketState.hasPendingError = true;
 		completeMarketRefresh(marketState.refreshSchedule, false, failedAt);
-		stringCopy(marketState.pendingErrorMessage, message, sizeof(marketState.pendingErrorMessage));
-		stringCopy(marketState.lastErrorMessage, message, sizeof(marketState.lastErrorMessage));
+		gizmo::copyString(marketState.pendingErrorMessage, message, sizeof(marketState.pendingErrorMessage));
+		gizmo::copyString(marketState.lastErrorMessage, message, sizeof(marketState.lastErrorMessage));
 		portEXIT_CRITICAL(&marketState.mux);
 	}
 }
@@ -180,7 +181,7 @@ bool getStaleDataWarning(char* message, size_t messageLength) {
 	const unsigned long currentMillis = millis();
 	const bool isStale = isMarketDataStale(marketState.refreshSchedule, currentMillis);
 	const uint32_t ageMinutes = getMarketDataAgeMinutes(marketState.refreshSchedule, currentMillis);
-	stringCopy(lastErrorMessage, marketState.lastErrorMessage, sizeof(lastErrorMessage));
+	gizmo::copyString(lastErrorMessage, marketState.lastErrorMessage, sizeof(lastErrorMessage));
 	portEXIT_CRITICAL(&marketState.mux);
 
 	// Nothing to warn about while the data is fresh
@@ -214,7 +215,7 @@ static void marketDataRefreshWorker(void* parameter) {
 
 	// Read the selected coin once, so the URL and the label always match
 	char cryptoCoin[CRYPTO_COIN_SIZE];
-	stringCopy(cryptoCoin, getDeviceConfig().cryptoCoin, sizeof(cryptoCoin));
+	gizmo::copyString(cryptoCoin, getDeviceConfig().cryptoCoin, sizeof(cryptoCoin));
 	const bool fetchSucceeded = getStockDataAPI(refreshedMarketData, cryptoCoin);
 	const unsigned long currentMillis = millis();
 

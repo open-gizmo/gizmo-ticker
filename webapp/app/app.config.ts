@@ -5,6 +5,10 @@ import Settings01Icon from '@hugeicons/core-free-icons/Settings01Icon';
 export default defineAppConfig({
     gizmo: {
         name: 'Gizmo Ticker',
+
+        // mDNS name of the firmware (http://gizmo-ticker.local)
+        hostname: 'gizmo-ticker',
+
         logo: '/crypto/bitcoin.svg',
         homePath: '/wifi',
 

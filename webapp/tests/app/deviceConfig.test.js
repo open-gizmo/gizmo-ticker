@@ -43,7 +43,7 @@ const deviceDetails = {
     ssid: 'Home',
     accessPointActive: false,
     ip: '192.168.1.42',
-    hostname: 'ticker.local',
+    hostname: 'gizmo-ticker.local',
     signalQuality: 74
 };
 

@@ -8,6 +8,7 @@
 #include "../../matrix/matrix.h"
 #include "../../serial/serial.h"
 #include "../../utils/utils.h"
+#include <gizmo/text.h>
 
 namespace {
 	constexpr uint8_t MIN_SETTINGS_LEVEL = 0;
@@ -138,7 +139,7 @@ void setupSettingsPostRoute() {
 		// Get the current config
 		DeviceConfig config = getDeviceConfig();
 		char previousCryptoCoin[CRYPTO_COIN_SIZE];
-		stringCopy(previousCryptoCoin, config.cryptoCoin, sizeof(previousCryptoCoin));
+		gizmo::copyString(previousCryptoCoin, config.cryptoCoin, sizeof(previousCryptoCoin));
 
 		// Update the settings with the new values
 		applySettingsFromJson(doc.as<JsonObjectConst>(), config);

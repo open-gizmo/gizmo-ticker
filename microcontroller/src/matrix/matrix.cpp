@@ -3,6 +3,7 @@
 #include "../utils/utils.h"
 #include "../api/api.h"
 #include "../serial/serial.h"
+#include <gizmo/text.h>
 
 namespace {
 	// Whether the stale data warning was shown in the current cycle (it opens each cycle while the data is old)
@@ -77,7 +78,7 @@ namespace {
 
 // Print the message on the matrix
 void printOnLedMatrix(const char* message, const byte stringLength, uint16_t messageStill) {
-	stringCopy(currentMessage, message, stringLength); // Copy the message
+	gizmo::copyString(currentMessage, message, stringLength); // Copy the message
 	P.displayText(currentMessage, scrollAlign, scrollDelay, messageStill, scrollEffect, scrollEffect); // Print the message on the matrix
 }
 

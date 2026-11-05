@@ -4,13 +4,6 @@
 #include <gizmo/format.h>
 #include "../config/config.h"
 
-// Custom string copy function
-void stringCopy(char* destination, const char* text, size_t length) {
-	if (length <= 0) return; // If length is 0, do nothing
-    strncpy(destination, text, length - 1); // Copy the string
-    destination[length - 1] = '\0'; // Add the terminating character
-}
-
 // Mask the internal portion of a string while leaving the edges visible
 String maskInternalChars(const char* text, size_t visibleEdgeChars) {
 	// If the input text is null, return an empty string

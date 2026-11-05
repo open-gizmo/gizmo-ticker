@@ -14,7 +14,7 @@ namespace {
 	// Wi-Fi setup options of the ticker
 	const gizmo::WifiSetupOptions WIFI_SETUP_OPTIONS = {
 		"Gizmo-Ticker", // Setup hotspot name
-		"ticker", // mDNS hostname (http://ticker.local)
+		"gizmo-ticker", // mDNS hostname, always the project name (http://gizmo-ticker.local)
 		"/ap-setup", // Setup page of the web app
 		"/_nuxt/" // Files of the web app, never redirected
 	};
