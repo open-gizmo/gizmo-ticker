@@ -5,7 +5,7 @@
 
 namespace {
 	// NVS namespace and keys (keys are limited to 15 characters)
-	constexpr char STORAGE_NAMESPACE[] = "ticker";
+	constexpr char STORAGE_NAMESPACE[] = "gizmo-ticker"; // The project name (NVS namespaces fit 15 characters)
 	constexpr char CURRENT_PRICE_KEY[] = "showPrice";
 	constexpr char PRICE_CHANGE_KEY[] = "showChange";
 	constexpr char MARKET_CAP_KEY[] = "showMarketCap";
