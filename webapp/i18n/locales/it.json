@@ -1,6 +1,6 @@
 {
     "app": {
-        "loadError": "Si e verificato un errore durante il caricamento dei dati"
+        "loadError": "Si è verificato un errore durante il caricamento dei dati"
     },
     "common": {
         "close": "Chiudi",
@@ -12,7 +12,7 @@
     "nav": {
         "settings": {
             "label": "Impostazioni",
-            "description": "Regola visibilita e comportamento del ticker"
+            "description": "Regola visibilità e comportamento del ticker"
         },
         "apiKey": {
             "label": "Chiave API",
@@ -25,7 +25,7 @@
     "errors": {},
     "api": {
         "backendErrors": {
-            "clear_settings_failed": "Il dispositivo non e riuscito a reimpostare le impostazioni salvate. Riprova.",
+            "clear_settings_failed": "Il dispositivo non è riuscito a reimpostare le impostazioni salvate. Riprova.",
             "missing_api_key": "Inserisci una chiave API prima di salvare.",
             "invalid_settings_field": "Una delle impostazioni ha un valore che il dispositivo non accetta. Controllale e riprova.",
             "invalid_api_key": "La chiave API non è valida o è troppo lunga (al massimo 34 caratteri).",
@@ -40,18 +40,19 @@
             "placeholder": "Incolla la tua chiave API",
             "note": "Usa una chiave con una quota sufficiente per interrogazioni frequenti. Il firmware attuale si aspetta la chiave API come stringa semplice.",
             "saveAction": "Salva chiave API",
-            "saveSuccess": "La chiave API e stata salvata correttamente!",
-            "saveError": "Si e verificato un errore durante il salvataggio della chiave API",
+            "saveSuccess": "La chiave API è stata salvata correttamente!",
+            "saveError": "Si è verificato un errore durante il salvataggio della chiave API",
             "confirmTitle": "Salva chiave API",
             "confirmMessage": "Memorizzare questa chiave API sul dispositivo e sostituire il valore attuale?",
+            "newKeyTitle": "Nuova chiave",
             "currentKeyLabel": "Chiave salvata",
             "notSet": "Nessuna chiave salvata"
         },
         "settings": {
             "title": "Impostazioni ticker",
-            "visibilityTitle": "Visibilita",
+            "visibilityTitle": "Visibilità",
             "visibilityDescription": "Scegli quali metriche di mercato devono ruotare sulla matrice.",
-            "formattingTitle": "Formato e movimento",
+            "formattingTitle": "Formato",
             "cryptoCoin": {
                 "label": "Moneta del ticker",
                 "note": "Seleziona quale moneta il dispositivo deve recuperare e applica il relativo stile di accento nell'interfaccia web."
@@ -59,10 +60,10 @@
             "saveAction": "Salva impostazioni",
             "resetAction": "Reimposta impostazioni salvate",
             "saveSuccess": "Le impostazioni sono state salvate correttamente!",
-            "saveError": "Si e verificato un errore durante il salvataggio delle impostazioni",
+            "saveError": "Si è verificato un errore durante il salvataggio delle impostazioni",
             "resetInfoTitle": "Riavvio dispositivo",
             "resetInfoMessage": "Le impostazioni del dispositivo sono state cancellate e il firmware si sta riavviando.",
-            "resetError": "Si e verificato un errore durante il ripristino delle impostazioni",
+            "resetError": "Si è verificato un errore durante il ripristino delle impostazioni",
             "saveConfirmTitle": "Salva impostazioni",
             "saveConfirmMessage": "Salvare sul dispositivo le impostazioni correnti del ticker?",
             "resetConfirmTitle": "Reimposta impostazioni salvate",
@@ -97,15 +98,14 @@
                 "euMeta": "Punto per le migliaia, virgola per i decimali"
             },
             "matrixIntensity": {
-                "label": "Intensita matrice",
+                "label": "Intensità matrice",
                 "note": "Controlla la luminosita dei moduli della matrice."
             },
             "scrollSpeed": {
-                "label": "Velocita di scorrimento",
+                "label": "Velocità di scorrimento",
                 "note": "Controlla la velocita con cui ogni blocco di testo attraversa il display."
             },
             "matrixTitle": "Matrice",
-            "deviceTitle": "Ripristino",
             "loadErrorTitle": "Impossibile leggere le impostazioni",
             "loadErrorDescription": "Il dispositivo non ha risposto. Controlla che sia acceso e sulla stessa rete, poi riprova.",
             "loadRetryAction": "Riprova"

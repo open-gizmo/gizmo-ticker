@@ -49,6 +49,7 @@ const deviceDetails = {
 
 // The device API: whether the config answers, and the bodies of the saves
 let isConfigAvailable;
+let isDeviceAvailable;
 let savedBodies;
 
 // Answer like the device, or fail like a device that doesn't answer
@@ -57,7 +58,10 @@ const registerDeviceEndpoints = () => {
         if (!isConfigAvailable) throw createError({ statusCode: 500, data: { errorId: null, errorMessage: 'Unreachable', data: null } });
         return { errorId: null, errorMessage: null, data: deviceConfig };
     });
-    registerEndpoint('/api/device', () => ({ errorId: null, errorMessage: null, data: deviceDetails }));
+    registerEndpoint('/api/device', () => {
+        if (!isDeviceAvailable) throw createError({ statusCode: 500, data: { errorId: null, errorMessage: 'Unreachable', data: null } });
+        return { errorId: null, errorMessage: null, data: deviceDetails };
+    });
     registerEndpoint('/api/settings', {
         method: 'POST',
         handler: async event => {
@@ -80,6 +84,7 @@ const findButton = (wrapper, text) => wrapper.findAll('button').find(button => b
 // Start each test with the store of a page that has not loaded the config yet
 beforeEach(() => {
     isConfigAvailable = true;
+    isDeviceAvailable = true;
     savedBodies = [];
     resetGizmoStore();
     const globalStore = useGlobalStore();
@@ -168,11 +173,34 @@ describe('settings page', () => {
         expect(wrapper.text()).toContain('Try again');
     });
 
-    // The reset of the settings is the ticker's own action, next to the ones of the card
+    // The reset of the settings is the ticker's own action, in the last group with the other destructive ones of the card
     it('keeps the reset of the saved settings', async () => {
         await loadDeviceConfig();
         const wrapper = await mountSuspended(SettingsPage);
+        await vi.waitFor(() => expect(wrapper.text()).toContain('Reset saved settings'));
+
+        // Expect the group of actions to end with the two destructive rows
+        const group = wrapper.findAll('section').find(section => section.find('h2').text() === 'Actions');
+        expect(group.findAll('li').map(row => row.text())).toEqual(['Restart', 'Forget network', 'Reset saved settings']);
+    });
+
+    // The reset must stay reachable when the device details can't be read (it only needs the settings)
+    it('keeps the reset of the saved settings when the device details cannot be read', async () => {
+        isDeviceAvailable = false;
+        await loadDeviceConfig();
+        const wrapper = await mountSuspended(SettingsPage);
+        await vi.waitFor(() => expect(wrapper.text()).toContain('Try again'));
         expect(wrapper.text()).toContain('Reset saved settings');
+    });
+
+    // The sliders are rows of the matrix group, with their value on the first line
+    it('shows the matrix sliders as rows of a titled group', async () => {
+        await loadDeviceConfig();
+        const wrapper = await mountSuspended(SettingsPage);
+        const group = wrapper.findAll('section').find(section => section.find('h2').text() === 'Matrix');
+        expect(group.findAll('[role="slider"]')).toHaveLength(2);
+        expect(group.text()).toContain('Matrix intensity');
+        expect(group.text()).toContain('80%');
     });
 
     // Saving sends the settings read from the device

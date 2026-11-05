@@ -4,10 +4,11 @@ import Alert02Icon from '@hugeicons/core-free-icons/Alert02Icon';
 import Cancel01Icon from '@hugeicons/core-free-icons/Cancel01Icon';
 import CheckmarkCircle02Icon from '@hugeicons/core-free-icons/CheckmarkCircle02Icon';
 import Coins01Icon from '@hugeicons/core-free-icons/Coins01Icon';
+import DashboardSpeed01Icon from '@hugeicons/core-free-icons/DashboardSpeed01Icon';
 import InformationCircleIcon from '@hugeicons/core-free-icons/InformationCircleIcon';
 import RefreshIcon from '@hugeicons/core-free-icons/RefreshIcon';
 import SaveIcon from '@hugeicons/core-free-icons/SaveIcon';
-import SlidersHorizontalIcon from '@hugeicons/core-free-icons/SlidersHorizontalIcon';
+import Sun03Icon from '@hugeicons/core-free-icons/Sun03Icon';
 import TextNumberSignIcon from '@hugeicons/core-free-icons/TextNumberSignIcon';
 import { HugeiconsIcon } from '@hugeicons/vue';
 import { setBusy } from '@brumaombra/ui-vintage/busy-indicator';
@@ -17,9 +18,6 @@ import { EmptyStateCard } from '@brumaombra/ui-vintage/empty-state-card';
 import { ListGroup, ListRow } from '@brumaombra/ui-vintage/list';
 import { LoadingStateCard } from '@brumaombra/ui-vintage/loading-state-card';
 import { showMessageDialog } from '@brumaombra/ui-vintage/message-dialog';
-import { PageHeader } from '@brumaombra/ui-vintage/page-header';
-import { SectionTitle } from '@brumaombra/ui-vintage/section-title';
-import { SliderFormComponent } from '@brumaombra/ui-vintage/slider-form-component';
 import { Switch } from '@brumaombra/ui-vintage/switch';
 import { resetSettings, saveSettings } from '~/composables/useDeviceApi.js';
 import { loadDeviceConfig } from '~/composables/useDeviceConfig.js';
@@ -43,6 +41,9 @@ const matrixIntensityPercentage = computed(() => {
 const scrollSpeedPercentage = computed(() => {
     return Math.round((Number(config.value?.scrollSpeed ?? 0) / 15) * 100);
 });
+
+// Help under the matrix group: what each slider does
+const matrixHint = computed(() => `${t('pages.settings.matrixIntensity.note')} ${t('pages.settings.scrollSpeed.note')}`);
 
 // Available thousands separator formats
 const separatorOptions = computed(() => ([
@@ -179,10 +180,7 @@ definePageMeta({
 </script>
 
 <template>
-    <div class="mx-auto w-full max-w-2xl space-y-6">
-        <!-- Title -->
-        <PageHeader :title="t('pages.settings.title')" size="medium" />
-
+    <GizmoPage :title="t('pages.settings.title')">
         <!-- The settings couldn't be read: offer to try again (a form here would save the defaults over the real settings) -->
         <EmptyStateCard v-if="globalStore.configLoadFailed && !globalStore.configLoaded" :icon="Alert02Icon" :title="t('pages.settings.loadErrorTitle')" :description="t('pages.settings.loadErrorDescription')">
             <template #action>
@@ -213,26 +211,11 @@ definePageMeta({
                 <ListRow :label="t('pages.settings.formatType.label')" :icon="TextNumberSignIcon" :value="selectedSeparatorLabel" action @click="openPicker = 'format'" />
             </ListGroup>
 
-            <!-- Matrix brightness and speed -->
-            <section>
-                <SectionTitle :title="t('pages.settings.matrixTitle')" :icon="SlidersHorizontalIcon" />
-                <div class="space-y-4">
-                    <SliderFormComponent id="matrixIntensity"
-                        v-model="config.matrixIntensity"
-                        :label="t('pages.settings.matrixIntensity.label')"
-                        :description="t('pages.settings.matrixIntensity.note')"
-                        :min="0"
-                        :max="15"
-                        :value-text="`${matrixIntensityPercentage}%`" />
-                    <SliderFormComponent id="scrollSpeed"
-                        v-model="config.scrollSpeed"
-                        :label="t('pages.settings.scrollSpeed.label')"
-                        :description="t('pages.settings.scrollSpeed.note')"
-                        :min="0"
-                        :max="15"
-                        :value-text="`${scrollSpeedPercentage}%`" />
-                </div>
-            </section>
+            <!-- Matrix brightness and speed (the sliders stay in the rows, so the device can be watched while dragging) -->
+            <ListGroup :title="t('pages.settings.matrixTitle')" :hint="matrixHint">
+                <GizmoSliderRow v-model="config.matrixIntensity" :label="t('pages.settings.matrixIntensity.label')" :icon="Sun03Icon" :min="0" :max="15" :value-text="`${matrixIntensityPercentage}%`" />
+                <GizmoSliderRow v-model="config.scrollSpeed" :label="t('pages.settings.scrollSpeed.label')" :icon="DashboardSpeed01Icon" :min="0" :max="15" :value-text="`${scrollSpeedPercentage}%`" />
+            </ListGroup>
 
             <!-- Save button -->
             <Button variant="primary" type="submit" class="w-full">
@@ -241,13 +224,12 @@ definePageMeta({
             </Button>
         </form>
 
-        <!-- Device info, restart and forget network (from the gizmo-common layer, it reads the device by itself) -->
-        <GizmoDeviceCard />
-
-        <!-- Reset of the saved settings (the ticker's own action) -->
-        <ListGroup v-if="globalStore.configLoaded" :title="t('pages.settings.deviceTitle')">
-            <ListRow :label="t('pages.settings.resetAction')" :icon="RefreshIcon" action danger @click="handleResetPress" />
-        </ListGroup>
+        <!-- Device info, network, restart and forget network (from the gizmo-common layer, it reads the device by itself). The reset of the saved settings, the ticker's own action, joins the destructive rows at the end -->
+        <GizmoDeviceCard>
+            <template v-if="globalStore.configLoaded" #danger-rows>
+                <ListRow :label="t('pages.settings.resetAction')" :icon="RefreshIcon" action danger @click="handleResetPress" />
+            </template>
+        </GizmoDeviceCard>
 
         <!-- Coin picker -->
         <OptionPickerDialog :visible="openPicker === 'coin'" :title="t('pages.settings.cryptoCoin.label')" :description="t('pages.settings.cryptoCoin.note')" :options="cryptoCoinOptions" :model-value="config.cryptoCoin" @update:model-value="handleCryptoCoinSelect" @close="openPicker = ''">
@@ -258,5 +240,5 @@ definePageMeta({
 
         <!-- Number format picker -->
         <OptionPickerDialog :visible="openPicker === 'format'" :title="t('pages.settings.formatType.label')" :options="separatorOptions" :model-value="config.formatType" @update:model-value="handleFormatTypeSelect" @close="openPicker = ''" />
-    </div>
+    </GizmoPage>
 </template>

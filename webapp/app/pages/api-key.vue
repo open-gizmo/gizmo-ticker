@@ -7,13 +7,9 @@ import SaveIcon from '@hugeicons/core-free-icons/SaveIcon';
 import { HugeiconsIcon } from '@hugeicons/vue';
 import { setBusy } from '@brumaombra/ui-vintage/busy-indicator';
 import { Button } from '@brumaombra/ui-vintage/button';
-import { Card, CardContent } from '@brumaombra/ui-vintage/card';
 import { showConfirmDialog } from '@brumaombra/ui-vintage/confirm-dialog';
-import { Field, FieldContent, FieldDescription, FieldLabel } from '@brumaombra/ui-vintage/field';
-import { Input } from '@brumaombra/ui-vintage/input';
 import { ListGroup, ListRow } from '@brumaombra/ui-vintage/list';
 import { showMessageDialog } from '@brumaombra/ui-vintage/message-dialog';
-import { PageHeader } from '@brumaombra/ui-vintage/page-header';
 import { saveApiKey } from '~/composables/useDeviceApi.js';
 import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
 
@@ -89,28 +85,17 @@ definePageMeta({
 </script>
 
 <template>
-    <div class="mx-auto w-full max-w-2xl space-y-6">
-        <!-- Title -->
-        <PageHeader :title="t('pages.apiKey.title')" size="medium" />
-
+    <GizmoPage :title="t('pages.apiKey.title')">
         <!-- Key saved on the device -->
         <ListGroup :title="t('pages.apiKey.currentKeyLabel')">
-            <ListRow :label="savedApiKeyLabel" :icon="Key01Icon" icon-tile />
+            <ListRow :label="savedApiKeyLabel" :icon="Key01Icon" />
         </ListGroup>
 
-        <!-- New key -->
+        <!-- New key, and the button to save it -->
         <form class="space-y-6" @submit.prevent="handleSavePress">
-            <Card>
-                <CardContent>
-                    <Field>
-                        <FieldLabel for="apiKey">{{ t('pages.apiKey.label') }}</FieldLabel>
-                        <FieldContent>
-                            <Input id="apiKey" v-model="apiKey" type="text" autocomplete="off" :maxlength="API_KEY_MAX_LENGTH" :placeholder="t('pages.apiKey.placeholder')" />
-                            <FieldDescription>{{ t('pages.apiKey.note') }}</FieldDescription>
-                        </FieldContent>
-                    </Field>
-                </CardContent>
-            </Card>
+            <ListGroup :title="t('pages.apiKey.newKeyTitle')" :hint="t('pages.apiKey.note')">
+                <GizmoInputRow id="apiKey" v-model="apiKey" :label="t('pages.apiKey.label')" :icon="Key01Icon" :maxlength="API_KEY_MAX_LENGTH" :placeholder="t('pages.apiKey.placeholder')" />
+            </ListGroup>
 
             <!-- Save button -->
             <Button variant="primary" type="submit" class="w-full" :disabled="!isFormValid">
@@ -118,5 +103,5 @@ definePageMeta({
                 {{ t('pages.apiKey.saveAction') }}
             </Button>
         </form>
-    </div>
+    </GizmoPage>
 </template>
