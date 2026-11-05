@@ -8,6 +8,7 @@ import { HugeiconsIcon } from '@hugeicons/vue';
 import { setBusy } from '@brumaombra/ui-vintage/busy-indicator';
 import { Button } from '@brumaombra/ui-vintage/button';
 import { showConfirmDialog } from '@brumaombra/ui-vintage/confirm-dialog';
+import { Input } from '@brumaombra/ui-vintage/input';
 import { ListGroup, ListRow } from '@brumaombra/ui-vintage/list';
 import { showMessageDialog } from '@brumaombra/ui-vintage/message-dialog';
 import { saveApiKey } from '~/composables/useDeviceApi.js';
@@ -94,7 +95,9 @@ definePageMeta({
         <!-- New key, and the button to save it -->
         <form class="space-y-6" @submit.prevent="handleSavePress">
             <ListGroup :title="t('pages.apiKey.newKeyTitle')" :hint="t('pages.apiKey.note')">
-                <GizmoInputRow id="apiKey" v-model="apiKey" :label="t('pages.apiKey.label')" :icon="Key01Icon" :maxlength="API_KEY_MAX_LENGTH" :placeholder="t('pages.apiKey.placeholder')" />
+                <ListRow :label="t('pages.apiKey.label')" :icon="Key01Icon" label-for="apiKey">
+                    <Input id="apiKey" v-model="apiKey" autocomplete="off" :maxlength="API_KEY_MAX_LENGTH" :placeholder="t('pages.apiKey.placeholder')" />
+                </ListRow>
             </ListGroup>
 
             <!-- Save button -->

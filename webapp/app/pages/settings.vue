@@ -18,6 +18,8 @@ import { EmptyStateCard } from '@brumaombra/ui-vintage/empty-state-card';
 import { ListGroup, ListRow } from '@brumaombra/ui-vintage/list';
 import { LoadingStateCard } from '@brumaombra/ui-vintage/loading-state-card';
 import { showMessageDialog } from '@brumaombra/ui-vintage/message-dialog';
+import { OptionPickerDialog } from '@brumaombra/ui-vintage/option-picker-dialog';
+import { Slider } from '@brumaombra/ui-vintage/slider';
 import { Switch } from '@brumaombra/ui-vintage/switch';
 import { resetSettings, saveSettings } from '~/composables/useDeviceApi.js';
 import { loadDeviceConfig } from '~/composables/useDeviceConfig.js';
@@ -73,6 +75,16 @@ const visibilityRows = computed(() => ['currentPrice', 'priceChange', 'marketCap
     id,
     label: t(`pages.settings.visibility.${id}.label`)
 })));
+
+// Set the matrix intensity from the slider (it gives an array with one value)
+const handleMatrixIntensityUpdate = value => {
+    config.value.matrixIntensity = value?.[0] ?? 0;
+};
+
+// Set the scroll speed from the slider (it gives an array with one value)
+const handleScrollSpeedUpdate = value => {
+    config.value.scrollSpeed = value?.[0] ?? 0;
+};
 
 // Pick a coin (the accent color of the web app follows it right away)
 const handleCryptoCoinSelect = cryptoCoin => {
@@ -213,8 +225,12 @@ definePageMeta({
 
             <!-- Matrix brightness and speed (the sliders stay in the rows, so the device can be watched while dragging) -->
             <ListGroup :title="t('pages.settings.matrixTitle')" :hint="matrixHint">
-                <GizmoSliderRow v-model="config.matrixIntensity" :label="t('pages.settings.matrixIntensity.label')" :icon="Sun03Icon" :min="0" :max="15" :value-text="`${matrixIntensityPercentage}%`" />
-                <GizmoSliderRow v-model="config.scrollSpeed" :label="t('pages.settings.scrollSpeed.label')" :icon="DashboardSpeed01Icon" :min="0" :max="15" :value-text="`${scrollSpeedPercentage}%`" />
+                <ListRow :label="t('pages.settings.matrixIntensity.label')" :icon="Sun03Icon" :value="`${matrixIntensityPercentage}%`">
+                    <Slider :model-value="[Number(config.matrixIntensity ?? 0)]" :min="0" :max="15" :step="1" :thumb-label="t('pages.settings.matrixIntensity.label')" @update:model-value="handleMatrixIntensityUpdate" />
+                </ListRow>
+                <ListRow :label="t('pages.settings.scrollSpeed.label')" :icon="DashboardSpeed01Icon" :value="`${scrollSpeedPercentage}%`">
+                    <Slider :model-value="[Number(config.scrollSpeed ?? 0)]" :min="0" :max="15" :step="1" :thumb-label="t('pages.settings.scrollSpeed.label')" @update:model-value="handleScrollSpeedUpdate" />
+                </ListRow>
             </ListGroup>
 
             <!-- Save button -->
@@ -232,13 +248,13 @@ definePageMeta({
         </GizmoDeviceCard>
 
         <!-- Coin picker -->
-        <OptionPickerDialog :visible="openPicker === 'coin'" :title="t('pages.settings.cryptoCoin.label')" :description="t('pages.settings.cryptoCoin.note')" :options="cryptoCoinOptions" :model-value="config.cryptoCoin" @update:model-value="handleCryptoCoinSelect" @close="openPicker = ''">
+        <OptionPickerDialog :open="openPicker === 'coin'" :title="t('pages.settings.cryptoCoin.label')" :description="t('pages.settings.cryptoCoin.note')" :options="cryptoCoinOptions" :model-value="config.cryptoCoin" @update:model-value="handleCryptoCoinSelect" @update:open="open => { if (!open) openPicker = ''; }">
             <template #icon="{ option }">
-                <img :src="option.image" alt="" aria-hidden="true" decoding="async" class="size-5 shrink-0">
+                <img :src="option.image" alt="" aria-hidden="true" decoding="async" class="size-8 shrink-0">
             </template>
         </OptionPickerDialog>
 
         <!-- Number format picker -->
-        <OptionPickerDialog :visible="openPicker === 'format'" :title="t('pages.settings.formatType.label')" :options="separatorOptions" :model-value="config.formatType" @update:model-value="handleFormatTypeSelect" @close="openPicker = ''" />
+        <OptionPickerDialog :open="openPicker === 'format'" :title="t('pages.settings.formatType.label')" :options="separatorOptions" :model-value="config.formatType" @update:model-value="handleFormatTypeSelect" @update:open="open => { if (!open) openPicker = ''; }" />
     </GizmoPage>
 </template>
