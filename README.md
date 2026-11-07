@@ -155,7 +155,12 @@ If you want to build and flash everything yourself, follow this path:
 	pio device monitor
 	```
 
-	The project uses a 115200 baud serial monitor by default, matching the value configured in `platformio.ini`.
+	The released firmware keeps the serial log off. To see it, flash the debug build, the same firmware with `PIO_DEV_MODE=1`:
+
+	```bash
+	pio run -e xiao_esp32s3_debug --target upload
+	pio device monitor
+	```
 
 <a id="hardware"></a>
 ## 🔌 Hardware
