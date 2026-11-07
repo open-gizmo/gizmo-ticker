@@ -17,11 +17,7 @@ constexpr size_t CRYPTO_COIN_SIZE = 16;
 constexpr uint8_t MATRIX_MODULES_STEP = 4;
 constexpr uint8_t MATRIX_MODULES_MIN = 4;
 constexpr uint8_t MATRIX_MODULES_MAX = 32;
-#if defined(ARDUINO_XIAO_ESP32S3)
 constexpr uint8_t MATRIX_MODULES_DEFAULT = 4; // One 4-in-1 board, as in the OpenGizmo enclosure
-#else
-constexpr uint8_t MATRIX_MODULES_DEFAULT = 16; // The first boards drove 16 modules, before the setting existed
-#endif
 
 // Whether a number of modules is one the display can chain (a whole number of 4-in-1 boards, within the limits)
 constexpr bool isValidMatrixModules(long modules) {

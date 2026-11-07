@@ -139,7 +139,7 @@ If you want to build and flash everything yourself, follow this path:
 	pio run
 	```
 
-	This compiles the firmware for the XIAO ESP32-S3 (add `-e esp32dev` for an ESP32 DevKit) together with the current web UI assets and the libraries declared in `platformio.ini`.
+	This compiles the firmware for the XIAO ESP32-S3 together with the current web UI assets and the libraries declared in `platformio.ini`.
 
 4. **Upload the firmware to the ESP32.**
 
@@ -162,19 +162,19 @@ If you want to build and flash everything yourself, follow this path:
 
 ### Board
 
-The firmware targets the **Seeed Studio XIAO ESP32-S3** (PlatformIO env `xiao_esp32s3`, the default), the board of the OpenGizmo enclosure. The older **ESP32 DevKit** still builds with `pio run -e esp32dev`.
+The firmware targets the **Seeed Studio XIAO ESP32-S3** (PlatformIO env `xiao_esp32s3`, the default), the board of the OpenGizmo enclosure.
 
 The XIAO has no antenna on the board: connect its FPC antenna to the U.FL connector, or it won't join the Wi-Fi.
 
 ### Pinout
 
-| MAX7219 input | XIAO ESP32-S3 | ESP32 DevKit |
-| --- | --- | --- |
-| VCC | `5V` | `5V` |
-| GND | `GND` | `GND` |
-| DIN | `D10` (GPIO9, MOSI) | `GPIO23` |
-| CS | `D9` (GPIO8) | `GPIO5` |
-| CLK | `D8` (GPIO7, SCK) | `GPIO18` |
+| MAX7219 input | XIAO ESP32-S3 |
+| --- | --- |
+| VCC | `5V` |
+| GND | `GND` |
+| DIN | `D10` (GPIO9, MOSI) |
+| CS | `D9` (GPIO8) |
+| CLK | `D8` (GPIO7, SCK) |
 
 On the XIAO, the pads next to `5V` and `GND` follow the order of the module input header, so a 6-wire flat cable runs straight across (leave the `3V3` wire unconnected). The display only writes, so the SPI bus starts without MISO, and `D9` is free for CS.
 

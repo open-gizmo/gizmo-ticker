@@ -50,7 +50,7 @@ jobs:
       # Download the firmware libraries (the webapp tests read the error IDs of gizmo-common)
       - name: 📥 Install firmware libraries
         working-directory: microcontroller
-        run: pio pkg install -e xiao_esp32s3 -e esp32dev
+        run: pio pkg install -e xiao_esp32s3
 
       # Run the webapp tests
       - name: 🧪 Run webapp tests
@@ -71,14 +71,14 @@ jobs:
           # The version goes into the firmware through the build flags, for every later step: PlatformIO wipes a build when a command runs with other flags (the packaging reads the build with "pio project metadata")
           echo "PLATFORMIO_BUILD_FLAGS=-D PIO_FIRMWARE_VERSION='\"v$(date +'%Y.%m.%d').${{ github.run_number }}\"'" >> $GITHUB_ENV
 
-      # Build the firmware of both boards, with its version shown in the web app
+      # Build the firmware, with its version shown in the web app
       - name: 🛠️ Build Firmware
         working-directory: microcontroller
-        run: pio run -e xiao_esp32s3 -e esp32dev # Both boards: the website flasher picks the build of the chip it finds
+        run: pio run -e xiao_esp32s3
 
       # Package the flash parts (bootloader, partition table, boot_app0, app) and the manifest of the browser flasher
       - name: 🗂️ Package firmware
-        run: python .github/scripts/package_firmware.py --project-dir microcontroller --name "Gizmo Ticker" --version "${{ steps.version.outputs.VERSION }}" --output-dir dist --build xiao_esp32s3:ESP32-S3 --build esp32dev:ESP32
+        run: python .github/scripts/package_firmware.py --project-dir microcontroller --name "Gizmo Ticker" --version "${{ steps.version.outputs.VERSION }}" --output-dir dist --build xiao_esp32s3:ESP32-S3
 
       # Create a GitHub release with the flash parts
       - name: 📦 Create Release
@@ -94,11 +94,7 @@ jobs:
             Flash it from the browser on https://opengizmo.dev/projects/gizmo-ticker, or over USB:
 
             ```bash
-            # Seeed Studio XIAO ESP32-S3
             esptool.py --chip esp32s3 write_flash 0x0 xiao_esp32s3-bootloader.bin 0x8000 xiao_esp32s3-partitions.bin 0xe000 xiao_esp32s3-boot_app0.bin 0x10000 xiao_esp32s3-firmware.bin
-
-            # ESP32 DevKit
-            esptool.py --chip esp32 write_flash 0x1000 esp32dev-bootloader.bin 0x8000 esp32dev-partitions.bin 0xe000 esp32dev-boot_app0.bin 0x10000 esp32dev-firmware.bin
             ```
           files: |
             dist/${{ steps.version.outputs.VERSION }}/*.bin
