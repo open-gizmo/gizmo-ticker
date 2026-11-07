@@ -17,6 +17,7 @@ namespace {
 	constexpr char FORMAT_TYPE_KEY[] = "format";
 	constexpr char MATRIX_INTENSITY_KEY[] = "intensity";
 	constexpr char SCROLL_SPEED_KEY[] = "scrollSpeed";
+	constexpr char MATRIX_MODULES_KEY[] = "modules";
 	constexpr char API_KEY_KEY[] = "apiKey";
 
 	// Read the stored settings on top of the defaults (missing keys keep their default)
@@ -39,6 +40,10 @@ namespace {
 		config.formatType = preferences.getUChar(FORMAT_TYPE_KEY, defaults.formatType) == FORMAT_EU ? FORMAT_EU : FORMAT_US;
 		config.matrixIntensity = preferences.getUChar(MATRIX_INTENSITY_KEY, defaults.matrixIntensity);
 		config.scrollSpeed = preferences.getUChar(SCROLL_SPEED_KEY, defaults.scrollSpeed);
+		config.matrixModules = preferences.getUChar(MATRIX_MODULES_KEY, defaults.matrixModules);
+		if (!isValidMatrixModules(config.matrixModules)) {
+			config.matrixModules = defaults.matrixModules; // Never start the display with a size it cannot chain
+		}
 
 		// API key
 		if (preferences.isKey(API_KEY_KEY)) {
@@ -86,6 +91,7 @@ bool saveDeviceConfigToStorage(const DeviceConfig &config) {
 	isSaved &= preferences.putUChar(FORMAT_TYPE_KEY, config.formatType) > 0;
 	isSaved &= preferences.putUChar(MATRIX_INTENSITY_KEY, config.matrixIntensity) > 0;
 	isSaved &= preferences.putUChar(SCROLL_SPEED_KEY, config.scrollSpeed) > 0;
+	isSaved &= preferences.putUChar(MATRIX_MODULES_KEY, config.matrixModules) > 0;
 	isSaved &= preferences.putString(API_KEY_KEY, config.apiKey) == strlen(config.apiKey);
 	preferences.end();
 

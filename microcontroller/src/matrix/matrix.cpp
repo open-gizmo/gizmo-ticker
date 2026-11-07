@@ -4,8 +4,12 @@
 #include "../api/api.h"
 #include "../serial/serial.h"
 #include <gizmo/text.h>
+#include <SPI.h>
 
 namespace {
+	// The display, created at boot for the saved number of modules (MD_Parola keeps it for its whole life)
+	MD_Parola *matrix = nullptr;
+
 	// Whether the stale data warning was shown in the current cycle (it opens each cycle while the data is old)
 	bool isStaleWarningShown = false;
 
@@ -79,12 +83,12 @@ namespace {
 // Print the message on the matrix
 void printOnLedMatrix(const char *message, const byte stringLength, uint16_t messageStill) {
 	gizmo::copyString(currentMessage, message, stringLength); // Copy the message
-	P.displayText(currentMessage, scrollAlign, scrollDelay, messageStill, scrollEffect, scrollEffect); // Print the message on the matrix
+	matrix->displayText(currentMessage, scrollAlign, scrollDelay, messageStill, scrollEffect, scrollEffect); // Print the message on the matrix
 }
 
 // Set the intensity of the matrix
 void setMatrixIntensity(uint8_t intensity) {
-	P.setIntensity(intensity); // Set LED intensity (0-15, 15 is brightest)
+	matrix->setIntensity(intensity); // Set LED intensity (0-15, 15 is brightest)
 }
 
 // Set the speed of the matrix
@@ -94,8 +98,11 @@ void setMatrixSpeed(uint8_t speed) {
 
 // Setup the LED matrix
 void setupLedMatrix() {
-	P.begin(); // Start the LED matrix
-	const DeviceConfig &config = getDeviceConfig();
+	const DeviceConfig config = getDeviceConfig();
+	SPI.begin(CLK_PIN, -1, DATA_PIN); // The display only writes: no MISO, so its default pin stays free (MD_MAX72XX then reuses this bus)
+	matrix = new MD_Parola(HARDWARE_TYPE, CS_PIN, config.matrixModules);
+	matrix->begin(); // Start the LED matrix
+	printLogfln("LED matrix: %u modules", config.matrixModules);
 	setMatrixIntensity(config.matrixIntensity); // Set the intensity of the matrix
 	setMatrixSpeed(config.scrollSpeed); // Set the saved scroll speed before the first message
 	printOnLedMatrix("Initializing...", BUF_SIZE); // Print the message on the matrix
@@ -115,7 +122,7 @@ bool isLedMatrixReadyForNextMessage() {
 	}
 
 	// Animate the current message
-	return P.displayAnimate();
+	return matrix->displayAnimate();
 }
 
 // Manage the LED matrix using already-available market data

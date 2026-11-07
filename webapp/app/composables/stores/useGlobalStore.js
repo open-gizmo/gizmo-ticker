@@ -13,6 +13,7 @@ export const useGlobalStore = () => useState('global', () => ({
         formatType: 'US',
         matrixIntensity: 0,
         scrollSpeed: 0,
+        matrixModules: 4,
         apiKey: ''
     },
 

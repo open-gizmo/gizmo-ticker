@@ -8,6 +8,7 @@
 #include "../../matrix/matrix.h"
 #include "../../serial/serial.h"
 #include "../../utils/utils.h"
+#include <gizmo/device.h>
 #include <gizmo/text.h>
 
 namespace {
@@ -33,6 +34,24 @@ namespace {
 	}
 
 	// Validate the numeric fields
+	// Check that the number of matrix modules is a whole number of 4-in-1 boards
+	bool validateMatrixModulesField(AsyncWebServerRequest *request, JsonVariantConst value) {
+		// Null is allowed
+		if (value.isNull()) {
+			return true;
+		}
+
+		// If not null, must be an integer the display can chain
+		if (!value.is<int>() || !isValidMatrixModules(value.as<int>())) {
+			printLogfln("Invalid matrixModules value");
+			sendErrorResponse(request, 400, "invalid_settings_field", "matrixModules");
+			return false;
+		}
+
+		// Valid number of modules
+		return true;
+	}
+
 	bool validateLevelField(AsyncWebServerRequest *request, JsonVariantConst value, const char *fieldName) {
 		// Null is allowed
 		if (value.isNull()) {
@@ -132,7 +151,8 @@ void setupSettingsPostRoute() {
 			|| !validateCryptoCoinField(request, doc["cryptoCoin"])
 			|| !validateFormatTypeField(request, doc["formatType"])
 			|| !validateLevelField(request, doc["matrixIntensity"], "matrixIntensity")
-			|| !validateLevelField(request, doc["scrollSpeed"], "scrollSpeed")) {
+			|| !validateLevelField(request, doc["scrollSpeed"], "scrollSpeed")
+			|| !validateMatrixModulesField(request, doc["matrixModules"])) {
 			return;
 		}
 
@@ -140,6 +160,7 @@ void setupSettingsPostRoute() {
 		DeviceConfig config = getDeviceConfig();
 		char previousCryptoCoin[CRYPTO_COIN_SIZE];
 		gizmo::copyString(previousCryptoCoin, config.cryptoCoin, sizeof(previousCryptoCoin));
+		const uint8_t previousMatrixModules = config.matrixModules;
 
 		// Update the settings with the new values
 		applySettingsFromJson(doc.as<JsonObjectConst>(), config);
@@ -159,7 +180,13 @@ void setupSettingsPostRoute() {
 
 		// Send success response
 		sendSuccessResponse(request);
-		printLogfln("Values settings changed"); });
+		printLogfln("Values settings changed");
+
+		// The display is set up for its number of modules at boot: restart to use the new one
+		if (config.matrixModules != previousMatrixModules) {
+			printLogfln("Matrix modules changed to %u, restarting", config.matrixModules);
+			gizmo::scheduleRestart();
+		} });
 
 	// OPTIONS request for preflighted requests
 	server.on("/api/settings", HTTP_OPTIONS, [](AsyncWebServerRequest *request) {

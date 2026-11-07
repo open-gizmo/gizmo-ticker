@@ -105,6 +105,13 @@
                 "label": "Velocità di scorrimento",
                 "note": "Controlla la velocita con cui ogni blocco di testo attraversa il display."
             },
+            "matrixModules": {
+                "label": "Moduli",
+                "note": "Blocchi 8x8 del display, in schede da 4. Il ticker si riavvia per usare una nuova dimensione.",
+                "option": "{count} moduli",
+                "boards": "{count} scheda | {count} schede",
+                "restartMessage": "Le impostazioni sono state salvate. Il ticker si sta riavviando per usare {count} moduli."
+            },
             "matrixTitle": "Matrice",
             "loadErrorTitle": "Impossibile leggere le impostazioni",
             "loadErrorDescription": "Il dispositivo non ha risposto. Controlla che sia acceso e sulla stessa rete, poi riprova.",

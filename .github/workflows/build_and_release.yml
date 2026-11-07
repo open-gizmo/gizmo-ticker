@@ -74,7 +74,7 @@ jobs:
         working-directory: microcontroller
         env:
           PLATFORMIO_BUILD_FLAGS: -D PIO_FIRMWARE_VERSION='"${{ steps.version.outputs.VERSION }}"'
-        run: pio run
+        run: pio run -e esp32dev # The website flasher offers the ESP32 DevKit build (the XIAO is the default env for local builds)
 
       # Package the flash parts (bootloader, partition table, boot_app0, app) and the manifest of the browser flasher
       - name: 🗂️ Package firmware

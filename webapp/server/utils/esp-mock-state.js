@@ -17,6 +17,7 @@ const factoryConfig = () => ({
     formatType: 'US',
     matrixIntensity: 1,
     scrollSpeed: 1,
+    matrixModules: 4,
     apiKey: ''
 });
 

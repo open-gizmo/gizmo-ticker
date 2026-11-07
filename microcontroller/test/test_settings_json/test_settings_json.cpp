@@ -18,6 +18,7 @@ namespace {
 		config.formatType = FORMAT_US;
 		config.matrixIntensity = 1;
 		config.scrollSpeed = 1;
+		config.matrixModules = MATRIX_MODULES_DEFAULT;
 		return config;
 	}
 
@@ -57,6 +58,7 @@ void test_settings_are_written_with_the_web_app_field_names() {
 	TEST_ASSERT_EQUAL_STRING("EU", doc["formatType"]);
 	TEST_ASSERT_EQUAL_UINT8(12, doc["matrixIntensity"].as<uint8_t>());
 	TEST_ASSERT_EQUAL_UINT8(1, doc["scrollSpeed"].as<uint8_t>());
+	TEST_ASSERT_EQUAL_UINT8(4, doc["matrixModules"].as<uint8_t>());
 	TEST_ASSERT_TRUE(doc["yearHighLow"].is<bool>());
 }
 
@@ -77,7 +79,7 @@ void test_api_key_is_not_written() {
 
 // Every field the web app sends is applied
 void test_all_fields_are_applied() {
-	const DeviceConfig config = applyJsonText("{\"currentPrice\":false,\"priceChange\":false,\"marketCap\":false,\"dailyHighLow\":false,\"yearHighLow\":false,\"openPrice\":false,\"volume\":false,\"cryptoCoin\":\"kaspa\",\"formatType\":\"EU\",\"matrixIntensity\":15,\"scrollSpeed\":9}");
+	const DeviceConfig config = applyJsonText("{\"currentPrice\":false,\"priceChange\":false,\"marketCap\":false,\"dailyHighLow\":false,\"yearHighLow\":false,\"openPrice\":false,\"volume\":false,\"cryptoCoin\":\"kaspa\",\"formatType\":\"EU\",\"matrixIntensity\":15,\"scrollSpeed\":9,\"matrixModules\":12}");
 
 	// Expect every value
 	TEST_ASSERT_FALSE(config.currentPriceVisible);
@@ -91,6 +93,7 @@ void test_all_fields_are_applied() {
 	TEST_ASSERT_EQUAL(FORMAT_EU, config.formatType);
 	TEST_ASSERT_EQUAL_UINT8(15, config.matrixIntensity);
 	TEST_ASSERT_EQUAL_UINT8(9, config.scrollSpeed);
+	TEST_ASSERT_EQUAL_UINT8(12, config.matrixModules);
 }
 
 // Missing fields keep their current values (the web app can send a partial update)
@@ -125,6 +128,7 @@ void test_settings_round_trip() {
 	strcpy(config.cryptoCoin, "kaspa");
 	config.marketCapVisible = false;
 	config.scrollSpeed = 7;
+	config.matrixModules = 16;
 
 	// Write, then apply on top of the defaults
 	writeSettingsToJson(doc.to<JsonObject>(), config);
@@ -135,9 +139,22 @@ void test_settings_round_trip() {
 	TEST_ASSERT_EQUAL_STRING("kaspa", reloadedConfig.cryptoCoin);
 	TEST_ASSERT_FALSE(reloadedConfig.marketCapVisible);
 	TEST_ASSERT_EQUAL_UINT8(7, reloadedConfig.scrollSpeed);
+	TEST_ASSERT_EQUAL_UINT8(16, reloadedConfig.matrixModules);
 }
 
 // Run all the settings JSON tests
+// Only whole 4-in-1 boards, from one to eight
+void test_matrix_modules_come_in_boards_of_four() {
+	for (long modules = 4; modules <= 32; modules += 4) {
+		TEST_ASSERT_TRUE(isValidMatrixModules(modules));
+	}
+	TEST_ASSERT_FALSE(isValidMatrixModules(0));
+	TEST_ASSERT_FALSE(isValidMatrixModules(6));
+	TEST_ASSERT_FALSE(isValidMatrixModules(-4));
+	TEST_ASSERT_FALSE(isValidMatrixModules(36));
+	TEST_ASSERT_TRUE(isValidMatrixModules(MATRIX_MODULES_DEFAULT));
+}
+
 int main() {
 	UNITY_BEGIN();
 
@@ -151,6 +168,7 @@ int main() {
 	RUN_TEST(test_format_type_values);
 	RUN_TEST(test_overlong_coin_is_cut_off_safely);
 	RUN_TEST(test_settings_round_trip);
+	RUN_TEST(test_matrix_modules_come_in_boards_of_four);
 
 	return UNITY_END();
 }

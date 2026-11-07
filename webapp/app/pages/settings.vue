@@ -1,10 +1,11 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import Alert02Icon from '@hugeicons/core-free-icons/Alert02Icon';
 import Cancel01Icon from '@hugeicons/core-free-icons/Cancel01Icon';
 import CheckmarkCircle02Icon from '@hugeicons/core-free-icons/CheckmarkCircle02Icon';
 import Coins01Icon from '@hugeicons/core-free-icons/Coins01Icon';
 import DashboardSpeed01Icon from '@hugeicons/core-free-icons/DashboardSpeed01Icon';
+import GridViewIcon from '@hugeicons/core-free-icons/GridViewIcon';
 import InformationCircleIcon from '@hugeicons/core-free-icons/InformationCircleIcon';
 import RefreshIcon from '@hugeicons/core-free-icons/RefreshIcon';
 import SaveIcon from '@hugeicons/core-free-icons/SaveIcon';
@@ -29,10 +30,16 @@ import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
 const globalStore = useGlobalStore();
 const cryptoCoins = getCryptoCoins();
 const { t } = useI18n();
-const openPicker = ref(''); // Picker currently open ('coin', 'format', or none)
+const openPicker = ref(''); // Picker currently open ('coin', 'format', 'modules', or none)
 
 // Reactive config payload
 const config = computed(() => globalStore.value.config);
+
+// Number of modules the device runs with now (the one last read or saved), to tell when a save restarts it
+const savedMatrixModules = ref(null);
+watch(() => globalStore.value.configLoaded, isLoaded => {
+    if (isLoaded) savedMatrixModules.value = globalStore.value.config.matrixModules;
+}, { immediate: true });
 
 // Slider percentage for matrix intensity
 const matrixIntensityPercentage = computed(() => {
@@ -45,13 +52,20 @@ const scrollSpeedPercentage = computed(() => {
 });
 
 // Help under the matrix group: what each slider does
-const matrixHint = computed(() => `${t('pages.settings.matrixIntensity.note')} ${t('pages.settings.scrollSpeed.note')}`);
+const matrixHint = computed(() => `${t('pages.settings.matrixIntensity.note')} ${t('pages.settings.scrollSpeed.note')} ${t('pages.settings.matrixModules.note')}`);
 
 // Available thousands separator formats
 const separatorOptions = computed(() => ([
     { value: 'US', label: '21,000.00', description: t('pages.settings.formatType.usMeta') },
     { value: 'EU', label: '21.000,00', description: t('pages.settings.formatType.euMeta') }
 ]));
+
+// Numbers of matrix modules the firmware can drive: whole 4-in-1 boards, from 1 to 8
+const matrixModuleOptions = computed(() => Array.from({ length: 8 }, (_, index) => (index + 1) * 4).map(count => ({
+    value: count,
+    label: t('pages.settings.matrixModules.option', { count }),
+    description: t('pages.settings.matrixModules.boards', { count: count / 4 }, count / 4)
+})));
 
 // Available crypto coin choices
 const cryptoCoinOptions = computed(() => {
@@ -91,6 +105,11 @@ const handleCryptoCoinSelect = cryptoCoin => {
     setCryptoCoin(cryptoCoin);
 };
 
+// Pick the number of matrix modules
+const handleMatrixModulesSelect = matrixModules => {
+    config.value.matrixModules = matrixModules;
+};
+
 // Pick a number format
 const handleFormatTypeSelect = formatType => {
     config.value.formatType = formatType;
@@ -117,12 +136,14 @@ const saveCurrentSettings = async () => {
 
     try {
         setBusy(true);
+        const isRestarting = config.value.matrixModules !== savedMatrixModules.value; // The firmware restarts to use a new number of modules
         await saveSettings(config.value);
+        savedMatrixModules.value = config.value.matrixModules;
         showMessageDialog({
             type: 'success',
             icon: CheckmarkCircle02Icon,
             title: t('dialogs.successTitle'),
-            message: t('pages.settings.saveSuccess'),
+            message: isRestarting ? t('pages.settings.matrixModules.restartMessage', { count: config.value.matrixModules }) : t('pages.settings.saveSuccess'),
             closeText: t('common.close'),
             closeButtonIcon: Cancel01Icon
         });
@@ -231,6 +252,7 @@ definePageMeta({
                 <ListRow :label="t('pages.settings.scrollSpeed.label')" :icon="DashboardSpeed01Icon" :value="`${scrollSpeedPercentage}%`">
                     <Slider :model-value="[Number(config.scrollSpeed ?? 0)]" :min="0" :max="15" :step="1" :thumb-label="t('pages.settings.scrollSpeed.label')" @update:model-value="handleScrollSpeedUpdate" />
                 </ListRow>
+                <ListRow :label="t('pages.settings.matrixModules.label')" :icon="GridViewIcon" :value="String(config.matrixModules ?? '')" action @click="openPicker = 'modules'" />
             </ListGroup>
 
             <!-- Save button -->
@@ -253,6 +275,9 @@ definePageMeta({
                 <img :src="option.image" alt="" aria-hidden="true" decoding="async" class="size-8 shrink-0">
             </template>
         </OptionPickerDialog>
+
+        <!-- Matrix modules picker -->
+        <OptionPickerDialog :open="openPicker === 'modules'" :title="t('pages.settings.matrixModules.label')" :description="t('pages.settings.matrixModules.note')" :options="matrixModuleOptions" :model-value="config.matrixModules" @update:model-value="handleMatrixModulesSelect" @update:open="open => { if (!open) openPicker = ''; }" />
 
         <!-- Number format picker -->
         <OptionPickerDialog :open="openPicker === 'format'" :title="t('pages.settings.formatType.label')" :options="separatorOptions" :model-value="config.formatType" @update:model-value="handleFormatTypeSelect" @update:open="open => { if (!open) openPicker = ''; }" />

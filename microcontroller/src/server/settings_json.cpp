@@ -25,6 +25,7 @@ void writeSettingsToJson(JsonObject json, const DeviceConfig &config) {
 	json["formatType"] = config.formatType == FORMAT_US ? "US" : "EU";
 	json["matrixIntensity"] = config.matrixIntensity;
 	json["scrollSpeed"] = config.scrollSpeed;
+	json["matrixModules"] = config.matrixModules;
 }
 
 // Apply the display settings present in a JSON object (missing fields keep their current value)
@@ -64,5 +65,8 @@ void applySettingsFromJson(JsonObjectConst json, DeviceConfig &config) {
 	}
 	if (!json["scrollSpeed"].isNull()) {
 		config.scrollSpeed = json["scrollSpeed"].as<uint8_t>();
+	}
+	if (!json["matrixModules"].isNull()) {
+		config.matrixModules = json["matrixModules"].as<uint8_t>();
 	}
 }

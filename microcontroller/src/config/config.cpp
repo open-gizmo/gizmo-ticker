@@ -13,6 +13,7 @@ namespace {
 		FORMAT_US,
 		1,
 		1,
+		MATRIX_MODULES_DEFAULT,
 		""
 	};
 
@@ -43,7 +44,6 @@ AsyncWebServer server(80);
 
 // Scrolling text configuration
 printType switchText = PRINT_PRICE;
-MD_Parola P = MD_Parola(HARDWARE_TYPE, CS_PIN, MAX_DEVICES);
 uint8_t scrollDelay = 30;
 textEffect_t scrollEffect = PA_SCROLL_LEFT;
 textPosition_t scrollAlign = PA_LEFT;

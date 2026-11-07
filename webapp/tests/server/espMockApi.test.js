@@ -56,6 +56,17 @@ describe('mock device responses', () => {
         expect(response).toEqual({ errorId: 'invalid_settings_field', errorMessage: 'scrollSpeed', data: null });
     });
 
+    // Modules come in whole 4-in-1 boards, like the firmware checks them
+    it('accepts only whole boards of matrix modules', async () => {
+        for (const matrixModules of [0, 6, 36, 8.5]) {
+            const { statusCode, response } = await callHandler(postSettings, buildEvent({ matrixModules }));
+            expect(statusCode).toBe(400);
+            expect(response.errorMessage).toBe('matrixModules');
+        }
+        await callHandler(postSettings, buildEvent({ matrixModules: 12 }));
+        expect(getEspMockState().config.matrixModules).toBe(12);
+    });
+
     // Bodies are checked like gizmo-common reads them
     it('refuses invalid, non-object and oversized bodies', async () => {
         const invalidJson = await callHandler(postSettings, buildEvent('{nope'));
@@ -120,7 +131,7 @@ describe('mock Wi-Fi state shared with the layer', () => {
         await callHandler(postResetSettings);
         const { response: configResponse } = await callHandler(getConfig);
         const device = buildDevicePayload({ state: getEspMockState() });
-        expect(configResponse.data).toMatchObject({ apiKey: '', ssid: '', matrixIntensity: 1, scrollSpeed: 1, marketCap: true });
+        expect(configResponse.data).toMatchObject({ apiKey: '', ssid: '', matrixIntensity: 1, scrollSpeed: 1, matrixModules: 4, marketCap: true });
         expect(device).toMatchObject({ ssid: '', accessPointActive: true });
         expect(device.ip).toBeUndefined();
     });

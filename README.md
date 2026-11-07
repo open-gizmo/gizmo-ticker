@@ -139,7 +139,7 @@ If you want to build and flash everything yourself, follow this path:
 	pio run
 	```
 
-	This compiles the ESP32 firmware together with the current web UI assets and the libraries declared in `platformio.ini`.
+	This compiles the firmware for the XIAO ESP32-S3 (add `-e esp32dev` for an ESP32 DevKit) together with the current web UI assets and the libraries declared in `platformio.ini`.
 
 4. **Upload the firmware to the ESP32.**
 
@@ -160,19 +160,29 @@ If you want to build and flash everything yourself, follow this path:
 <a id="hardware"></a>
 ## 🔌 Hardware
 
+### Board
+
+The firmware targets the **Seeed Studio XIAO ESP32-S3** (PlatformIO env `xiao_esp32s3`, the default), the board of the OpenGizmo enclosure. The older **ESP32 DevKit** still builds with `pio run -e esp32dev`.
+
+The XIAO has no antenna on the board: connect its FPC antenna to the U.FL connector, or it won't join the Wi-Fi.
+
 ### Pinout
 
-Current firmware pin assignments:
+| MAX7219 input | XIAO ESP32-S3 | ESP32 DevKit |
+| --- | --- | --- |
+| VCC | `5V` | `5V` |
+| GND | `GND` | `GND` |
+| DIN | `D10` (GPIO9, MOSI) | `GPIO23` |
+| CS | `D9` (GPIO8) | `GPIO5` |
+| CLK | `D8` (GPIO7, SCK) | `GPIO18` |
 
-- MAX7219 CLK: `GPIO18`
-- MAX7219 DATA: `GPIO23`
-- MAX7219 CS: `GPIO5`
+On the XIAO, the pads next to `5V` and `GND` follow the order of the module input header, so a 6-wire flat cable runs straight across (leave the `3V3` wire unconnected). The display only writes, so the SPI bus starts without MISO, and `D9` is free for CS.
 
 ### Display
 
 - Type: `MAX7219 LED matrix`
 - Hardware layout: `FC16_HW`
-- Maximum modules: `16`
+- Modules: 4 to 32 (8 × 8 blocks, in 4-in-1 boards), set in the web app's settings; the ticker restarts to use a new number
 
 <a id="firmware-overview"></a>
 ## 🔍 Firmware Overview
@@ -299,7 +309,7 @@ The workflow only runs on `main`, and needs these repository secrets: `R2_ACCOUN
 <a id="troubleshooting"></a>
 ## 🧰 Troubleshooting
 
-- The LED matrix powers on but shows no text: verify the MAX7219 wiring, confirm the correct `GPIO18` / `GPIO23` / `GPIO5` connections, and check that the matrix is using the `FC16_HW` layout.
+- The LED matrix powers on but shows no text: verify the MAX7219 wiring against the pinout above, check that the matrix is using the `FC16_HW` layout, and that the number of modules in the settings matches the display.
 - The web UI does not open after joining WiFi: make sure the ESP32 is connected to the same network and try the `gizmo-ticker.local` hostname if your router supports mDNS.
 - The ticker does not update with new prices: confirm the WiFi credentials and the market data API key are saved correctly in the setup flow.
 - The matrix shows `Prices from N min ago` before the prices: the last fetches failed for more than 12 minutes, so the prices on screen are old. The rest of the message says why (for example a wrong API key or no internet). Saving a new API key fetches again right away.
