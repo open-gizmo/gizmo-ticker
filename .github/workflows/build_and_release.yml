@@ -50,7 +50,7 @@ jobs:
       # Download the firmware libraries (the webapp tests read the error IDs of gizmo-common)
       - name: 📥 Install firmware libraries
         working-directory: microcontroller
-        run: pio pkg install -e esp32dev
+        run: pio pkg install -e xiao_esp32s3 -e esp32dev
 
       # Run the webapp tests
       - name: 🧪 Run webapp tests
@@ -68,17 +68,17 @@ jobs:
         run: |
           echo "DATE=$(date +'%Y.%m.%d')" >> $GITHUB_OUTPUT
           echo "VERSION=v$(date +'%Y.%m.%d').${{ github.run_number }}" >> $GITHUB_OUTPUT
+          # The version goes into the firmware through the build flags, for every later step: PlatformIO wipes a build when a command runs with other flags (the packaging reads the build with "pio project metadata")
+          echo "PLATFORMIO_BUILD_FLAGS=-D PIO_FIRMWARE_VERSION='\"v$(date +'%Y.%m.%d').${{ github.run_number }}\"'" >> $GITHUB_ENV
 
-      # Build the ESP32 firmware, with its version shown in the web app
-      - name: 🛠️ Build ESP32 Firmware
+      # Build the firmware of both boards, with its version shown in the web app
+      - name: 🛠️ Build Firmware
         working-directory: microcontroller
-        env:
-          PLATFORMIO_BUILD_FLAGS: -D PIO_FIRMWARE_VERSION='"${{ steps.version.outputs.VERSION }}"'
-        run: pio run -e esp32dev # The website flasher offers the ESP32 DevKit build (the XIAO is the default env for local builds)
+        run: pio run -e xiao_esp32s3 -e esp32dev # Both boards: the website flasher picks the build of the chip it finds
 
       # Package the flash parts (bootloader, partition table, boot_app0, app) and the manifest of the browser flasher
       - name: 🗂️ Package firmware
-        run: python .github/scripts/package_firmware.py --project-dir microcontroller --name "Gizmo Ticker" --version "${{ steps.version.outputs.VERSION }}" --output-dir dist
+        run: python .github/scripts/package_firmware.py --project-dir microcontroller --name "Gizmo Ticker" --version "${{ steps.version.outputs.VERSION }}" --output-dir dist --build xiao_esp32s3:ESP32-S3 --build esp32dev:ESP32
 
       # Create a GitHub release with the flash parts
       - name: 📦 Create Release
@@ -94,11 +94,15 @@ jobs:
             Flash it from the browser on https://opengizmo.dev/projects/gizmo-ticker, or over USB:
 
             ```bash
-            esptool.py --chip esp32 write_flash 0x1000 bootloader.bin 0x8000 partitions.bin 0xe000 boot_app0.bin 0x10000 firmware.bin
+            # Seeed Studio XIAO ESP32-S3
+            esptool.py --chip esp32s3 write_flash 0x0 xiao_esp32s3-bootloader.bin 0x8000 xiao_esp32s3-partitions.bin 0xe000 xiao_esp32s3-boot_app0.bin 0x10000 xiao_esp32s3-firmware.bin
+
+            # ESP32 DevKit
+            esptool.py --chip esp32 write_flash 0x1000 esp32dev-bootloader.bin 0x8000 esp32dev-partitions.bin 0xe000 esp32dev-boot_app0.bin 0x10000 esp32dev-firmware.bin
             ```
           files: |
             dist/${{ steps.version.outputs.VERSION }}/*.bin
-            microcontroller/.pio/build/esp32dev/firmware.elf
+            dist/debug/*.elf
           draft: false
           prerelease: false
 

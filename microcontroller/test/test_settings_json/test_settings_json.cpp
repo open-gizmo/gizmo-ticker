@@ -58,7 +58,7 @@ void test_settings_are_written_with_the_web_app_field_names() {
 	TEST_ASSERT_EQUAL_STRING("EU", doc["formatType"]);
 	TEST_ASSERT_EQUAL_UINT8(12, doc["matrixIntensity"].as<uint8_t>());
 	TEST_ASSERT_EQUAL_UINT8(1, doc["scrollSpeed"].as<uint8_t>());
-	TEST_ASSERT_EQUAL_UINT8(4, doc["matrixModules"].as<uint8_t>());
+	TEST_ASSERT_EQUAL_UINT8(MATRIX_MODULES_DEFAULT, doc["matrixModules"].as<uint8_t>());
 	TEST_ASSERT_TRUE(doc["yearHighLow"].is<bool>());
 }
 

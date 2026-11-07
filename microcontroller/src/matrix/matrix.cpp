@@ -83,12 +83,17 @@ namespace {
 // Print the message on the matrix
 void printOnLedMatrix(const char *message, const byte stringLength, uint16_t messageStill) {
 	gizmo::copyString(currentMessage, message, stringLength); // Copy the message
+	if (matrix == nullptr) {
+		return; // Not set up yet: setupLedMatrix() shows the message it is given
+	}
 	matrix->displayText(currentMessage, scrollAlign, scrollDelay, messageStill, scrollEffect, scrollEffect); // Print the message on the matrix
 }
 
 // Set the intensity of the matrix
 void setMatrixIntensity(uint8_t intensity) {
-	matrix->setIntensity(intensity); // Set LED intensity (0-15, 15 is brightest)
+	if (matrix != nullptr) {
+		matrix->setIntensity(intensity); // Set LED intensity (0-15, 15 is brightest)
+	}
 }
 
 // Set the speed of the matrix
@@ -122,7 +127,7 @@ bool isLedMatrixReadyForNextMessage() {
 	}
 
 	// Animate the current message
-	return matrix->displayAnimate();
+	return matrix == nullptr || matrix->displayAnimate();
 }
 
 // Manage the LED matrix using already-available market data
