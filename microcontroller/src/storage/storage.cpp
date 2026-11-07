@@ -6,6 +6,7 @@
 namespace {
 	// NVS namespace and keys (keys are limited to 15 characters)
 	constexpr char STORAGE_NAMESPACE[] = "gizmo-ticker"; // The project name (NVS namespaces fit 15 characters)
+	constexpr char LEGACY_NAMESPACE[] = "ticker"; // Where the releases up to October 2026 kept the same keys
 	constexpr char CURRENT_PRICE_KEY[] = "showPrice";
 	constexpr char PRICE_CHANGE_KEY[] = "showChange";
 	constexpr char MARKET_CAP_KEY[] = "showMarketCap";
@@ -55,13 +56,45 @@ namespace {
 	}
 }
 
+// Move the settings of an older release from its namespace, once, so an update from the browser keeps them (the API key above all)
+static bool migrateLegacySettings() {
+	// Nothing to move without the old namespace or its settings
+	Preferences legacy;
+	if (!legacy.begin(LEGACY_NAMESPACE, true)) {
+		return false;
+	}
+	if (!legacy.isKey(API_KEY_KEY) && !legacy.isKey(CRYPTO_COIN_KEY)) {
+		legacy.end();
+		return false;
+	}
+
+	// Read them with the current defaults for what the old release did not have, then save them under the new namespace
+	const DeviceConfig config = loadDeviceConfig(legacy, getDeviceConfig());
+	legacy.end();
+	if (!saveDeviceConfigToStorage(config)) {
+		printLogln("Failed to move the settings of the older release");
+		return false;
+	}
+	setDeviceConfig(config);
+
+	// Clear the old namespace, so the move happens once
+	if (legacy.begin(LEGACY_NAMESPACE, false)) {
+		legacy.clear();
+		legacy.end();
+	}
+	printLogln("Settings moved from the older release");
+	return true;
+}
+
 // Load the stored settings into the runtime config
 void setupStorage() {
 	Preferences preferences;
 
-	// Without stored settings (first boot), keep the defaults
+	// Without stored settings, move the ones of an older release, or keep the defaults (first boot)
 	if (!preferences.begin(STORAGE_NAMESPACE, true)) {
-		printLogln("No stored settings, using the defaults");
+		if (!migrateLegacySettings()) {
+			printLogln("No stored settings, using the defaults");
+		}
 		return;
 	}
 
