@@ -87,7 +87,7 @@ describe('locales', () => {
     // Every error the device can send has a translation, in the app or in the layer (otherwise the dialog shows the raw message, like "ssid")
     it('translates every error ID of the device', () => {
         const root = join(process.cwd(), '..', 'microcontroller');
-        const libraryRoot = join(root, '.pio', 'libdeps', 'xiao_esp32s3', 'gizmo-common', 'src');
+        const libraryRoot = join(root, '.pio', 'libdeps', 'release', 'gizmo-common', 'src');
         expect(existsSync(libraryRoot), 'gizmo-common is missing: run "pio pkg install" in microcontroller/ first').toBe(true);
         const files = [...readSourceFiles(join(root, 'src')).filter(file => !file.includes('webui')), ...readSourceFiles(libraryRoot)];
         const errorIds = new Set();

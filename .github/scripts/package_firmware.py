@@ -63,7 +63,7 @@ def package_firmware(project_dir, builds, name, version, output_dir):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Package firmware builds for the OpenGizmo browser flasher')
     parser.add_argument('--project-dir', type=Path, required=True, help='Folder of the PlatformIO project')
-    parser.add_argument('--build', action='append', required=True, metavar='ENV:CHIP', help='A PlatformIO environment that was built and its chip family, e.g. xiao_esp32s3:ESP32-S3 (repeat for each build)')
+    parser.add_argument('--build', action='append', required=True, metavar='ENV:CHIP', help='A PlatformIO environment that was built and its chip family, e.g. release:ESP32-S3 (repeat for each build)')
     parser.add_argument('--name', required=True, help='Project name shown by the flasher')
     parser.add_argument('--version', required=True, help='Release version, also the name of the parts folder')
     parser.add_argument('--output-dir', type=Path, required=True, help='Folder to write the manifest and the parts folder to')

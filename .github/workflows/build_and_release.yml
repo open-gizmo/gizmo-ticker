@@ -72,7 +72,7 @@ jobs:
       # Download the firmware libraries (the webapp tests read the error IDs of gizmo-common)
       - name: 📥 Install firmware libraries
         working-directory: microcontroller
-        run: pio pkg install -e xiao_esp32s3
+        run: pio pkg install -e release
 
       # Run the webapp tests
       - name: 🧪 Run webapp tests
@@ -87,11 +87,11 @@ jobs:
       # Build the firmware (its version comes from the VERSION file, through microcontroller/firmware_version.py)
       - name: 🛠️ Build Firmware
         working-directory: microcontroller
-        run: pio run -e xiao_esp32s3
+        run: pio run -e release
 
       # Package the flash parts (bootloader, partition table, boot_app0, app) and the manifest of the browser flasher
       - name: 🗂️ Package firmware
-        run: python .github/scripts/package_firmware.py --project-dir microcontroller --name "Gizmo Ticker" --version "${{ steps.version.outputs.VERSION }}" --output-dir dist --build xiao_esp32s3:ESP32-S3
+        run: python .github/scripts/package_firmware.py --project-dir microcontroller --name "Gizmo Ticker" --version "${{ steps.version.outputs.VERSION }}" --output-dir dist --build release:ESP32-S3
 
       # Create a GitHub release with the flash parts
       - name: 📦 Create Release
@@ -106,7 +106,7 @@ jobs:
             Flash it from the browser on https://opengizmo.dev/projects/gizmo-ticker, or over USB:
 
             ```bash
-            esptool.py --chip esp32s3 write_flash 0x0 xiao_esp32s3-bootloader.bin 0x8000 xiao_esp32s3-partitions.bin 0xe000 xiao_esp32s3-boot_app0.bin 0x10000 xiao_esp32s3-firmware.bin
+            esptool.py --chip esp32s3 write_flash 0x0 release-bootloader.bin 0x8000 release-partitions.bin 0xe000 release-boot_app0.bin 0x10000 release-firmware.bin
             ```
           files: |
             dist/${{ steps.version.outputs.VERSION }}/*.bin

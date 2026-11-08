@@ -18,7 +18,7 @@ constexpr uint8_t DATA_PIN = 9; // DIN, pad D10 (MOSI)
 constexpr uint8_t CS_PIN = 8; // CS, pad D9
 constexpr uint8_t CLK_PIN = 7; // CLK, pad D8 (SCK)
 #else
-#error "The ticker runs on the Seeed Studio XIAO ESP32-S3 (pio run -e xiao_esp32s3)"
+#error "The ticker runs on the Seeed Studio XIAO ESP32-S3 (pio run -e release)"
 #endif
 
 // Device config getter and setter

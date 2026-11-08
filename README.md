@@ -159,10 +159,10 @@ If you want to build and flash everything yourself, follow this path:
 	pio device monitor
 	```
 
-	The released firmware keeps the serial log off. To see it, flash the debug build, the same firmware with `PIO_DEV_MODE=1`:
+	The released firmware keeps the serial log off. To see it, flash the `debug` build profile (see [Build profiles](#build-profiles)):
 
 	```bash
-	pio run -e xiao_esp32s3_debug --target upload
+	pio run -e debug --target upload
 	pio device monitor
 	```
 
@@ -171,7 +171,7 @@ If you want to build and flash everything yourself, follow this path:
 
 ### Board
 
-The firmware targets the **Seeed Studio XIAO ESP32-S3** (PlatformIO env `xiao_esp32s3`, the default), the board of the OpenGizmo enclosure.
+The firmware targets the **Seeed Studio XIAO ESP32-S3** (PlatformIO board `seeed_xiao_esp32s3`), the board of the OpenGizmo enclosure.
 
 The XIAO has no antenna on the board: connect its FPC antenna to the U.FL connector, or it won't join the Wi-Fi.
 
@@ -266,6 +266,17 @@ The web app now splits UI responsibilities between the shared package and the ap
 
 <a id="configuration"></a>
 ## ⚙️ Configuration
+
+### Build profiles
+
+[platformio.ini](microcontroller/platformio.ini) has the same three profiles as every OpenGizmo firmware:
+
+- `release`, the default: the firmware the release workflow builds and the website flashes, with the serial log off.
+- `debug`: the same firmware with the serial log on, and the ESP32 core's own messages. Flash it with `pio run -e debug --target upload`, then open `pio device monitor`.
+- `native`: the tests of the hardware-free logic, on your computer (`pio test -e native`).
+
+Nothing needs a secrets file: the Wi-Fi, the API key and the settings are set from the phone and saved on the board.
+
 
 ### Device Settings
 
