@@ -132,7 +132,7 @@ jobs:
           # The manifest points the flasher to the new version, so it goes last and is cached for a minute only
           aws s3 cp dist/manifest.json "s3://$R2_BUCKET/gizmo-ticker/manifest.json" --endpoint-url "$R2_ENDPOINT" --cache-control "public, max-age=60" --content-type application/json
 
-      # Purge the CDN copy of the manifest, so the website flasher offers the new version at once (skipped without the CLOUDFLARE_API_TOKEN secret: the manifest then updates within the CDN's cache time)
+      # Purge the CDN copies of the manifest, so the website flasher offers the new version at once: the plain one and the ones the website asks for (Cloudflare keeps one per Origin header); skipped without the CLOUDFLARE_API_TOKEN secret, then the manifest updates within its 60 s cache time
       - name: 🧹 Purge the manifest from the CDN
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -144,4 +144,4 @@ jobs:
           fi
           curl -sSf -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/purge_cache" \
             -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" \
-            --data '{"files":["https://cdn.opengizmo.dev/gizmo-ticker/manifest.json"]}'
+            --data '{"files":["https://cdn.opengizmo.dev/gizmo-ticker/manifest.json",{"url":"https://cdn.opengizmo.dev/gizmo-ticker/manifest.json","headers":{"Origin":"https://opengizmo.dev"}},{"url":"https://cdn.opengizmo.dev/gizmo-ticker/manifest.json","headers":{"Origin":"https://www.opengizmo.dev"}}]}'
