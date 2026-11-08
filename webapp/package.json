@@ -1,6 +1,6 @@
 {
 	"name": "gizmo-ticker",
-	"version": "1.0.2",
+	"version": "1.1.0",
 	"description": "Gizmo Ticker web app, the device configuration UI embedded in the ESP32 firmware.",
 	"homepage": "https://github.com/open-gizmo/gizmo-ticker",
 	"bugs": {
@@ -36,7 +36,7 @@
 		"@nuxt/test-utils": "4.3.2",
 		"@tailwindcss/vite": "4.2.4",
 		"@vue/test-utils": "2.5.1",
-		"gizmo-common": "github:open-gizmo/gizmo-common#v2.2.1",
+		"gizmo-common": "github:open-gizmo/gizmo-common#v2.4.0",
 		"happy-dom": "20.14.5",
 		"tailwindcss": "4.2.4",
 		"vitest": "5.0.1"
