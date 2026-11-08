@@ -39,6 +39,21 @@ jobs:
           fi
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
+      # Stop before anything is released if the R2 secrets are missing: the upload comes last, after the version is tagged, and a tagged version can't be released again
+      - name: 🔑 Check the R2 secrets
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+        run: |
+          for name in R2_ACCOUNT_ID R2_ACCESS_KEY_ID R2_SECRET_ACCESS_KEY R2_BUCKET; do
+            if [ -z "${!name}" ]; then
+              echo "The $name secret is missing: add it to the repository or the organization (Settings > Secrets and variables > Actions)."
+              exit 1
+            fi
+          done
+
       # Set up Node.js
       - name: 🧰 Set up Node.js
         uses: actions/setup-node@v6
