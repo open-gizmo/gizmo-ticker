@@ -80,7 +80,8 @@ Behind the scenes, the firmware and web app stay aligned through the same settin
 - Nuxt 4 interface that mirrors the firmware configuration flow.
 - `@brumaombra/ui-vintage` UI system shared across layout, forms, dialogs, and overlays.
 - English and Italian localization with browser language detection.
-- Captive-portal setup flow in AP mode and `gizmo-ticker.local` hostname access after joining WiFi.
+- Captive-portal setup flow in AP mode and `gizmo-ticker.local` hostname access after joining WiFi. The API only answers the dashboard's own page, under the ticker's own name or address, and through the setup hotspot only the Wi-Fi setup.
+- Factory reset: hold the board's BOOT button for 10 seconds while it runs to forget the Wi-Fi and the settings, and start again from the setup hotspot.
 
 <a id="architecture"></a>
 ## 🏗️ Architecture

@@ -12,6 +12,11 @@ void setup() {
 	setupStorage(); // Load the saved settings
 	setupWiFi(); // Start the Wi-Fi setup and its web API
 	setupServer(); // Setup server
+
+	// Factory reset: hold the BOOT button for 10 s to forget the Wi-Fi and the settings
+	gizmo::FactoryResetOptions resetOptions;
+	resetOptions.clearSettings = [] { clearStoredDeviceConfig(); };
+	gizmo::setupFactoryReset(resetOptions);
 	manageWiFiConnection(); // Manage the WiFi connection
 	setupWebClient(); // Setup web client
 	setupLedMatrix(); // Setup LED matrix
