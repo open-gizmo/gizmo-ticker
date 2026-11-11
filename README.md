@@ -7,7 +7,7 @@
 Gizmo Ticker is a two-part project for building a WiFi-connected cryptocurrency display with an ESP32 microcontroller, a MAX7219 LED matrix, and a Nuxt 4 web app for configuration.
 
 <p>
-  <a href="https://opengizmo.dev/projects/gizmo-ticker"><img alt="A crypto ticker on a MAX7219 LED matrix." src="docs/cover.webp" width="800"></a>
+  <a href="https://opengizmo.dev/projects/gizmo-ticker"><img alt="The Gizmo Ticker in its white and orange printed enclosure, with a price lit on the LED matrix, and pulled apart into the shell, the MAX7219 matrix, the XIAO ESP32-S3, the back plate and four M3 screws" src="docs/enclosure-render.webp" width="800"></a>
 </p>
 
 <p>
@@ -23,6 +23,7 @@ Gizmo Ticker is a two-part project for building a WiFi-connected cryptocurrency 
 </p>
 
 <p>
+	<a href="#enclosure"><strong>Enclosure</strong></a> •
 	<a href="#overview"><strong>Overview</strong></a> •
 	<a href="#images"><strong>Images</strong></a> •
 	<a href="#features"><strong>Features</strong></a> •
@@ -35,6 +36,16 @@ Gizmo Ticker is a two-part project for building a WiFi-connected cryptocurrency 
 	<a href="#license"><strong>License</strong></a>
 </p>
 
+</div>
+
+<a id="enclosure"></a>
+## 📐 Enclosure
+
+<div align="center">
+	<img src="docs/enclosure-blueprint.webp" alt="A blueprint of the Gizmo Ticker enclosure, with a callout for each detail" width="800">
+	<p>
+		<sub>The two-color printed enclosure: a white shell that diffuses the LEDs, and an orange back plate closed by four M3 screws</sub>
+	</p>
 </div>
 
 <a id="overview"></a>
@@ -70,16 +81,6 @@ Behind the scenes, the firmware and web app stay aligned through the same settin
 	</p>
 </div>
 
-### Enclosure
-
-<div align="center">
-	<img src="https://raw.githubusercontent.com/open-gizmo/gizmo-ticker/main/docs/enclosure-render.webp" alt="The Gizmo Ticker enclosure assembled with its LED matrix lit, and pulled apart into the shell, the MAX7219 matrix, the XIAO ESP32-S3, the back plate and four M3 screws" width="800">
-	<br><br>
-	<img src="https://raw.githubusercontent.com/open-gizmo/gizmo-ticker/main/docs/enclosure-blueprint.webp" alt="A blueprint of the Gizmo Ticker enclosure, with a callout for each detail" width="800">
-	<p>
-		<sub>The two-color printed enclosure: a white shell that diffuses the LEDs, and an orange back plate closed by four M3 screws</sub>
-	</p>
-</div>
 
 <a id="features"></a>
 ## ✨ Features
