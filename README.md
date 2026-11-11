@@ -70,6 +70,17 @@ Behind the scenes, the firmware and web app stay aligned through the same settin
 	</p>
 </div>
 
+### Enclosure
+
+<div align="center">
+	<img src="https://raw.githubusercontent.com/open-gizmo/gizmo-ticker/main/docs/enclosure-render.webp" alt="The Gizmo Ticker enclosure assembled with its LED matrix lit, and pulled apart into the shell, the MAX7219 matrix, the XIAO ESP32-S3, the back plate and four M3 screws" width="800">
+	<br><br>
+	<img src="https://raw.githubusercontent.com/open-gizmo/gizmo-ticker/main/docs/enclosure-blueprint.webp" alt="A blueprint of the Gizmo Ticker enclosure, with a callout for each detail" width="800">
+	<p>
+		<sub>The two-color printed enclosure: a white shell that diffuses the LEDs, and an orange back plate closed by four M3 screws</sub>
+	</p>
+</div>
+
 <a id="features"></a>
 ## ✨ Features
 
