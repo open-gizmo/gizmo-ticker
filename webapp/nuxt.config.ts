@@ -11,7 +11,13 @@ export default defineNuxtConfig({
     app: {
         // Global head configuration
         head: {
-            title: 'Gizmo Ticker'
+            title: 'Gizmo Ticker',
+
+            // Favicon and Apple icon (the logos are in public/images/logo)
+            link: [
+                { rel: 'icon', href: '/favicon.ico', sizes: 'any' },
+                { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' }
+            ]
         },
 
         // Page transition: the new page fades in while the old one goes at once (main.css). Not "out-in", which left the page blank when a navigation was interrupted

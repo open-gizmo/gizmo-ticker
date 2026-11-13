@@ -37,13 +37,13 @@ describe('pages of the layer', () => {
         expect(wrapper.text()).toContain('Gizmo Ticker');
     });
 
-    // The setup page of the hotspot shows the name of the app and the logo of the coin chosen on the device
-    it('shows the name and the coin logo on the setup page', async () => {
+    // The setup page of the hotspot shows the name and the logo of the app, whatever the coin chosen on the device
+    it('shows the name and the logo on the setup page', async () => {
         registerEndpoint('/api/networks', () => ({ errorId: null, errorMessage: null, data: { networks: [] } }));
         setCryptoCoin('kaspa');
         const wrapper = await mountSuspended(ApSetupPage);
         expect(wrapper.text()).toContain('Gizmo Ticker');
-        expect(wrapper.find('img').attributes('src')).toBe('/crypto/kaspa.svg');
+        expect(wrapper.find('img').attributes('src')).toBe('/images/logo/gizmo-ticker-icon-filled.svg');
         setCryptoCoin('bitcoin');
     });
 });

@@ -62,7 +62,6 @@ describe('setCryptoCoin', () => {
         setCryptoCoin('dogecoin');
         expect(useGlobalStore().value.config.cryptoCoin).toBe('bitcoin');
         expect(document.documentElement.dataset.cryptoCoin).toBe('bitcoin');
-        expect(useAppConfig().gizmo.logo).toBe('/crypto/bitcoin.svg');
     });
 
     // A supported coin is applied
@@ -72,11 +71,11 @@ describe('setCryptoCoin', () => {
         expect(document.documentElement.dataset.cryptoCoin).toBe('kaspa');
     });
 
-    // The layer reads the logo from the app config, so the coin has to be there (sidebar, setup page and error page)
-    it('shows the logo of the coin in the layer', () => {
+    // The layer shows the Gizmo Ticker logo, whatever the coin (sidebar, setup page and error page)
+    it('keeps the Gizmo Ticker logo for every coin', () => {
         setCryptoCoin('kaspa');
-        expect(useAppConfig().gizmo.logo).toBe('/crypto/kaspa.svg');
+        expect(useAppConfig().gizmo.logo).toBe('/images/logo/gizmo-ticker-icon-filled.svg');
         setCryptoCoin('bitcoin');
-        expect(useAppConfig().gizmo.logo).toBe('/crypto/bitcoin.svg');
+        expect(useAppConfig().gizmo.logo).toBe('/images/logo/gizmo-ticker-icon-filled.svg');
     });
 });

@@ -6,10 +6,9 @@ const availableCryptoCoins = [
     { id: 'kaspa', name: 'Kaspa', shortLabel: 'KAS', image: '/crypto/kaspa.svg', accentLight: '#6fc7ba', accentDark: '#7dd3c7' }
 ];
 
-// Apply the active crypto coin accent style to the document root, and its logo to the app config (the layer shows it in the sidebar, the setup page and the error page)
+// Apply the active crypto coin accent style to the document root (the logo of the app stays the Gizmo Ticker one)
 const applyCryptoCoinToDocument = cryptoCoin => {
     document.documentElement.dataset.cryptoCoin = cryptoCoin;
-    updateAppConfig({ gizmo: { logo: getCryptoCoinById(cryptoCoin).image } });
 };
 
 // Return the list of supported crypto coins
