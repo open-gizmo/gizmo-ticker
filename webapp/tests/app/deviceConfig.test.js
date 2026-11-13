@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { readBody } from 'h3';
 import { flushPromises } from '@vue/test-utils';
 import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime';
+import TickerPage from '~/pages/ticker.vue';
 import SettingsPage from '~/pages/settings.vue';
 import ApiKeyPage from '~/pages/api-key.vue';
 import { loadDeviceConfig } from '~/composables/useDeviceConfig.js';
@@ -116,8 +117,8 @@ describe('loadDeviceConfig', () => {
     });
 });
 
-// Settings page: never a form full of defaults that could be saved over the real settings
-describe('settings page', () => {
+// Ticker page: never a form full of defaults that could be saved over the real settings
+describe('ticker page', () => {
     // A failed Wi-Fi scan used to skip the config load, and Save then sent everything hidden and intensity 0 to the device
     it('offers to try again instead of the form when the config failed to load', async () => {
         // Fail the load
@@ -125,7 +126,7 @@ describe('settings page', () => {
         await loadDeviceConfig().catch(() => {});
 
         // Expect the retry, and no way to save
-        const wrapper = await mountSuspended(SettingsPage);
+        const wrapper = await mountSuspended(TickerPage);
         expect(wrapper.text()).toContain('Couldn\'t read the settings');
         expect(wrapper.find('form').exists()).toBe(false);
         expect(wrapper.findAll('button').some(button => button.text().includes('Save settings'))).toBe(false);
@@ -136,7 +137,7 @@ describe('settings page', () => {
         // Fail the first load, then let the device answer
         isConfigAvailable = false;
         await loadDeviceConfig().catch(() => {});
-        const wrapper = await mountSuspended(SettingsPage);
+        const wrapper = await mountSuspended(TickerPage);
         isConfigAvailable = true;
 
         // Try again
@@ -149,10 +150,43 @@ describe('settings page', () => {
 
     // While the config is still loading, there is no form either
     it('waits for the config before showing the form', async () => {
-        const wrapper = await mountSuspended(SettingsPage);
+        const wrapper = await mountSuspended(TickerPage);
         expect(wrapper.find('form').exists()).toBe(false);
     });
 
+    // The sliders are rows of the matrix group, with their value on the first line
+    it('shows the matrix sliders as rows of a titled group', async () => {
+        await loadDeviceConfig();
+        const wrapper = await mountSuspended(TickerPage);
+        const group = wrapper.findAll('section').find(section => section.find('h2').text() === 'Matrix');
+        expect(group.findAll('[role="slider"]')).toHaveLength(2);
+        expect(group.text()).toContain('Matrix intensity');
+        expect(group.text()).toContain('80%');
+    });
+
+    // Saving sends the settings read from the device
+    it('saves the settings of the device', async () => {
+        // Load the config and save it as is
+        await loadDeviceConfig();
+        const wrapper = await mountSuspended(TickerPage);
+        await wrapper.find('form').trigger('submit');
+
+        // Expect the real values in the saved body
+        await vi.waitFor(() => expect(savedBodies).toHaveLength(1));
+        expect(savedBodies[0]).toMatchObject({ currentPrice: true, marketCap: true, matrixIntensity: 12, scrollSpeed: 4, formatType: 'EU' });
+    });
+
+    // The device card lives on the settings page, like in every OpenGizmo app
+    it('has no device card', async () => {
+        await loadDeviceConfig();
+        const wrapper = await mountSuspended(TickerPage);
+        await vi.waitFor(() => expect(wrapper.find('form').exists()).toBe(true));
+        expect(findButton(wrapper, 'Restart')).toBeUndefined();
+    });
+});
+
+// Settings page: the device card of the layer, with the ticker's reset of the saved settings
+describe('settings page', () => {
     // The device rows come from the card of the gizmo-common layer, which reads GET /api/device
     it('shows the device card with the details of the device', async () => {
         await loadDeviceConfig();
@@ -170,7 +204,7 @@ describe('settings page', () => {
         await loadDeviceConfig().catch(() => {});
         const wrapper = await mountSuspended(SettingsPage);
         await vi.waitFor(() => expect(findButton(wrapper, 'Restart')).toBeDefined());
-        expect(wrapper.text()).toContain('Try again');
+        expect(wrapper.text()).not.toContain('Reset saved settings'); // It needs the settings
     });
 
     // The reset of the settings is the ticker's own action, in the last group with the other destructive ones of the card
@@ -193,26 +227,12 @@ describe('settings page', () => {
         expect(wrapper.text()).toContain('Reset saved settings');
     });
 
-    // The sliders are rows of the matrix group, with their value on the first line
-    it('shows the matrix sliders as rows of a titled group', async () => {
+    // The settings form is on the ticker page
+    it('has no settings form', async () => {
         await loadDeviceConfig();
         const wrapper = await mountSuspended(SettingsPage);
-        const group = wrapper.findAll('section').find(section => section.find('h2').text() === 'Matrix');
-        expect(group.findAll('[role="slider"]')).toHaveLength(2);
-        expect(group.text()).toContain('Matrix intensity');
-        expect(group.text()).toContain('80%');
-    });
-
-    // Saving sends the settings read from the device
-    it('saves the settings of the device', async () => {
-        // Load the config and save it as is
-        await loadDeviceConfig();
-        const wrapper = await mountSuspended(SettingsPage);
-        await wrapper.find('form').trigger('submit');
-
-        // Expect the real values in the saved body
-        await vi.waitFor(() => expect(savedBodies).toHaveLength(1));
-        expect(savedBodies[0]).toMatchObject({ currentPrice: true, marketCap: true, matrixIntensity: 12, scrollSpeed: 4, formatType: 'EU' });
+        await vi.waitFor(() => expect(wrapper.text()).toContain('Reset saved settings'));
+        expect(wrapper.find('form').exists()).toBe(false);
     });
 });
 

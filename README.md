@@ -66,13 +66,13 @@ Behind the scenes, the firmware and web app stay aligned through the same settin
 	<table>
 		<tr>
 			<td align="center" valign="top">
-				<img src="docs/screenshot-wifi.png" alt="WiFi setup screen" width="180">
-			</td>
-			<td align="center" valign="top">
-				<img src="docs/screenshot-settings.png" alt="Settings screen" width="180">
+				<img src="docs/screenshot-ticker.png" alt="Ticker screen" width="180">
 			</td>
 			<td align="center" valign="top">
 				<img src="docs/screenshot-api.png" alt="API key screen" width="180">
+			</td>
+			<td align="center" valign="top">
+				<img src="docs/screenshot-wifi.png" alt="WiFi setup screen" width="180">
 			</td>
 		</tr>
 	</table>

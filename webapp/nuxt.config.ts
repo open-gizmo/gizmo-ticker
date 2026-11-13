@@ -69,8 +69,9 @@ export default defineNuxtConfig({
         prerender: {
             routes: [
                 '/',
-                '/settings',
-                '/api-key'
+                '/ticker',
+                '/api-key',
+                '/settings'
             ]
         }
     },

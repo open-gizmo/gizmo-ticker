@@ -5,9 +5,9 @@ import { LoadingStateCard } from '@brumaombra/ui-vintage/loading-state-card';
 const { t } = useI18n();
 const localePath = useLocalePath();
 
-// Redirect the root page to the WiFi screen
+// Redirect the root page to the ticker page, the first of the navigation
 onMounted(() => {
-    navigateTo(localePath('/wifi'), { replace: true });
+    navigateTo(localePath('/ticker'), { replace: true });
 });
 
 // Page metadata
@@ -18,6 +18,6 @@ definePageMeta({
 
 <template>
     <div class="mx-auto w-full max-w-2xl">
-        <LoadingStateCard :title="t('common.redirectingWifiSetup')" />
+        <LoadingStateCard :title="t('common.redirectingTicker')" />
     </div>
 </template>

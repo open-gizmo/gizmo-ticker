@@ -6,17 +6,21 @@
         "close": "Chiudi",
         "cancel": "Annulla",
         "keepEditing": "Continua a modificare",
-        "redirectingWifiSetup": "Reindirizzamento alla configurazione WiFi...",
+        "redirectingTicker": "Apertura del ticker...",
         "syncingDevice": "Sincronizzazione del dispositivo..."
     },
     "nav": {
-        "settings": {
-            "label": "Impostazioni",
+        "ticker": {
+            "label": "Ticker",
             "description": "Regola visibilità e comportamento del ticker"
         },
         "apiKey": {
             "label": "Chiave API",
             "description": "Inserisci la credenziale per i dati di mercato"
+        },
+        "settings": {
+            "label": "Impostazioni",
+            "description": "Info del dispositivo, rete e riavvio"
         }
     },
     "dialogs": {
@@ -48,8 +52,8 @@
             "currentKeyLabel": "Chiave salvata",
             "notSet": "Nessuna chiave salvata"
         },
-        "settings": {
-            "title": "Impostazioni ticker",
+        "ticker": {
+            "title": "Ticker",
             "visibilityTitle": "Visibilità",
             "visibilityDescription": "Scegli quali metriche di mercato devono ruotare sulla matrice.",
             "formattingTitle": "Formato",
@@ -58,16 +62,10 @@
                 "note": "Seleziona quale moneta il dispositivo deve recuperare e applica il relativo stile di accento nell'interfaccia web."
             },
             "saveAction": "Salva impostazioni",
-            "resetAction": "Reimposta impostazioni salvate",
             "saveSuccess": "Le impostazioni sono state salvate correttamente!",
             "saveError": "Si è verificato un errore durante il salvataggio delle impostazioni",
-            "resetInfoTitle": "Riavvio dispositivo",
-            "resetInfoMessage": "Le impostazioni del dispositivo sono state cancellate e il firmware si sta riavviando.",
-            "resetError": "Si è verificato un errore durante il ripristino delle impostazioni",
             "saveConfirmTitle": "Salva impostazioni",
             "saveConfirmMessage": "Salvare sul dispositivo le impostazioni correnti del ticker?",
-            "resetConfirmTitle": "Reimposta impostazioni salvate",
-            "resetConfirmMessage": "Cancellare le impostazioni salvate e riavviare il firmware?",
             "visibility": {
                 "currentPrice": {
                     "label": "Prezzo attuale"
@@ -116,6 +114,15 @@
             "loadErrorTitle": "Impossibile leggere le impostazioni",
             "loadErrorDescription": "Il dispositivo non ha risposto. Controlla che sia acceso e sulla stessa rete, poi riprova.",
             "loadRetryAction": "Riprova"
+        },
+        "settings": {
+            "title": "Impostazioni",
+            "resetAction": "Reimposta impostazioni salvate",
+            "resetInfoTitle": "Riavvio dispositivo",
+            "resetInfoMessage": "Le impostazioni del dispositivo sono state cancellate e il firmware si sta riavviando.",
+            "resetError": "Si è verificato un errore durante il ripristino delle impostazioni",
+            "resetConfirmTitle": "Reimposta impostazioni salvate",
+            "resetConfirmMessage": "Cancellare le impostazioni salvate e riavviare il firmware?"
         }
     },
     "gizmo": {

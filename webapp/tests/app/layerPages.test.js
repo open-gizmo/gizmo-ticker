@@ -23,9 +23,10 @@ describe('pages of the layer', () => {
     it('lists the pages of the ticker in the navigation', async () => {
         const items = await readNavItems();
         expect(items.map(item => [item.id, item.label, item.to])).toEqual([
-            ['wifi', 'WiFi', '/wifi'],
+            ['ticker', 'Ticker', '/ticker'],
+            ['api-key', 'API Key', '/api-key'],
             ['settings', 'Settings', '/settings'],
-            ['api-key', 'API Key', '/api-key']
+            ['wifi', 'WiFi', '/wifi']
         ]);
     });
 
