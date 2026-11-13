@@ -9,7 +9,8 @@ export default defineAppConfig({
         // mDNS name of the firmware (http://gizmo-ticker.local)
         hostname: 'gizmo-ticker',
 
-        logo: '/images/logo/gizmo-ticker-icon-filled.svg',
+        logo: '/images/logo/gizmo-ticker-mark.svg',
+        logoDark: '/images/logo/gizmo-ticker-mark-dark.svg',
         homePath: '/wifi',
 
         // Pages of the dashboard, top to bottom in the sidebar and left to right in the bottom navigation ('wifi' is the page of the layer)

@@ -74,8 +74,8 @@ describe('setCryptoCoin', () => {
     // The layer shows the Gizmo Ticker logo, whatever the coin (sidebar, setup page and error page)
     it('keeps the Gizmo Ticker logo for every coin', () => {
         setCryptoCoin('kaspa');
-        expect(useAppConfig().gizmo.logo).toBe('/images/logo/gizmo-ticker-icon-filled.svg');
+        expect(useAppConfig().gizmo.logo).toBe('/images/logo/gizmo-ticker-mark.svg');
         setCryptoCoin('bitcoin');
-        expect(useAppConfig().gizmo.logo).toBe('/images/logo/gizmo-ticker-icon-filled.svg');
+        expect(useAppConfig().gizmo.logo).toBe('/images/logo/gizmo-ticker-mark.svg');
     });
 });

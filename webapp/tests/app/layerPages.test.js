@@ -43,7 +43,7 @@ describe('pages of the layer', () => {
         setCryptoCoin('kaspa');
         const wrapper = await mountSuspended(ApSetupPage);
         expect(wrapper.text()).toContain('Gizmo Ticker');
-        expect(wrapper.find('img').attributes('src')).toBe('/images/logo/gizmo-ticker-icon-filled.svg');
+        expect(wrapper.find('img').attributes('src')).toBe('/images/logo/gizmo-ticker-mark.svg');
         setCryptoCoin('bitcoin');
     });
 });
