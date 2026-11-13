@@ -1,6 +1,6 @@
 import ChartUpIcon from '@hugeicons/core-free-icons/ChartUpIcon';
+import CpuIcon from '@hugeicons/core-free-icons/CpuIcon';
 import Key01Icon from '@hugeicons/core-free-icons/Key01Icon';
-import Settings01Icon from '@hugeicons/core-free-icons/Settings01Icon';
 
 // Name, logo and pages of the app, read by the layout and the pages of the gizmo-common layer (the logo is the Gizmo Ticker one, whatever the coin)
 export default defineAppConfig({
@@ -18,7 +18,7 @@ export default defineAppConfig({
         nav: [
             { id: 'ticker', labelKey: 'nav.ticker.label', descriptionKey: 'nav.ticker.description', icon: ChartUpIcon, to: '/ticker' },
             { id: 'api-key', labelKey: 'nav.apiKey.label', descriptionKey: 'nav.apiKey.description', icon: Key01Icon, to: '/api-key' },
-            { id: 'settings', labelKey: 'nav.settings.label', descriptionKey: 'nav.settings.description', icon: Settings01Icon, to: '/settings' },
+            { id: 'device', labelKey: 'nav.device.label', descriptionKey: 'nav.device.description', icon: CpuIcon, to: '/device' },
             'wifi'
         ]
     }

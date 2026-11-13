@@ -20,13 +20,13 @@ const resetSavedSettings = async () => {
         showMessageDialog({
             type: 'info',
             icon: InformationCircleIcon,
-            title: t('pages.settings.resetInfoTitle'),
-            message: result.message || t('pages.settings.resetInfoMessage'),
+            title: t('pages.device.resetInfoTitle'),
+            message: result.message || t('pages.device.resetInfoMessage'),
             closeText: t('common.close'),
             closeButtonIcon: Cancel01Icon
         });
     } catch (error) {
-        handleBackendErrors({ error, defaultMessage: t('pages.settings.resetError'), showDialog: true });
+        handleBackendErrors({ error, defaultMessage: t('pages.device.resetError'), showDialog: true });
     } finally {
         setBusy(false);
     }
@@ -36,9 +36,9 @@ const resetSavedSettings = async () => {
 const handleResetPress = () => {
     showConfirmDialog({
         icon: RefreshIcon,
-        title: t('pages.settings.resetConfirmTitle'),
-        message: t('pages.settings.resetConfirmMessage'),
-        confirmText: t('pages.settings.resetAction'),
+        title: t('pages.device.resetConfirmTitle'),
+        message: t('pages.device.resetConfirmMessage'),
+        confirmText: t('pages.device.resetAction'),
         cancelText: t('common.cancel'),
         confirmButtonType: 'primary',
         cancelButtonType: 'secondary',
@@ -55,11 +55,11 @@ definePageMeta({
 </script>
 
 <template>
-    <GizmoPage :title="t('pages.settings.title')">
+    <GizmoPage :title="t('pages.device.title')">
         <!-- Device info, network, restart and forget network (from the gizmo-common layer, it reads the device by itself). The reset of the saved settings, the ticker's own action, joins the destructive rows at the end -->
         <GizmoDeviceCard>
             <template v-if="globalStore.configLoaded" #danger-rows>
-                <ListRow :label="t('pages.settings.resetAction')" :icon="RefreshIcon" action danger @click="handleResetPress" />
+                <ListRow :label="t('pages.device.resetAction')" :icon="RefreshIcon" action danger @click="handleResetPress" />
             </template>
         </GizmoDeviceCard>
     </GizmoPage>

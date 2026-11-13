@@ -269,13 +269,13 @@ The Nuxt app provides the browser-based device configuration interface.
 
 #### 🎨 UI System
 
-The web app now splits UI responsibilities between the shared package and the app itself.
+The web app splits UI responsibilities between the shared packages and the app itself.
 
 - `@brumaombra/ui-vintage` provides the reusable UI system.
-- `webapp/app/components/` contains app-specific pieces such as branding, crypto logos, language/theme selectors, and page intro wrappers.
-- `webapp/app/layouts/private.vue` composes the shared `DashboardShell` with app-defined navigation, branding, and toolbar controls.
-- `webapp/app/assets/main.css` imports the shared library stylesheet and then layers the app-specific crypto accent tokens on top.
-- `webapp/app/composables/useUtils.js` and `webapp/app/composables/stores/useGlobalStore.js` keep theme mode, crypto coin selection, and device-backed UI state local to the app.
+- The gizmo-common web layer provides the dashboard layout, the Wi-Fi pages, the device card, and the mock device for the Wi-Fi and device routes.
+- `webapp/app/pages/ticker.vue` is the ticker page (what the matrix shows), `webapp/app/pages/api-key.vue` the API key page, `webapp/app/pages/device.vue` holds the device card, and `webapp/app/app.config.ts` sets the name, logo and navigation for the layer.
+- `webapp/app/assets/css/main.css` imports the shared library and layer stylesheets, then layers the crypto accent colors on top.
+- `webapp/app/composables/useUtils.js` and `webapp/app/composables/stores/useGlobalStore.js` keep the crypto coin selection and the device-backed state local to the app.
 
 <a id="configuration"></a>
 ## ⚙️ Configuration

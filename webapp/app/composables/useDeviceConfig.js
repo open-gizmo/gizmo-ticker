@@ -2,7 +2,7 @@ import { getConfig } from '~/composables/useDeviceApi.js';
 import { setCryptoCoin } from '~/composables/useUtils.js';
 import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
 
-// Load the device config into the store, and remember a failure (so the settings page never saves the store defaults)
+// Load the device config into the store, and remember a failure (so the ticker page never saves the store defaults)
 export const loadDeviceConfig = async () => {
     const globalStore = useGlobalStore();
 
@@ -21,7 +21,7 @@ export const loadDeviceConfig = async () => {
         // Apply the accent of the coin set on the device
         setCryptoCoin(globalStore.value.config.cryptoCoin || 'bitcoin');
     } catch (error) {
-        // Remember the failure, so the settings page offers to try again
+        // Remember the failure, so the ticker page offers to try again
         globalStore.value.configLoadFailed = true;
         throw error;
     }

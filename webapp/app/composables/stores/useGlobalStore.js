@@ -20,6 +20,6 @@ export const useGlobalStore = () => useState('global', () => ({
     // Flag to track whether the config payload has been fetched at least once
     configLoaded: false,
 
-    // Flag set when the config couldn't be fetched (the settings page then offers to try again)
+    // Flag set when the config couldn't be fetched (the ticker page then offers to try again)
     configLoadFailed: false
 }));

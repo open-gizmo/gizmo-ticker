@@ -25,7 +25,7 @@ describe('pages of the layer', () => {
         expect(items.map(item => [item.id, item.label, item.to])).toEqual([
             ['ticker', 'Ticker', '/ticker'],
             ['api-key', 'API Key', '/api-key'],
-            ['settings', 'Settings', '/settings'],
+            ['device', 'Device', '/device'],
             ['wifi', 'WiFi', '/wifi']
         ]);
     });

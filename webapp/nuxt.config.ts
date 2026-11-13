@@ -71,7 +71,7 @@ export default defineNuxtConfig({
                 '/',
                 '/ticker',
                 '/api-key',
-                '/settings'
+                '/device'
             ]
         }
     },

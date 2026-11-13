@@ -18,8 +18,8 @@
             "label": "Chiave API",
             "description": "Inserisci la credenziale per i dati di mercato"
         },
-        "settings": {
-            "label": "Impostazioni",
+        "device": {
+            "label": "Dispositivo",
             "description": "Info del dispositivo, rete e riavvio"
         }
     },
@@ -115,8 +115,8 @@
             "loadErrorDescription": "Il dispositivo non ha risposto. Controlla che sia acceso e sulla stessa rete, poi riprova.",
             "loadRetryAction": "Riprova"
         },
-        "settings": {
-            "title": "Impostazioni",
+        "device": {
+            "title": "Dispositivo",
             "resetAction": "Reimposta impostazioni salvate",
             "resetInfoTitle": "Riavvio dispositivo",
             "resetInfoMessage": "Le impostazioni del dispositivo sono state cancellate e il firmware si sta riavviando.",

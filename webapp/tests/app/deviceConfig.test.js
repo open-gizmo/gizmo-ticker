@@ -3,7 +3,7 @@ import { readBody } from 'h3';
 import { flushPromises } from '@vue/test-utils';
 import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime';
 import TickerPage from '~/pages/ticker.vue';
-import SettingsPage from '~/pages/settings.vue';
+import DevicePage from '~/pages/device.vue';
 import ApiKeyPage from '~/pages/api-key.vue';
 import { loadDeviceConfig } from '~/composables/useDeviceConfig.js';
 import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
@@ -96,7 +96,7 @@ beforeEach(() => {
     registerDeviceEndpoints();
 });
 
-// Loading the config: the settings page may only save what the device sent
+// Loading the config: the ticker page may only save what the device sent
 describe('loadDeviceConfig', () => {
     // A loaded config replaces the store defaults
     it('loads the settings of the device', async () => {
@@ -176,7 +176,7 @@ describe('ticker page', () => {
         expect(savedBodies[0]).toMatchObject({ currentPrice: true, marketCap: true, matrixIntensity: 12, scrollSpeed: 4, formatType: 'EU' });
     });
 
-    // The device card lives on the settings page, like in every OpenGizmo app
+    // The device card lives on the device page, like in every OpenGizmo app
     it('has no device card', async () => {
         await loadDeviceConfig();
         const wrapper = await mountSuspended(TickerPage);
@@ -185,12 +185,12 @@ describe('ticker page', () => {
     });
 });
 
-// Settings page: the device card of the layer, with the ticker's reset of the saved settings
-describe('settings page', () => {
+// Device page: the device card of the layer, with the ticker's reset of the saved settings
+describe('device page', () => {
     // The device rows come from the card of the gizmo-common layer, which reads GET /api/device
     it('shows the device card with the details of the device', async () => {
         await loadDeviceConfig();
-        const wrapper = await mountSuspended(SettingsPage);
+        const wrapper = await mountSuspended(DevicePage);
         await vi.waitFor(() => expect(wrapper.text()).toContain('v2026.11.04.1'));
         expect(wrapper.text()).toContain('1d 2h 3m');
         expect(wrapper.text()).toContain('192.168.1.42');
@@ -202,7 +202,7 @@ describe('settings page', () => {
     it('shows the device card even when the settings cannot be read', async () => {
         isConfigAvailable = false;
         await loadDeviceConfig().catch(() => {});
-        const wrapper = await mountSuspended(SettingsPage);
+        const wrapper = await mountSuspended(DevicePage);
         await vi.waitFor(() => expect(findButton(wrapper, 'Restart')).toBeDefined());
         expect(wrapper.text()).not.toContain('Reset saved settings'); // It needs the settings
     });
@@ -210,7 +210,7 @@ describe('settings page', () => {
     // The reset of the settings is the ticker's own action, in the last group with the other destructive ones of the card
     it('keeps the reset of the saved settings', async () => {
         await loadDeviceConfig();
-        const wrapper = await mountSuspended(SettingsPage);
+        const wrapper = await mountSuspended(DevicePage);
         await vi.waitFor(() => expect(wrapper.text()).toContain('Reset saved settings'));
 
         // Expect the group of actions to end with the two destructive rows
@@ -222,7 +222,7 @@ describe('settings page', () => {
     it('keeps the reset of the saved settings when the device details cannot be read', async () => {
         isDeviceAvailable = false;
         await loadDeviceConfig();
-        const wrapper = await mountSuspended(SettingsPage);
+        const wrapper = await mountSuspended(DevicePage);
         await vi.waitFor(() => expect(wrapper.text()).toContain('Try again'));
         expect(wrapper.text()).toContain('Reset saved settings');
     });
@@ -230,7 +230,7 @@ describe('settings page', () => {
     // The settings form is on the ticker page
     it('has no settings form', async () => {
         await loadDeviceConfig();
-        const wrapper = await mountSuspended(SettingsPage);
+        const wrapper = await mountSuspended(DevicePage);
         await vi.waitFor(() => expect(wrapper.text()).toContain('Reset saved settings'));
         expect(wrapper.find('form').exists()).toBe(false);
     });
