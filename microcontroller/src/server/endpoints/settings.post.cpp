@@ -166,7 +166,7 @@ void setupSettingsPostRoute() {
 		applySettingsFromJson(doc.as<JsonObjectConst>(), config);
 
 		// Persist the changes before mutating runtime state
-		if (!saveDeviceConfigToStorage(config)) {
+		if (!saveSettings(config)) {
 			sendErrorResponse(request, 500, "settings_save_failed", "Failed to save settings");
 			return;
 		}

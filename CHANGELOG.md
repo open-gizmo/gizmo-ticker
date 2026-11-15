@@ -4,6 +4,8 @@ What changed in each release. New notes go under **Unreleased** while the work i
 
 ## Unreleased
 
+- The ticker describes itself to AI agents: a Markdown guide at `http://gizmo-ticker.local/llms.txt` explains what it shows and how to read its settings, with its address filled in. Flash the new firmware to get it.
+
 ## v1.2.1 - 2026-11-14
 
 - The **Device** tab shows the address that opens the device (`gizmo-ticker.local`). It showed the Wi-Fi's default name (`esp32s3-XXXXXX.local`), which doesn't open it.

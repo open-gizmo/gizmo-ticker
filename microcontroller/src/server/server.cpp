@@ -15,6 +15,7 @@ void setupRoutes() {
 	setupConfigGetRoute();
 	setupSettingsPostRoute();
 	setupResetSettingsPostRoute();
+	setupAgentGuideRoute();
 	setupCaptivePortalRoute();
 }
 

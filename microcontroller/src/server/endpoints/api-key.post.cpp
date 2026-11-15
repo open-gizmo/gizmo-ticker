@@ -57,7 +57,7 @@ void setupApiKeyPostRoute() {
 		// Save the new API key before applying it
 		DeviceConfig config = getDeviceConfig();
 		gizmo::copyString(config.apiKey, doc["apiKey"].as<const char*>(), sizeof(config.apiKey));
-		if (!saveDeviceConfigToStorage(config)) {
+		if (!saveSettings(config)) {
 			sendErrorResponse(request, 500, "api_key_save_failed", "Failed to save the API key");
 			return;
 		}

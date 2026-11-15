@@ -16,7 +16,11 @@ void setupApiKeyPostRoute();
 void setupConfigGetRoute();
 void setupSettingsPostRoute();
 void setupResetSettingsPostRoute();
+void setupAgentGuideRoute();
 void setupCaptivePortalRoute();
+
+// Send the guide for AI agents (Markdown)
+void sendAgentGuide(AsyncWebServerRequest *request);
 
 // Server setup
 void setupRoutes();

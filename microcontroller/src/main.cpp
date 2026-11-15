@@ -15,7 +15,7 @@ void setup() {
 
 	// Factory reset: hold the BOOT button for 10 s to forget the Wi-Fi and the settings
 	gizmo::FactoryResetOptions resetOptions;
-	resetOptions.clearSettings = [] { clearStoredDeviceConfig(); };
+	resetOptions.clearSettings = [] { clearSettings(); };
 	gizmo::setupFactoryReset(resetOptions);
 	manageWiFiConnection(); // Manage the WiFi connection
 	setupWebClient(); // Setup web client

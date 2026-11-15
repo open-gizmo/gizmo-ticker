@@ -71,7 +71,7 @@ static bool migrateLegacySettings() {
 	// Read them with the current defaults for what the old release did not have, then save them under the new namespace
 	const DeviceConfig config = loadDeviceConfig(legacy, getDeviceConfig());
 	legacy.end();
-	if (!saveDeviceConfigToStorage(config)) {
+	if (!saveSettings(config)) {
 		printLogln("Failed to move the settings of the older release");
 		return false;
 	}
@@ -105,7 +105,7 @@ void setupStorage() {
 }
 
 // Save the settings (NVS skips values that didn't change)
-bool saveDeviceConfigToStorage(const DeviceConfig &config) {
+bool saveSettings(const DeviceConfig &config) {
 	Preferences preferences;
 	if (!preferences.begin(STORAGE_NAMESPACE, false)) {
 		return false;
@@ -134,7 +134,7 @@ bool saveDeviceConfigToStorage(const DeviceConfig &config) {
 }
 
 // Remove all stored settings (the defaults apply after the next boot)
-bool clearStoredDeviceConfig() {
+bool clearSettings() {
 	Preferences preferences;
 	if (!preferences.begin(STORAGE_NAMESPACE, false)) {
 		return false;

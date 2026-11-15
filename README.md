@@ -94,6 +94,7 @@ Behind the scenes, the firmware and web app stay aligned through the same settin
 - English and Italian localization with browser language detection.
 - Captive-portal setup flow in AP mode and `gizmo-ticker.local` hostname access after joining WiFi. The API only answers the dashboard's own page, under the ticker's own name or address, and through the setup hotspot only the Wi-Fi setup.
 - Factory reset: hold the board's BOOT button for 10 seconds while it runs to forget the Wi-Fi and the settings, and start again from the setup hotspot.
+- A Markdown guide for AI agents at `/llms.txt`, describing the ticker and its API with its address filled in.
 
 <a id="architecture"></a>
 ## 🏗️ Architecture
@@ -227,6 +228,7 @@ The firmware is split into focused modules under `microcontroller/src/`:
 
 - 📡 `api/` handles market data fetching (`market_refresh.*` decides when to fetch, `market_data.*` reads the CoinGecko reply).
 - ⚙️ `config/` centralizes settings, defaults, and validation.
+- 📖 `guide/` writes the Markdown guide for AI agents (`agent_guide.*`), hardware-free.
 - 📺 `matrix/` manages LED output and scrolling text.
 - 🌐 `server/` exposes the embedded HTTP routes (`settings_json.*` maps the settings to and from the API JSON).
 - 💾 `storage/` stores settings in flash with `Preferences`.
@@ -234,7 +236,7 @@ The firmware is split into focused modules under `microcontroller/src/`:
 
 ### 🧪 Tests
 
-The hardware-free logic (the settings format of the web API, when to fetch the market data, and how its reply is read) is tested on your computer, no board needed:
+The hardware-free logic (the settings format of the web API, when to fetch the market data, how its reply is read, and the guide for agents) is tested on your computer, no board needed:
 
 ```bash
 cd microcontroller
@@ -304,6 +306,10 @@ The main adjustable values are:
 - scroll speed
 - WiFi credentials
 - API key for market data requests
+
+### Guide for AI agents
+
+The ticker describes itself in Markdown for agents that read before they connect: what it does, its HTTP API and tips, with the address the agent used already filled in. It is served at `/llms.txt`, at `/` to clients whose `Accept` header asks for `text/markdown` before `text/html` (browsers still get the web app), and every page of the web app links to it with `<link rel="alternate" type="text/markdown">`.
 
 ### Firmware Defaults
 
