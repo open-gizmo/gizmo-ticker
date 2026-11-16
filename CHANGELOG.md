@@ -5,7 +5,7 @@ What changed in each release. New notes go under **Unreleased** while the work i
 ## Unreleased
 
 - The ticker describes itself to AI agents: a Markdown guide at `http://gizmo-ticker.local/llms.txt` explains what it shows and how to read its settings, with its address filled in. Flash the new firmware to get it.
-- New enclosure look: round screw ears at the corners, like the other OpenGizmo gadgets, and a thinner 6 mm frame around the LEDs. It's a bit smaller (152.1 x 52.1 mm instead of 153.6 x 53.6) and stands on its two bottom ears instead of the rails. The four M3 x 8 screws go through the ears, outside the body, and sit flush in the back plate. The parts inside and the wiring are the same, so there's nothing to flash or rewire: print the new shell and back plate only if you want the new look.
+- New enclosure look: round screw ears at the corners that flow into the body with soft curves, like the other OpenGizmo gadgets, and a thinner 6 mm frame around the LEDs. It's a bit smaller (152.1 x 52.1 mm instead of 153.6 x 53.6) and stands on its two bottom ears instead of the rails. The four M3 x 8 screws go through the ears, outside the body, and sit flush in the back plate. The parts inside and the wiring are the same, so there's nothing to flash or rewire: print the new shell and back plate only if you want the new look.
 
 ## v1.2.1 - 2026-11-14
 
