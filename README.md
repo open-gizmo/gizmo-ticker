@@ -12,7 +12,7 @@ Gizmo Ticker is a two-part project for building a WiFi-connected cryptocurrency 
 
 <p>
   <a href="https://github.com/open-gizmo/gizmo-ticker"><img alt="GitHub Repo" src="https://img.shields.io/badge/github-open--gizmo%2Fgizmo--ticker-111111?logo=github"></a>
-  <img alt="ESP32" src="https://img.shields.io/badge/esp32-ESP32-E7352C?logo=espressif&logoColor=white">
+  <img alt="ESP32-S3" src="https://img.shields.io/badge/esp32-ESP32--S3-E7352C?logo=espressif&logoColor=white">
   <img alt="PlatformIO" src="https://img.shields.io/badge/platformio-PlatformIO-FF6B35?logo=platformio&logoColor=white">
   <img alt="Nuxt 4" src="https://img.shields.io/badge/nuxt-4-00DC82?logo=nuxt&logoColor=white">
   <img alt="License MIT" src="https://img.shields.io/badge/license-MIT-2563EB">
