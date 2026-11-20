@@ -3,7 +3,7 @@
 // Fetch the full saved device config
 export const getConfig = async () => {
     const response = await fetchEsp('/api/config');
-    return response.data || {};
+    return readData(response);
 };
 
 // Persist the current device settings
@@ -24,7 +24,7 @@ export const resetSettings = async () => {
     const response = await fetchEsp('/api/reset-settings', { method: 'POST' });
 
     // Return the response data
-    return response.data || {};
+    return readData(response);
 };
 
 // Save the market data API key on the device
