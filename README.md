@@ -4,7 +4,7 @@
 
 ### A real-time crypto display for ESP32 and MAX7219
 
-Gizmo Ticker is a two-part project for building a WiFi-connected cryptocurrency display with an ESP32 microcontroller, a MAX7219 LED matrix, and a Nuxt 4 web app for configuration.
+Gizmo Ticker is a two-part project for building a Wi-Fi-connected cryptocurrency display with an ESP32 microcontroller, a MAX7219 LED matrix, and a Nuxt 4 web app for configuration.
 
 <p>
   <a href="https://opengizmo.dev/projects/gizmo-ticker"><img alt="The Gizmo Ticker in its white and orange printed enclosure, with a price lit on the LED matrix, and pulled apart into the shell, the MAX7219 matrix, the XIAO ESP32-S3, the back plate and four M3 screws" src="docs/enclosure-render.webp" width="800"></a>
@@ -19,7 +19,7 @@ Gizmo Ticker is a two-part project for building a WiFi-connected cryptocurrency 
 </p>
 
 <p>
-  📡 WiFi-connected ticker • 📺 MAX7219 LED matrix output • 🎛️ Web-based setup and settings • 🌍 EN/IT UI • ⚡ Lightweight Nuxt UI
+  📡 Wi-Fi-connected ticker • 📺 MAX7219 LED matrix output • 🎛️ Web-based setup and settings • 🌍 EN/IT UI • ⚡ Lightweight Nuxt UI
 </p>
 
 <p>
@@ -77,7 +77,7 @@ Behind the scenes, the firmware and web app stay aligned through the same settin
 		</tr>
 	</table>
 	<p>
-		<sub>WiFi setup, settings, API key, and full app preview screens</sub>
+		<sub>Wi-Fi setup, settings, API key, and full app preview screens</sub>
 	</p>
 </div>
 
@@ -86,13 +86,13 @@ Behind the scenes, the firmware and web app stay aligned through the same settin
 ## ✨ Features
 
 - Live cryptocurrency data on a MAX7219 LED matrix.
-- ESP32 firmware with WiFi setup, settings stored in flash, and embedded HTTP configuration.
-- Web-based configuration for WiFi credentials, API key, and display settings.
+- ESP32 firmware with Wi-Fi setup, settings stored in flash, and embedded HTTP configuration.
+- Web-based configuration for Wi-Fi credentials, API key, and display settings.
 - Adjustable scroll speed, selected metrics, and matrix behavior.
 - Nuxt 4 interface that mirrors the firmware configuration flow.
 - `@brumaombra/ui-vintage` UI system shared across layout, forms, dialogs, and overlays.
 - English and Italian localization with browser language detection.
-- Captive-portal setup flow in AP mode and `gizmo-ticker.local` hostname access after joining WiFi. The API only answers the dashboard's own page, under the ticker's own name or address, and through the setup hotspot only the Wi-Fi setup.
+- Captive-portal setup flow in AP mode and `gizmo-ticker.local` hostname access after joining Wi-Fi. The API only answers the dashboard's own page, under the ticker's own name or address, and through the setup hotspot only the Wi-Fi setup.
 - Factory reset: hold the board's BOOT button for 10 seconds while it runs to forget the Wi-Fi and the settings, and start again from the setup hotspot.
 - A Markdown guide for AI agents at `/llms.txt`, describing the ticker and its API with its address filled in.
 
@@ -101,7 +101,7 @@ Behind the scenes, the firmware and web app stay aligned through the same settin
 
 Gizmo Ticker is built around three cooperating parts:
 
-- 🔌 **ESP32 firmware** handles WiFi, data fetching, settings storage, and the embedded HTTP server.
+- 🔌 **ESP32 firmware** handles Wi-Fi, data fetching, settings storage, and the embedded HTTP server.
 - 📺 **MAX7219 LED matrix** displays the live crypto ticker output.
 - 🌐 **Nuxt web app** provides the browser-based setup and configuration interface with theme, language, and shared UI-system support.
 
@@ -214,13 +214,13 @@ On the XIAO, the pads next to `5V` and `GND` follow the order of the module inpu
 
 The firmware is responsible for the runtime behavior of the physical ticker.
 
-- Connects the ESP32 to WiFi.
+- Connects the ESP32 to Wi-Fi.
 - Persists settings in flash with `Preferences` (one key per setting).
 - Hosts the embedded HTTP server.
 - Fetches and parses cryptocurrency market data.
 - Renders scrolling text to the MAX7219 matrix.
 - Serves the embedded web UI assets.
-- Keeps AP setup available during onboarding and exposes `gizmo-ticker.local` on supported networks after joining WiFi.
+- Keeps AP setup available during onboarding and exposes `gizmo-ticker.local` on supported networks after joining Wi-Fi.
 
 ### 🧩 Firmware Layers
 
@@ -261,7 +261,7 @@ Logging, number formatting, the web API helpers and the whole Wi-Fi setup (conne
 The Nuxt app provides the browser-based device configuration interface.
 
 - Mirrors the firmware settings model.
-- Lets users configure WiFi and API credentials.
+- Lets users configure Wi-Fi and API credentials.
 - Controls display behavior and matrix preferences.
 - Supports English and Italian localization.
 - Uses the `@brumaombra/ui-vintage` package for the shared design system.
@@ -304,7 +304,7 @@ The main adjustable values are:
 - the number formatting style (`US` or `EU`)
 - matrix intensity
 - scroll speed
-- WiFi credentials
+- Wi-Fi credentials
 - API key for market data requests
 
 ### Guide for AI agents
@@ -352,11 +352,11 @@ The workflow only runs on `main`, and needs these secrets, on the repository or 
 ## 🧰 Troubleshooting
 
 - The LED matrix powers on but shows no text: verify the MAX7219 wiring against the pinout above, check that the matrix is using the `FC16_HW` layout, and that the number of modules in the settings matches the display.
-- The web UI does not open after joining WiFi: make sure the ESP32 is connected to the same network and try the `gizmo-ticker.local` hostname if your router supports mDNS.
-- The ticker does not update with new prices: confirm the WiFi credentials and the market data API key are saved correctly in the setup flow.
+- The web UI does not open after joining Wi-Fi: make sure the ESP32 is connected to the same network and try the `gizmo-ticker.local` hostname if your router supports mDNS.
+- The ticker does not update with new prices: confirm the Wi-Fi credentials and the market data API key are saved correctly in the setup flow.
 - The matrix shows `Prices from N min ago` before the prices: the last fetches failed for more than 12 minutes, so the prices on screen are old. The rest of the message says why (for example a wrong API key or no internet). Saving a new API key fetches again right away.
 - The display scrolls too fast or too slow: adjust the scroll speed in the web configuration and rebuild the embedded assets if needed.
-- The AP setup flow never appears: power-cycle the device and check the firmware logs for WiFi connection errors or saved configuration issues.
+- The AP setup flow never appears: power-cycle the device and check the firmware logs for Wi-Fi connection errors or saved configuration issues.
 
 <a id="license"></a>
 ## 📄 License
