@@ -17,7 +17,7 @@ void setup() {
 	gizmo::FactoryResetOptions resetOptions;
 	resetOptions.clearSettings = [] { clearSettings(); };
 	gizmo::setupFactoryReset(resetOptions);
-	manageWiFiConnection(); // Manage the WiFi connection
+	manageWiFiConnection(); // Manage the Wi-Fi connection
 	setupWebClient(); // Setup web client
 	setupLedMatrix(); // Setup LED matrix
 }
@@ -27,7 +27,7 @@ void loop() {
 	// Restart the device if the web server asked for it
 	gizmo::manageDevice();
 
-	// Manage the WiFi connection
+	// Manage the Wi-Fi connection
 	manageWiFiConnection();
 
 	// Wait until the current matrix animation cycle finishes before preparing the next message
