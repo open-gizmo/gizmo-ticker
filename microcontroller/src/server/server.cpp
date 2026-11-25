@@ -10,7 +10,7 @@
 // Setup routes
 void setupRoutes() {
 	// Setup the routes (the device details, restart and forget network routes come from gizmo-common)
-	gizmo::setupDeviceApi(server, { "Gizmo Ticker", PIO_FIRMWARE_VERSION });
+	gizmo::setupDeviceApi(server, { PROJECT_NAME, PIO_FIRMWARE_VERSION });
 	setupApiKeyPostRoute();
 	setupConfigGetRoute();
 	setupSettingsPostRoute();

@@ -7,6 +7,9 @@
 #include <WiFi.h>
 #include "device_config.h"
 
+// Project name, shown by the device API
+constexpr const char *PROJECT_NAME = "Gizmo Ticker";
+
 // Hardware configuration
 constexpr MD_MAX72XX::moduleType_t HARDWARE_TYPE = MD_MAX72XX::FC16_HW;
 constexpr uint16_t BUF_SIZE = 250; // Buffer length
