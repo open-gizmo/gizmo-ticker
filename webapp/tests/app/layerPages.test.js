@@ -26,7 +26,7 @@ describe('pages of the layer', () => {
             ['ticker', 'Ticker', '/ticker'],
             ['api-key', 'API Key', '/api-key'],
             ['device', 'Device', '/device'],
-            ['wifi', 'WiFi', '/wifi']
+            ['wifi', 'Wi-Fi', '/wifi']
         ]);
     });
 

@@ -175,7 +175,7 @@ void test_data_age_is_in_whole_minutes() {
 void test_data_age_works_across_clock_rollover() {
 	const uint32_t fetchedAt = UINT32_MAX - 60000;
 	runFetch(true, fetchedAt);
-	TEST_ASSERT_EQUAL_UINT32(13, getMarketDataAgeMinutes(schedule, fetchedAt + 13 * 60000UL));
+	TEST_ASSERT_EQUAL_UINT32(13, getMarketDataAgeMinutes(schedule, fetchedAt + 13 * 60000U));
 	TEST_ASSERT_TRUE(isMarketDataStale(schedule, fetchedAt + MARKET_STALE_AFTER_MS));
 }
 

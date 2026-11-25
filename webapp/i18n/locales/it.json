@@ -26,7 +26,6 @@
     "dialogs": {
         "successTitle": "Successo"
     },
-    "errors": {},
     "api": {
         "backendErrors": {
             "clear_settings_failed": "Il dispositivo non è riuscito a reimpostare le impostazioni salvate. Riprova.",

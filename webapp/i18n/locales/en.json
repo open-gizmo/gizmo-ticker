@@ -26,7 +26,6 @@
     "dialogs": {
         "successTitle": "Success"
     },
-    "errors": {},
     "api": {
         "backendErrors": {
             "clear_settings_failed": "The device could not reset the saved settings. Please try again.",
